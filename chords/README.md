@@ -11,3 +11,5 @@ Features:
 - Select all / clear all chord type buttons
 - Inversion selection: root position, first inversion, second inversion, third inversion
 - Low chords rendered in bass clef
+
+- theory-aware enharmonic spelling added for chord notation: dominant sevenths, diminished sevenths, augmented chords, and altered fifth/seventh tones

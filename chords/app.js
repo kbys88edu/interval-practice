@@ -163,6 +163,14 @@ function buildChordVoicing(rootMidi, intervals, inversion) {
   return lowerPart.concat(raisedPart);
 }
 
+function buildChordToneIndices(intervals, inversion) {
+  const rootPosition = intervals.map((_, index) => index);
+  const lowerPart = rootPosition.slice(inversion);
+  const raisedPart = rootPosition.slice(0, inversion);
+  return lowerPart.concat(raisedPart);
+}
+
+
 function newQuestion() {
   const selectedChords = getSelectedChords();
 
@@ -192,8 +200,9 @@ function newQuestion() {
   rootMidiNotes.forEach((rootMidi) => {
     validInversions.forEach((inversion) => {
       const midiNotes = buildChordVoicing(rootMidi, chord.intervals, inversion);
+      const toneIndices = buildChordToneIndices(chord.intervals, inversion);
       if (Math.max(...midiNotes) <= MAX_TREBLE_MIDI) {
-        playableVoicings.push({ rootMidi, inversion, midiNotes });
+        playableVoicings.push({ rootMidi, inversion, midiNotes, toneIndices });
       }
     });
   });
@@ -207,6 +216,7 @@ function newQuestion() {
   const rootMidi = voicing.rootMidi;
   const inversion = voicing.inversion;
   const midiNotes = voicing.midiNotes;
+  const toneIndices = voicing.toneIndices;
 
   currentQuestion = {
     number: totalCount + 1,
@@ -214,7 +224,8 @@ function newQuestion() {
     mode: getMode(),
     rootMidi,
     inversion,
-    midiNotes
+    midiNotes,
+    toneIndices
   };
 
   hasAnsweredCurrentQuestion = false;
@@ -425,6 +436,8 @@ function answer(chordId) {
     inversion: currentQuestion.inversion,
     inversionLabel: inversionLabels[currentQuestion.inversion],
     midiNotes: currentQuestion.midiNotes,
+    toneIndices: currentQuestion.toneIndices,
+    chordId: currentQuestion.chord.id,
     chordName: currentQuestion.chord.name,
     chordSymbol: currentQuestion.chord.symbol,
     selectedName: selectedChord?.name || "",
@@ -487,6 +500,29 @@ function resetScore() {
   setStatus(t("スコアと履歴をリセットしました。"));
 }
 
+
+function spelledDisplayName(midi, rootMidi, chordId, toneIndex) {
+  const rootLetter = rootLetterFromMidi(rootMidi);
+  const plan = chordSpellingPlans[chordId]?.[toneIndex];
+
+  if (!plan) {
+    return midiToToneNote(midi);
+  }
+
+  const rootLetterIndex = letterOrder.indexOf(rootLetter);
+  const letter = letterOrder[(rootLetterIndex + plan.step) % 7];
+  const naturalPc = naturalPitchClasses[letter];
+  const expectedPc = mod12(naturalPc + plan.alt);
+
+  if (expectedPc !== mod12(midi)) {
+    return midiToToneNote(midi);
+  }
+
+  const accidental = plan.alt === 2 ? "𝄪" : plan.alt === 1 ? "♯" : plan.alt === -1 ? "♭" : plan.alt === -2 ? "𝄫" : "";
+  const octave = Math.floor(midi / 12) - 1;
+  return `${letter}${accidental}${octave}`;
+}
+
 function showAnswerAndNotation() {
   if (!currentQuestion) {
     setStatus(t("先に NEW を押してください。"), "incorrect");
@@ -495,7 +531,9 @@ function showAnswerAndNotation() {
 
   const modeLabel = getModeLabel(currentQuestion.mode);
   const rootName = midiToToneNote(currentQuestion.rootMidi);
-  const noteNames = currentQuestion.midiNotes.map(midiToToneNote).join(" - ");
+  const noteNames = currentQuestion.midiNotes
+    .map((midi, index) => spelledDisplayName(midi, currentQuestion.rootMidi, currentQuestion.chord.id, currentQuestion.toneIndices[index]))
+    .join(" - ");
 
   answerText.textContent = `正解：${rootName}${currentQuestion.chord.symbol} / ${currentQuestion.chord.name} / ${inversionLabels[currentQuestion.inversion]} / ${modeLabel} / ${noteNames}`;
 
@@ -534,7 +572,15 @@ function formatResponseTime(value) {
 }
 
 function buildAbcNotation(question) {
-  const notes = question.midiNotes.map(midiToAbc);
+  const notes = question.midiNotes.map((midi, index) => {
+    return midiToAbcChordTone(
+      midi,
+      question.rootMidi,
+      question.chord?.id || question.chordId,
+      question.toneIndices?.[index] ?? index
+    );
+  });
+
   const clef = getClefForQuestion(question);
   let body = "";
 
@@ -580,18 +626,124 @@ function midiToToneNote(midi) {
   return `${names[pc]}${octave}`;
 }
 
-function midiToAbc(midi) {
-  const names = ["C", "_D", "D", "_E", "E", "F", "^F", "G", "_A", "A", "_B", "B"];
-  const pc = ((midi % 12) + 12) % 12;
-  const octave = Math.floor(midi / 12) - 1;
-  let name = names[pc];
+const naturalPitchClasses = {
+  C: 0,
+  D: 2,
+  E: 4,
+  F: 5,
+  G: 7,
+  A: 9,
+  B: 11
+};
 
-  if (octave === 4) return name;
-  if (octave === 5) return name.toLowerCase();
-  if (octave === 3) return name + ",";
-  if (octave > 5) return name.toLowerCase() + "'".repeat(octave - 5);
-  if (octave < 3) return name + ",".repeat(4 - octave);
+const letterOrder = ["C", "D", "E", "F", "G", "A", "B"];
+
+const chordSpellingPlans = {
+  maj:    [{ step: 0, alt: 0 }, { step: 2, alt: 0 }, { step: 4, alt: 0 }],
+  min:    [{ step: 0, alt: 0 }, { step: 2, alt: -1 }, { step: 4, alt: 0 }],
+  dim:    [{ step: 0, alt: 0 }, { step: 2, alt: -1 }, { step: 4, alt: -1 }],
+  aug:    [{ step: 0, alt: 0 }, { step: 2, alt: 0 }, { step: 4, alt: 1 }],
+
+  maj7:   [{ step: 0, alt: 0 }, { step: 2, alt: 0 }, { step: 4, alt: 0 }, { step: 6, alt: 0 }],
+  "7":    [{ step: 0, alt: 0 }, { step: 2, alt: 0 }, { step: 4, alt: 0 }, { step: 6, alt: -1 }],
+  min7:   [{ step: 0, alt: 0 }, { step: 2, alt: -1 }, { step: 4, alt: 0 }, { step: 6, alt: -1 }],
+  mMaj7:  [{ step: 0, alt: 0 }, { step: 2, alt: -1 }, { step: 4, alt: 0 }, { step: 6, alt: 0 }],
+  m7b5:   [{ step: 0, alt: 0 }, { step: 2, alt: -1 }, { step: 4, alt: -1 }, { step: 6, alt: -1 }],
+  dim7:   [{ step: 0, alt: 0 }, { step: 2, alt: -1 }, { step: 4, alt: -1 }, { step: 6, alt: -2 }],
+
+  sus4:   [{ step: 0, alt: 0 }, { step: 3, alt: 0 }, { step: 4, alt: 0 }],
+  sus2:   [{ step: 0, alt: 0 }, { step: 1, alt: 0 }, { step: 4, alt: 0 }],
+  add9:   [{ step: 0, alt: 0 }, { step: 2, alt: 0 }, { step: 4, alt: 0 }, { step: 1, alt: 0 }],
+  minAdd9:[{ step: 0, alt: 0 }, { step: 2, alt: -1 }, { step: 4, alt: 0 }, { step: 1, alt: 0 }]
+};
+
+function midiToAbcChordTone(midi, rootMidi, chordId, toneIndex) {
+  // Theory-aware chord spelling.
+  // Example: E7 is E-G#-B-D, not E-Ab-B-D.
+  // Example: B7 is B-D#-F#-A, not B-Eb-Gb-A.
+  // Example: Cdim7 is C-Eb-Gb-Bbb, not C-Eb-F#-A.
+  const rootLetter = rootLetterFromMidi(rootMidi);
+  const plan = chordSpellingPlans[chordId]?.[toneIndex];
+
+  if (!plan) {
+    return midiToAbcAbsolute(midi);
+  }
+
+  const rootLetterIndex = letterOrder.indexOf(rootLetter);
+  const letter = letterOrder[(rootLetterIndex + plan.step) % 7];
+  const naturalPc = naturalPitchClasses[letter];
+  const expectedPc = mod12(naturalPc + plan.alt);
+  const actualPc = mod12(midi);
+
+  // If the expected spelling does not match the sounded pitch because of an unexpected
+  // voicing or future chord type, fall back to absolute pitch instead of showing a false note.
+  if (expectedPc !== actualPc) {
+    return midiToAbcAbsolute(midi);
+  }
+
+  return abcWithLetterAndAccidental(midi, letter, plan.alt);
+}
+
+function rootLetterFromMidi(rootMidi) {
+  const map = {
+    0: "C",
+    2: "D",
+    4: "E",
+    5: "F",
+    7: "G",
+    9: "A",
+    11: "B"
+  };
+  return map[mod12(rootMidi)] || "C";
+}
+
+function abcWithLetterAndAccidental(midi, letter, accidental) {
+  let prefix = "";
+  if (accidental === 1) prefix = "^";
+  if (accidental === 2) prefix = "^^";
+  if (accidental === -1) prefix = "_";
+  if (accidental === -2) prefix = "__";
+  return `${prefix}${abcLetterWithOctave(midi, letter)}`;
+}
+
+function abcLetterWithOctave(midi, letter) {
+  // ABC octave mapping:
+  // MIDI 60 = C4 = middle C = C
+  // MIDI 72 = C5 = c
+  // MIDI 48 = C3 = C,
+  const octave = Math.floor(midi / 12) - 1;
+  let name = letter;
+
+  if (octave >= 5) {
+    name = letter.toLowerCase() + "'".repeat(octave - 5);
+  } else if (octave <= 3) {
+    name = letter + ",".repeat(4 - octave);
+  }
+
   return name;
+}
+
+function midiToAbcAbsolute(midi) {
+  const names = ["C", "^C", "D", "^D", "E", "F", "^F", "G", "^G", "A", "^A", "B"];
+  const pc = ((midi % 12) + 12) % 12;
+  return abcWithRawNameAndOctave(midi, names[pc]);
+}
+
+function abcWithRawNameAndOctave(midi, rawName) {
+  const octave = Math.floor(midi / 12) - 1;
+  let name = rawName;
+
+  if (octave >= 5) {
+    name = rawName.toLowerCase() + "'".repeat(octave - 5);
+  } else if (octave <= 3) {
+    name = rawName + ",".repeat(4 - octave);
+  }
+
+  return name;
+}
+
+function midiToAbc(midi) {
+  return midiToAbcAbsolute(midi);
 }
 
 async function exportResultsPdf() {
@@ -664,7 +816,10 @@ async function exportResultsPdf() {
 
       const abc = buildAbcNotation({
         mode: item.mode,
-        midiNotes: item.midiNotes
+        midiNotes: item.midiNotes,
+        toneIndices: item.toneIndices,
+        rootMidi: item.rootMidi,
+        chordId: item.chordId
       });
 
       const notationImage = await renderAbcToPngDataUrl(abc);
