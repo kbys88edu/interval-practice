@@ -790,3 +790,64 @@ input[type="text"] {
   background: var(--ink, #2b2b2b);
   color: var(--bg, #dedede);
 }
+
+
+/* Compact one-screen notation layout */
+.notation,
+.choice-notation {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #ffffff;
+}
+
+.notation svg,
+.choice-notation svg {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  max-width: 100%;
+}
+
+.choice-list {
+  gap: 6px;
+}
+
+.choice-card {
+  min-height: 0;
+}
+
+@media (min-width: 761px) {
+  .screen {
+    padding-top: 18px;
+    padding-bottom: 18px;
+    gap: 10px;
+  }
+
+  .brand-zone {
+    gap: 6px;
+  }
+
+  .workbench {
+    gap: 12px;
+  }
+
+  .bottom-area {
+    gap: 12px;
+  }
+}
+
+
+/* More centered notation on desktop */
+@media (min-width: 761px) {
+  .notation {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .notation svg {
+    margin-left: auto;
+    margin-right: auto;
+  }
+}

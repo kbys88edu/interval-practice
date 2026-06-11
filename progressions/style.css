@@ -648,3 +648,225 @@ select {
     font-size: 0.68rem;
   }
 }
+
+
+/* Compact one-screen notation layout */
+.notation,
+.choice-notation {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #ffffff;
+}
+
+.notation svg,
+.choice-notation svg {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  max-width: 100%;
+}
+
+.choice-list {
+  gap: 6px;
+}
+
+.choice-card {
+  min-height: 0;
+}
+
+@media (min-width: 761px) {
+  .screen {
+    padding-top: 18px;
+    padding-bottom: 18px;
+    gap: 10px;
+  }
+
+  .brand-zone {
+    gap: 6px;
+  }
+
+  .workbench {
+    gap: 12px;
+  }
+
+  .bottom-area {
+    gap: 12px;
+  }
+}
+
+
+/* Progression one-screen notation and choices */
+@media (min-width: 761px) {
+  .screen {
+    min-height: 100vh;
+    height: 100vh;
+    grid-template-rows: 34px 82px minmax(0, 1fr) 132px;
+    overflow: hidden;
+  }
+
+  .topbar {
+    grid-template-columns: 130px 1fr 700px;
+  }
+
+  .big-mark {
+    font-size: clamp(42px, 5.2vw, 58px);
+  }
+
+  .brand-line {
+    height: 9px;
+  }
+
+  .brand-sub {
+    font-size: 0.56rem;
+  }
+
+  .workbench {
+    min-height: 0;
+    grid-template-columns: 208px 1fr;
+  }
+
+  .config-panel {
+    padding: 10px;
+    gap: 12px;
+  }
+
+  .mode-stack {
+    gap: 5px;
+    font-size: 0.72rem;
+  }
+
+  .field {
+    gap: 5px;
+  }
+
+  .main-panel {
+    padding: 10px;
+    min-height: 0;
+  }
+
+  .main-grid {
+    grid-template-columns: 0.78fr 1.36fr;
+    gap: 12px;
+    min-height: 0;
+  }
+
+  .quiz-center {
+    gap: 8px;
+    grid-template-rows: minmax(110px, 1fr) auto auto;
+    min-height: 0;
+  }
+
+  .display-card {
+    padding: 10px;
+    min-height: 112px;
+  }
+
+  .question-display {
+    font-size: clamp(32px, 4.2vw, 48px);
+  }
+
+  .status {
+    font-size: 0.7rem;
+    min-height: 2.2em;
+    margin-top: 6px;
+  }
+
+  .button-row {
+    gap: 5px;
+  }
+
+  .button-row button {
+    padding-top: 0.48rem;
+    padding-bottom: 0.48rem;
+  }
+
+  .score-strip {
+    gap: 5px;
+  }
+
+  .score-strip div,
+  .score-strip button {
+    min-height: 38px;
+    padding: 5px 6px;
+  }
+
+  .score-strip span {
+    font-size: 0.52rem;
+    margin-bottom: 2px;
+  }
+
+  .score-strip strong {
+    font-size: 0.9rem;
+  }
+
+  .choice-list {
+    margin-top: 8px;
+    gap: 8px;
+  }
+
+  .choice-card {
+    padding: 9px 10px;
+    grid-template-columns: 32px 1fr;
+    gap: 8px;
+  }
+
+  .choice-label {
+    font-size: 1.15rem;
+  }
+
+  .choice-main {
+    gap: 3px;
+  }
+
+  .choice-roman {
+    font-size: clamp(1.15rem, 1.65vw, 1.55rem);
+  }
+
+  .choice-meta {
+    font-size: 0.62rem;
+  }
+
+  .bottom-area {
+    min-height: 0;
+    grid-template-columns: 1.15fr 0.85fr;
+  }
+
+  .notation-card,
+  .history-card {
+    padding: 8px 10px;
+    min-height: 0;
+  }
+
+  .answer-text,
+  .analysis-text {
+    margin: 5px 0 0;
+    min-height: 14px;
+    font-size: 0.68rem;
+  }
+
+  .notation {
+    height: 72px;
+  }
+
+  .notation svg {
+    max-height: 72px;
+  }
+
+  .history-list {
+    height: 88px;
+    font-size: 0.64rem;
+  }
+
+  .history-item {
+    grid-template-columns: 26px 1fr 44px;
+    gap: 6px;
+  }
+}
+
+@media (max-width: 760px) {
+  .notation svg {
+    min-width: 0;
+    max-width: 100%;
+  }
+}

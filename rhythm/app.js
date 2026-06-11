@@ -202,7 +202,7 @@ function renderChoices() {
     choiceList.appendChild(card);
 
     requestAnimationFrame(() => {
-      renderAbc(`choice-notation-${index}`, buildAbc(choice), 360);
+      renderAbc(`choice-notation-${index}`, buildAbc(choice), 300);
     });
   });
 }
@@ -361,7 +361,7 @@ function showAnswer() {
 
   answerText.textContent = `正解：${currentQuestion.correct.meter} / ${currentQuestion.correct.label}`;
   analysisText.textContent = `3つの選択肢はすべて ${currentQuestion.correct.meter} です。`;
-  renderAbc("notation", buildAbc(currentQuestion.correct), 680);
+  renderAbc("notation", buildAbc(currentQuestion.correct), 560);
 }
 
 function buildAbc(pattern) {

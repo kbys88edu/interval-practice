@@ -365,7 +365,7 @@ function renderNotation() {
   const abc = buildAbc(currentQuestion);
   ABCJS.renderAbc("notation", abc, {
     responsive: "resize",
-    staffwidth: 680,
+    staffwidth: 560,
     paddingtop: 0,
     paddingbottom: 0,
     paddingleft: 0,

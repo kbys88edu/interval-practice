@@ -44,3 +44,9 @@ Mode Practice now includes 10 phrase variants per mode.
 All pages include a JP / EN language toggle. The selected language is saved in localStorage.
 
 - `/progressions/` chord progression trainer
+
+- Rhythm section rebuilt from scratch with strict same-meter choices and stable 6/8 metronome
+
+- Chord progression playback uses four-part-style voice leading
+
+- UI adjusted so notation is centered and rhythm/progression choices fit more easily in one screen
