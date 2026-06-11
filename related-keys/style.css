@@ -851,3 +851,311 @@ input[type="text"] {
     margin-right: auto;
   }
 }
+
+
+/* Classic related-key diagram */
+.classic-diagram {
+  position: relative;
+  width: min(520px, 100%);
+  height: 230px;
+  margin: 10px auto 8px;
+  display: block;
+  background: rgba(255, 255, 255, 0.18);
+  border: 1px solid var(--soft-line);
+}
+
+.classic-diagram .diagram-box {
+  position: absolute;
+  min-width: 92px;
+  height: 38px;
+  padding: 0 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #ffffff;
+  color: var(--ink);
+  border: 1.5px solid var(--ink);
+  font-size: 0.78rem;
+  font-weight: 800;
+  text-align: center;
+  z-index: 2;
+  white-space: nowrap;
+}
+
+.classic-diagram .diagram-box.dashed {
+  border-style: dashed;
+  background: rgba(255, 255, 255, 0.58);
+  color: var(--muted);
+}
+
+.classic-diagram .same-key {
+  left: 50%;
+  top: 22px;
+  transform: translateX(-50%);
+}
+
+.classic-diagram .subdominant-key {
+  left: 32px;
+  top: 94px;
+}
+
+.classic-diagram .tonic-key {
+  left: 50%;
+  top: 94px;
+  transform: translateX(-50%);
+}
+
+.classic-diagram .dominant-key {
+  right: 32px;
+  top: 94px;
+}
+
+.classic-diagram .relative-key {
+  left: 50%;
+  bottom: 22px;
+  transform: translateX(-50%);
+}
+
+.classic-diagram .top-left {
+  left: 32px;
+  top: 22px;
+}
+
+.classic-diagram .top-right {
+  right: 32px;
+  top: 22px;
+}
+
+.classic-diagram .bottom-left {
+  left: 32px;
+  bottom: 22px;
+}
+
+.classic-diagram .bottom-right {
+  right: 32px;
+  bottom: 22px;
+}
+
+.classic-diagram .line {
+  position: absolute;
+  background: var(--ink);
+  opacity: 0.85;
+  z-index: 1;
+}
+
+.classic-diagram .line.h {
+  height: 1.5px;
+}
+
+.classic-diagram .line.v {
+  width: 1.5px;
+}
+
+.classic-diagram .dashed-line {
+  background: repeating-linear-gradient(
+    90deg,
+    var(--ink) 0,
+    var(--ink) 6px,
+    transparent 6px,
+    transparent 11px
+  );
+}
+
+.classic-diagram .dashed-line.v {
+  background: repeating-linear-gradient(
+    180deg,
+    var(--ink) 0,
+    var(--ink) 6px,
+    transparent 6px,
+    transparent 11px
+  );
+}
+
+.classic-diagram .left-mid {
+  left: 124px;
+  top: 113px;
+  width: calc(50% - 170px);
+}
+
+.classic-diagram .right-mid {
+  right: 124px;
+  top: 113px;
+  width: calc(50% - 170px);
+}
+
+.classic-diagram .center-top {
+  left: 50%;
+  top: 60px;
+  height: 34px;
+}
+
+.classic-diagram .center-bottom {
+  left: 50%;
+  top: 132px;
+  height: 38px;
+}
+
+.classic-diagram .left-upper-link {
+  left: 78px;
+  top: 60px;
+  height: 34px;
+}
+
+.classic-diagram .left-lower-link {
+  left: 78px;
+  top: 132px;
+  height: 38px;
+}
+
+.classic-diagram .right-upper-link {
+  right: 78px;
+  top: 60px;
+  height: 34px;
+}
+
+.classic-diagram .right-lower-link {
+  right: 78px;
+  top: 132px;
+  height: 38px;
+}
+
+.classic-diagram .upper-left-link {
+  left: 124px;
+  top: 41px;
+  width: calc(50% - 170px);
+}
+
+.classic-diagram .upper-right-link {
+  right: 124px;
+  top: 41px;
+  width: calc(50% - 170px);
+}
+
+.classic-diagram .lower-left-link {
+  left: 124px;
+  bottom: 41px;
+  width: calc(50% - 170px);
+}
+
+.classic-diagram .lower-right-link {
+  right: 124px;
+  bottom: 41px;
+  width: calc(50% - 170px);
+}
+
+@media (max-width: 760px) {
+  .classic-diagram {
+    height: 200px;
+    margin-top: 8px;
+    overflow: hidden;
+  }
+
+  .classic-diagram .diagram-box {
+    min-width: 70px;
+    height: 34px;
+    padding: 0 6px;
+    font-size: 0.68rem;
+  }
+
+  .classic-diagram .subdominant-key,
+  .classic-diagram .top-left,
+  .classic-diagram .bottom-left {
+    left: 8px;
+  }
+
+  .classic-diagram .dominant-key,
+  .classic-diagram .top-right,
+  .classic-diagram .bottom-right {
+    right: 8px;
+  }
+
+  .classic-diagram .same-key {
+    top: 18px;
+  }
+
+  .classic-diagram .subdominant-key,
+  .classic-diagram .tonic-key,
+  .classic-diagram .dominant-key {
+    top: 84px;
+  }
+
+  .classic-diagram .relative-key {
+    bottom: 18px;
+  }
+
+  .classic-diagram .top-left,
+  .classic-diagram .top-right {
+    top: 18px;
+  }
+
+  .classic-diagram .bottom-left,
+  .classic-diagram .bottom-right {
+    bottom: 18px;
+  }
+
+  .classic-diagram .left-mid {
+    left: 78px;
+    top: 101px;
+    width: calc(50% - 114px);
+  }
+
+  .classic-diagram .right-mid {
+    right: 78px;
+    top: 101px;
+    width: calc(50% - 114px);
+  }
+
+  .classic-diagram .center-top {
+    top: 52px;
+    height: 32px;
+  }
+
+  .classic-diagram .center-bottom {
+    top: 118px;
+    height: 30px;
+  }
+
+  .classic-diagram .left-upper-link,
+  .classic-diagram .right-upper-link {
+    top: 52px;
+    height: 32px;
+  }
+
+  .classic-diagram .left-lower-link,
+  .classic-diagram .right-lower-link {
+    top: 118px;
+    height: 30px;
+  }
+
+  .classic-diagram .left-upper-link,
+  .classic-diagram .left-lower-link {
+    left: 43px;
+  }
+
+  .classic-diagram .right-upper-link,
+  .classic-diagram .right-lower-link {
+    right: 43px;
+  }
+
+  .classic-diagram .upper-left-link,
+  .classic-diagram .lower-left-link {
+    left: 78px;
+    width: calc(50% - 114px);
+  }
+
+  .classic-diagram .upper-right-link,
+  .classic-diagram .lower-right-link {
+    right: 78px;
+    width: calc(50% - 114px);
+  }
+
+  .classic-diagram .upper-left-link,
+  .classic-diagram .upper-right-link {
+    top: 35px;
+  }
+
+  .classic-diagram .lower-left-link,
+  .classic-diagram .lower-right-link {
+    bottom: 35px;
+  }
+}

@@ -16,3 +16,5 @@ Practice:
 
 - Answers display key signature and diatonic scale for each related key
 - CHECK button is styled blue
+
+- Restored the classic related-key diagram layout with dashed auxiliary boxes

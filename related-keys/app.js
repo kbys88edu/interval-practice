@@ -99,6 +99,7 @@ function setAllRelations(checked) {
   document.querySelectorAll("#relation-options input").forEach((input) => {
     input.checked = checked;
   });
+  updateDiagramForQuestion();
   setStatus(checked ? "関係をすべて選択しました。" : "関係をすべて外しました。");
 }
 
