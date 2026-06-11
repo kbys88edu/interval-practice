@@ -28,3 +28,5 @@ Features:
 
 - Added 3/4 and 6/8 meters to melodic dictation.
 - Beaming is grouped by quarter-note units in 3/4 and 4/4, and by dotted-quarter units in 6/8.
+
+- fixed octave synchronization: playback uses the exact MIDI value used for notation; melodic range constrained to avoid sudden octave displacement.

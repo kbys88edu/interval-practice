@@ -378,10 +378,12 @@ function buildMelody(key, progression, rhythm, selectedFigures) {
     if (!Number.isFinite(degree)) degree = chooseNearChordTone(previousDegree, chordTones);
     degree = clampDegree(degree);
 
+    const midi = degreeToMidi(key, degree, event.harmonyDegree);
     const note = {
       ...event,
       degree,
-      midi: degreeToMidi(key, degree, event.harmonyDegree),
+      midi,
+      playbackMidi: midi,
       role
     };
 
@@ -409,7 +411,7 @@ function chooseOpeningDegree(chordTones) {
 
 function cadenceDegree(key, progression) {
   if (progression.final === 4) return 4;
-  return randomItem([0, 0, 2, 4, 7]);
+  return randomItem([0, 0, 2, 4]);
 }
 
 function canMakeSuspension(meter, event, prevNote, chordTones) {
@@ -426,7 +428,7 @@ function choosePassingDegree(fromDegree, toDegree) {
 }
 
 function chooseNeighborDegree(centerDegree) {
-  const candidates = [centerDegree - 1, centerDegree + 1].filter((degree) => degree >= 0 && degree <= 9);
+  const candidates = [centerDegree - 1, centerDegree + 1].filter((degree) => degree >= 0 && degree <= 7);
   return candidates.length ? randomItem(candidates) : centerDegree;
 }
 
@@ -436,7 +438,11 @@ function chooseNeighborOrChord(prevDegree, chordTones, selectedFigures) {
 }
 
 function chooseNearChordTone(previousDegree, chordTones) {
-  const inRange = chordTones.filter((degree) => degree >= 0 && degree <= 9);
+  // Keep melodic dictation in one stable written octave.
+  // This prevents the second half of a bar from suddenly jumping an octave
+  // while the notation remains visually compact.
+  const preferred = chordTones.filter((degree) => degree >= 0 && degree <= 6);
+  const inRange = preferred.length ? preferred : chordTones.filter((degree) => degree >= 0 && degree <= 7);
   if (!Number.isFinite(previousDegree)) return randomItem(inRange);
   const sorted = inRange.slice().sort((a, b) => Math.abs(a - previousDegree) - Math.abs(b - previousDegree));
   return randomItem(sorted.slice(0, Math.min(3, sorted.length)));
@@ -465,7 +471,7 @@ function chordToneDegrees(key, harmonyDegree) {
 }
 
 function clampDegree(degree) {
-  return Math.max(0, Math.min(9, degree));
+  return Math.max(0, Math.min(7, degree));
 }
 
 function degreeToMidi(key, degree, harmonyDegree) {
@@ -518,6 +524,7 @@ function mutateMelody(correct, key, progression) {
     }
     note.degree = clampDegree(note.degree);
     note.midi = degreeToMidi(key, note.degree, note.harmonyDegree);
+    note.playbackMidi = note.midi;
   });
 
   return finalizeMelody(key, progression, correct.rhythm, notes);
@@ -629,14 +636,19 @@ async function playCurrentQuestion() {
     clickSynth.triggerAttackRelease(click.accent ? "A5" : "C5", "32n", now + click.time);
   });
 
-  const barUnits = currentQuestion.meter === "4/4" ? 16 : 12;
+  const barUnits = barUnitsForMeter(currentQuestion.meter);
   currentQuestion.correct.notes.forEach((note) => {
     const start = barStart + (note.barIndex * barUnits + note.position) * sixteenthSec;
     const durSec = note.units * sixteenthSec;
-    melodySynth.triggerAttackRelease(midiToToneNote(note.midi), Math.max(0.05, durSec * 0.88), start);
+    melodySynth.triggerAttackRelease(midiToToneNote(note.playbackMidi ?? note.midi), Math.max(0.05, durSec * 0.88), start);
   });
 
   setStatus(`${currentQuestion.meter} / ${currentQuestion.key.label} / 2小節 / ${currentQuestion.progression.label} / カウント後に旋律のみ再生します。`);
+}
+
+
+function barUnitsForMeter(meter) {
+  return meter === "4/4" ? 16 : 12;
 }
 
 function getSimpleCount(meter, quarterSec) {
