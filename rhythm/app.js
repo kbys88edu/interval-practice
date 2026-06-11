@@ -2,70 +2,105 @@ function t(text) {
   return window.EarTrainingLang?.translateText(text) || text;
 }
 
-// Rebuilt rhythm section.
-// Internal time unit:
-// 4/4 and 3/4 patterns use 16th-note units.
-// 4/4 bar length = 16 units. 3/4 bar length = 12 units.
-// 6/8 patterns use 16th-note units too.
-// 6/8 bar length = 12 units. One eighth note = 2 units.
+// Rhythm engine rebuilt on a strict 16th-note grid.
+// ABC notation is rendered with L:1/16 for every meter.
+// Therefore a 16th note is always written as C, an 8th note as C2, a quarter note as C4, etc.
 
 const patterns = [
   // 4/4 basic
-  { id: "44-basic-quarters", meter: "4/4", group: "basic", label: "four quarters", abc: "C C C C |", hits: [0, 4, 8, 12] },
-  { id: "44-basic-half", meter: "4/4", group: "basic", label: "half + quarters", abc: "C2 C C |", hits: [0, 8, 12] },
-  { id: "44-basic-eighths", meter: "4/4", group: "basic", label: "eighth-note motion", abc: "C C/ C/ C C |", hits: [0, 4, 6, 8, 12] },
-  { id: "44-basic-rest", meter: "4/4", group: "basic", label: "quarter rest", abc: "C z C C |", hits: [0, 8, 12] },
+  p("44-basic-1", "4/4", "basic", "quarter notes", "C4 C4 C4 C4", [0,4,8,12]),
+  p("44-basic-2", "4/4", "basic", "half + quarters", "C8 C4 C4", [0,8,12]),
+  p("44-basic-3", "4/4", "basic", "eighth motion", "C4 C2 C2 C4 C4", [0,4,6,8,12]),
+  p("44-basic-4", "4/4", "basic", "rests", "C4 z4 C4 C4", [0,8,12]),
+  p("44-basic-5", "4/4", "basic", "off eighth", "C2 z2 C2 C2 C4 C4", [0,4,6,8,12]),
 
-  // 4/4 sixteenth
-  { id: "44-sixteenth-1", meter: "4/4", group: "sixteenth", label: "sixteenth group", abc: "C C/2C/2C/2C/2 C C |", hits: [0, 4, 5, 6, 7, 8, 12] },
-  { id: "44-sixteenth-2", meter: "4/4", group: "sixteenth", label: "two sixteenth groups", abc: "C/2C/2C/2C/2 C C/2C/2C/2C/2 C |", hits: [0, 1, 2, 3, 4, 8, 9, 10, 11, 12] },
-  { id: "44-sixteenth-3", meter: "4/4", group: "sixteenth", label: "eighth + two sixteenths", abc: "C/ C/2C/2 C C C |", hits: [0, 2, 3, 4, 8, 12] },
+  // 4/4 true sixteenths
+  p("44-16-1", "4/4", "sixteenth", "four sixteenths", "C C C C C4 C4 C4", [0,1,2,3,4,8,12]),
+  p("44-16-2", "4/4", "sixteenth", "sixteenth turn", "C2 C C C4 C2 C C C4", [0,2,3,4,8,10,11,12]),
+  p("44-16-3", "4/4", "sixteenth", "eighth + sixteenths", "C2 C C C4 C4 C4", [0,2,3,4,8,12]),
+  p("44-16-4", "4/4", "sixteenth", "two sixteenth groups", "C C C C C4 C C C C C4", [0,1,2,3,4,8,9,10,11,12]),
+  p("44-16-5", "4/4", "sixteenth", "late sixteenths", "C4 C4 C2 C C C4", [0,4,8,10,11,12]),
+  p("44-16-6", "4/4", "sixteenth", "syncopated sixteenths", "C2 C C C2 C2 C4 C2", [0,2,3,4,6,8,12,14]),
 
-  // 4/4 triplet
-  { id: "44-triplet-1", meter: "4/4", group: "triplet", label: "one triplet beat", abc: "(3C/2C/2C/2 C C C |", hits: [0, 1.333, 2.667, 4, 8, 12] },
-  { id: "44-triplet-2", meter: "4/4", group: "triplet", label: "two triplet beats", abc: "C (3C/2C/2C/2 C C |", hits: [0, 4, 5.333, 6.667, 8, 12] },
+  // 4/4 dotted rhythms
+  p("44-dot-1", "4/4", "dotted", "dotted eighth + sixteenth", "C3 C C4 C4 C4", [0,3,4,8,12]),
+  p("44-dot-2", "4/4", "dotted", "sixteenth + dotted eighth", "C C3 C4 C4 C4", [0,1,4,8,12]),
+  p("44-dot-3", "4/4", "dotted", "two dotted figures", "C3 C C3 C C4 C4", [0,3,4,7,8,12]),
+  p("44-dot-4", "4/4", "dotted", "dotted quarter", "C6 C2 C4 C4", [0,6,8,12]),
+  p("44-dot-5", "4/4", "dotted", "dotted middle", "C4 C3 C C4 C4", [0,4,7,8,12]),
+  p("44-dot-6", "4/4", "dotted", "reverse dotted middle", "C4 C C3 C4 C4", [0,4,5,8,12]),
+
+  // 4/4 triplets
+  p("44-trip-1", "4/4", "triplet", "triplet opening", "(3C2C2C2 C4 C4 C4", [0,1.333,2.667,4,8,12]),
+  p("44-trip-2", "4/4", "triplet", "triplet second beat", "C4 (3C2C2C2 C4 C4", [0,4,5.333,6.667,8,12]),
+  p("44-trip-3", "4/4", "triplet", "two triplet beats", "(3C2C2C2 (3C2C2C2 C4 C4", [0,1.333,2.667,4,5.333,6.667,8,12]),
 
   // 4/4 ties
-  { id: "44-tie-1", meter: "4/4", group: "tie", label: "syncopated tie", abc: "C/ C/-C/ C C |", hits: [0, 2, 8, 12] },
-  { id: "44-tie-2", meter: "4/4", group: "tie", label: "held middle", abc: "C C-C C |", hits: [0, 4, 12] },
+  p("44-tie-1", "4/4", "tie", "eighth tied syncopation", "C2 C2-C2 C2 C4 C4", [0,2,6,8,12]),
+  p("44-tie-2", "4/4", "tie", "quarter tie", "C4 C4-C4 C4", [0,4,12]),
+  p("44-tie-3", "4/4", "tie", "dotted tie", "C3 C-C2 C4 C4", [0,3,6,8,12]),
 
   // 3/4 basic
-  { id: "34-basic-quarters", meter: "3/4", group: "basic", label: "three quarters", abc: "C C C |", hits: [0, 4, 8] },
-  { id: "34-basic-half", meter: "3/4", group: "basic", label: "half + quarter", abc: "C2 C |", hits: [0, 8] },
-  { id: "34-basic-eighths", meter: "3/4", group: "basic", label: "eighth motion", abc: "C C/ C/ C |", hits: [0, 4, 6, 8] },
-  { id: "34-basic-rest", meter: "3/4", group: "basic", label: "rest", abc: "C z C |", hits: [0, 8] },
+  p("34-basic-1", "3/4", "basic", "three quarters", "C4 C4 C4", [0,4,8]),
+  p("34-basic-2", "3/4", "basic", "half + quarter", "C8 C4", [0,8]),
+  p("34-basic-3", "3/4", "basic", "eighth motion", "C4 C2 C2 C4", [0,4,6,8]),
+  p("34-basic-4", "3/4", "basic", "rest", "C4 z4 C4", [0,8]),
 
-  // 3/4 sixteenth
-  { id: "34-sixteenth-1", meter: "3/4", group: "sixteenth", label: "sixteenth group", abc: "C/2C/2C/2C/2 C C |", hits: [0, 1, 2, 3, 4, 8] },
-  { id: "34-sixteenth-2", meter: "3/4", group: "sixteenth", label: "eighth + sixteenths", abc: "C/ C/2C/2 C C |", hits: [0, 2, 3, 4, 8] },
+  // 3/4 sixteenths
+  p("34-16-1", "3/4", "sixteenth", "sixteenth opening", "C C C C C4 C4", [0,1,2,3,4,8]),
+  p("34-16-2", "3/4", "sixteenth", "eighth + sixteenths", "C2 C C C4 C4", [0,2,3,4,8]),
+  p("34-16-3", "3/4", "sixteenth", "late sixteenths", "C4 C4 C C C C", [0,4,8,9,10,11]),
+  p("34-16-4", "3/4", "sixteenth", "two short groups", "C C C C C2 C C C2", [0,1,2,3,4,6,7,8]),
 
-  // 3/4 triplet
-  { id: "34-triplet-1", meter: "3/4", group: "triplet", label: "triplet opening", abc: "(3C/2C/2C/2 C C |", hits: [0, 1.333, 2.667, 4, 8] },
-  { id: "34-triplet-2", meter: "3/4", group: "triplet", label: "triplet middle", abc: "C (3C/2C/2C/2 C |", hits: [0, 4, 5.333, 6.667, 8] },
+  // 3/4 dotted
+  p("34-dot-1", "3/4", "dotted", "dotted opening", "C3 C C4 C4", [0,3,4,8]),
+  p("34-dot-2", "3/4", "dotted", "reverse dotted opening", "C C3 C4 C4", [0,1,4,8]),
+  p("34-dot-3", "3/4", "dotted", "dotted middle", "C4 C3 C C4", [0,4,7,8]),
+  p("34-dot-4", "3/4", "dotted", "dotted quarter", "C6 C2 C4", [0,6,8]),
+  p("34-dot-5", "3/4", "dotted", "two dotted figures", "C3 C C3 C C4", [0,3,4,7,8]),
+
+  // 3/4 triplets
+  p("34-trip-1", "3/4", "triplet", "triplet opening", "(3C2C2C2 C4 C4", [0,1.333,2.667,4,8]),
+  p("34-trip-2", "3/4", "triplet", "triplet middle", "C4 (3C2C2C2 C4", [0,4,5.333,6.667,8]),
 
   // 3/4 ties
-  { id: "34-tie-1", meter: "3/4", group: "tie", label: "middle tie", abc: "C/ C/-C/ C |", hits: [0, 2, 8] },
-  { id: "34-tie-2", meter: "3/4", group: "tie", label: "held start", abc: "C-C C |", hits: [0, 8] },
+  p("34-tie-1", "3/4", "tie", "middle tie", "C2 C2-C2 C2 C4", [0,2,6,8]),
+  p("34-tie-2", "3/4", "tie", "held start", "C4-C4 C4", [0,8]),
 
   // 6/8 basic
-  { id: "68-basic-six", meter: "6/8", group: "basic", label: "six eighths", abc: "C C C C C C |", hits: [0, 2, 4, 6, 8, 10] },
-  { id: "68-basic-two-dotted", meter: "6/8", group: "basic", label: "two dotted quarters", abc: "C3 C3 |", hits: [0, 6] },
-  { id: "68-basic-3-1-1-1", meter: "6/8", group: "basic", label: "3 + 1 + 1 + 1", abc: "C3 C C C |", hits: [0, 6, 8, 10] },
-  { id: "68-basic-1-1-1-3", meter: "6/8", group: "basic", label: "1 + 1 + 1 + 3", abc: "C C C C3 |", hits: [0, 2, 4, 6] },
-  { id: "68-basic-rest", meter: "6/8", group: "basic", label: "rest inside", abc: "C z C C C C |", hits: [0, 4, 6, 8, 10] },
+  p("68-basic-1", "6/8", "basic", "six eighths", "C2 C2 C2 C2 C2 C2", [0,2,4,6,8,10]),
+  p("68-basic-2", "6/8", "basic", "two dotted quarters", "C6 C6", [0,6]),
+  p("68-basic-3", "6/8", "basic", "3 + 1 + 1 + 1", "C6 C2 C2 C2", [0,6,8,10]),
+  p("68-basic-4", "6/8", "basic", "1 + 1 + 1 + 3", "C2 C2 C2 C6", [0,2,4,6]),
+  p("68-basic-5", "6/8", "basic", "rest inside", "C2 z2 C2 C2 C2 C2", [0,4,6,8,10]),
 
-  // 6/8 sixteenth
-  { id: "68-sixteenth-1", meter: "6/8", group: "sixteenth", label: "sixteenths first beat", abc: "C/2C/2 C C C C C |", hits: [0, 1, 2, 4, 6, 8, 10] },
-  { id: "68-sixteenth-2", meter: "6/8", group: "sixteenth", label: "sixteenths second group", abc: "C C C C/2C/2 C C |", hits: [0, 2, 4, 6, 7, 8, 10] },
+  // 6/8 sixteenths
+  p("68-16-1", "6/8", "sixteenth", "sixteenths first eighth", "C C C2 C2 C2 C2 C2", [0,1,2,4,6,8,10]),
+  p("68-16-2", "6/8", "sixteenth", "sixteenths middle", "C2 C2 C C C2 C2 C2", [0,2,4,5,6,8,10]),
+  p("68-16-3", "6/8", "sixteenth", "sixteenths second dotted beat", "C2 C2 C2 C C C2 C2", [0,2,4,6,7,8,10]),
+  p("68-16-4", "6/8", "sixteenth", "running sixteenths", "C C C C C C C2 C2 C2", [0,1,2,3,4,5,6,8,10]),
+  p("68-16-5", "6/8", "sixteenth", "late sixteenths", "C2 C2 C2 C2 C C C", [0,2,4,6,8,9,10]),
 
-  // 6/8 triplet-like subdivision
-  { id: "68-triplet-1", meter: "6/8", group: "triplet", label: "triplet color", abc: "(3C/2C/2C/2 C C C C |", hits: [0, 1.333, 2.667, 4, 6, 8, 10] },
-  { id: "68-triplet-2", meter: "6/8", group: "triplet", label: "triplet second dotted beat", abc: "C C C (3C/2C/2C/2 C C |", hits: [0, 2, 4, 6, 7.333, 8.667, 10] },
+  // 6/8 dotted rhythms
+  p("68-dot-1", "6/8", "dotted", "dotted eighth + sixteenth", "C3 C C2 C2 C2 C2", [0,3,4,6,8,10]),
+  p("68-dot-2", "6/8", "dotted", "sixteenth + dotted eighth", "C C3 C2 C2 C2 C2", [0,1,4,6,8,10]),
+  p("68-dot-3", "6/8", "dotted", "two dotted figures", "C3 C C3 C C2 C2", [0,3,4,7,8,10]),
+  p("68-dot-4", "6/8", "dotted", "dotted in second group", "C2 C2 C2 C3 C C2", [0,2,4,6,9,10]),
+  p("68-dot-5", "6/8", "dotted", "reverse dotted second group", "C2 C2 C2 C C3 C2", [0,2,4,6,7,10]),
+
+  // 6/8 triplets
+  p("68-trip-1", "6/8", "triplet", "triplet opening", "(3C2C2C2 C2 C2 C2 C2", [0,1.333,2.667,4,6,8,10]),
+  p("68-trip-2", "6/8", "triplet", "triplet second group", "C2 C2 C2 (3C2C2C2 C2 C2", [0,2,4,6,7.333,8.667,10]),
 
   // 6/8 ties
-  { id: "68-tie-1", meter: "6/8", group: "tie", label: "tie across middle", abc: "C C-C C C |", hits: [0, 2, 6, 8] },
-  { id: "68-tie-2", meter: "6/8", group: "tie", label: "held first dotted beat", abc: "C3-C C C |", hits: [0, 8, 10] }
+  p("68-tie-1", "6/8", "tie", "tie across middle", "C2 C2-C2 C2 C2 C2", [0,2,6,8,10]),
+  p("68-tie-2", "6/8", "tie", "held dotted beat", "C6-C2 C2 C2", [0,8,10]),
+  p("68-tie-3", "6/8", "tie", "dotted tie", "C3 C-C2 C2 C2 C2", [0,3,6,8,10])
 ];
+
+function p(id, meter, group, label, abcBody, hits) {
+  return { id, meter, group, label, abcBody, hits };
+}
 
 let currentQuestion = null;
 let hasAnsweredCurrentQuestion = false;
@@ -117,10 +152,7 @@ function getSoundType() {
 function getPool() {
   const meters = getSelectedValues("meter");
   const groups = getSelectedValues("content");
-
-  return patterns.filter((pattern) => {
-    return meters.includes(pattern.meter) && groups.includes(pattern.group);
-  });
+  return patterns.filter((pattern) => meters.includes(pattern.meter) && groups.includes(pattern.group));
 }
 
 function randomItem(array) {
@@ -142,16 +174,15 @@ function newQuestion() {
   clearFeedback();
 
   const correct = randomItem(pool);
-  const sameMeterPool = pool.filter((pattern) => {
-    return pattern.meter === correct.meter && pattern.id !== correct.id;
-  });
+  const sameMeterPool = pool.filter((pattern) => pattern.meter === correct.meter && pattern.id !== correct.id);
 
   if (sameMeterPool.length < 2) {
     setStatus(`${correct.meter} の候補が足りません。同じ拍子で3択を作るため、内容設定を増やしてください。`, "incorrect");
     return;
   }
 
-  const choices = shuffle([correct, ...shuffle(sameMeterPool).slice(0, 2)]);
+  const distractors = chooseSimilarDistractors(correct, sameMeterPool, 2);
+  const choices = shuffle([correct, ...distractors]);
 
   if (!choices.every((choice) => choice.meter === correct.meter)) {
     setStatus("内部エラー：拍子が混在しました。もう一度NEWを押してください。", "incorrect");
@@ -177,8 +208,60 @@ function newQuestion() {
   choiceMeterHeader.textContent = `ALL CHOICES: ${correct.meter}`;
 
   renderChoices();
-  setStatus(`${correct.meter} の1小節です。カウント後すぐに本編リズムが始まります。`);
+  setStatus(`${correct.meter} の1小節です。16分音符は16分音符として表記されます。`);
   playCurrentQuestion();
+}
+
+function chooseSimilarDistractors(correct, candidates, count) {
+  const ranked = candidates
+    .map((candidate) => ({
+      candidate,
+      score: rhythmSimilarityScore(correct, candidate)
+    }))
+    .sort((a, b) => a.score - b.score);
+
+  const closeGroup = ranked.slice(0, Math.min(8, ranked.length)).map((item) => item.candidate);
+  return shuffle(closeGroup).slice(0, count);
+}
+
+function rhythmSimilarityScore(a, b) {
+  let score = 0;
+
+  if (a.group !== b.group) score += 3;
+  score += Math.abs(a.hits.length - b.hits.length) * 2.8;
+
+  const aHits = a.hits.slice().sort((x, y) => x - y);
+  const bHits = b.hits.slice().sort((x, y) => x - y);
+  const pairCount = Math.min(aHits.length, bHits.length);
+
+  for (let i = 0; i < pairCount; i += 1) {
+    score += Math.abs(aHits[i] - bHits[i]) * 0.7;
+  }
+
+  score += Math.abs(aHits[0] - bHits[0]) * 1.2;
+  score += Math.abs(aHits[aHits.length - 1] - bHits[bHits.length - 1]) * 0.7;
+
+  const strongBeats = a.meter === "6/8" ? [0, 6] : a.meter === "3/4" ? [0, 4, 8] : [0, 4, 8, 12];
+  strongBeats.forEach((beat) => {
+    const aHas = aHits.some((hit) => Math.abs(hit - beat) < 0.01);
+    const bHas = bHits.some((hit) => Math.abs(hit - beat) < 0.01);
+    if (aHas !== bHas) score += 2.4;
+  });
+
+  // Similar notational density and dotted/sixteenth profile.
+  score += Math.abs(a.abcBody.length - b.abcBody.length) * 0.03;
+  score += Math.abs(countTrueSixteenths(a.abcBody) - countTrueSixteenths(b.abcBody)) * 1.4;
+  score += Math.abs(countDottedDurations(a.abcBody) - countDottedDurations(b.abcBody)) * 1.8;
+
+  return score;
+}
+
+function countTrueSixteenths(abc) {
+  return (abc.match(/(^|\\s|\\()C(\\s|$|\\)|-)/g) || []).length;
+}
+
+function countDottedDurations(abc) {
+  return (abc.match(/C3|C6/g) || []).length;
 }
 
 function renderChoices() {
@@ -202,7 +285,7 @@ function renderChoices() {
     choiceList.appendChild(card);
 
     requestAnimationFrame(() => {
-      renderAbc(`choice-notation-${index}`, buildAbc(choice), 300);
+      renderAbc(`choice-notation-${index}`, buildAbc(choice), 240);
     });
   });
 }
@@ -257,21 +340,18 @@ async function playCurrentQuestion() {
     currentTimeEl.textContent = "0.0s";
   }
 
-  // Count-in
   for (let i = 0; i < count.countClicks; i += 1) {
     clickSynth.triggerAttackRelease(count.isAccent(i) ? "A5" : "C5", "32n", countStart + i * count.stepSec);
   }
 
-  // No metronome during the performed bar.
-  // The count-in defines the meter; the rhythm itself is played alone.
   const rhythmPitch = currentQuestion.sound === "click" ? "C3" : "C4";
   currentQuestion.correct.hits.forEach((unit) => {
     rhythmSynth.triggerAttackRelease(rhythmPitch, "32n", barStart + unit * sixteenthSec);
   });
 
   const msg = meter === "6/8"
-    ? "6/8です。カウントは8分音符単位で6回鳴り、その後リズムだけが再生されます。1拍目と4拍目が高い音です。"
-    : `${meter}です。カウント後、メトロノームなしで本編リズムだけが再生されます。`;
+    ? "6/8です。カウントは8分音符単位で6回、その後リズムだけが再生されます。"
+    : `${meter}です。カウント後、メトロノームなしでリズムだけが再生されます。`;
   setStatus(msg);
 }
 
@@ -357,17 +437,16 @@ function showAnswer() {
   }
 
   answerText.textContent = `正解：${currentQuestion.correct.meter} / ${currentQuestion.correct.label}`;
-  analysisText.textContent = `3つの選択肢はすべて ${currentQuestion.correct.meter} です。`;
-  renderAbc("notation", buildAbc(currentQuestion.correct), 560);
+  analysisText.textContent = `すべて ${currentQuestion.correct.meter}。L:1/16で表示しているため、16分音符は16分音符として表記されます。`;
+  renderAbc("notation", buildAbc(currentQuestion.correct), 500);
 }
 
 function buildAbc(pattern) {
-  const lUnit = pattern.meter === "6/8" ? "1/8" : "1/4";
   return `X:1
 M:${pattern.meter}
-L:${lUnit}
+L:1/16
 K:C clef=perc
-${pattern.abc}`;
+${pattern.abcBody} |`;
 }
 
 function renderAbc(targetId, abc, width) {

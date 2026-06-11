@@ -168,6 +168,8 @@ function newQuestion() {
   }
 }
 
+// Subdominant = IV = perfect fourth above the tonic (+5 semitones).
+// Dominant = V = perfect fifth above the tonic (+7 semitones).
 function buildRelatedKeyMap(tonic) {
   const pc = tonic.pc;
   const mode = tonic.mode;
@@ -176,7 +178,7 @@ function buildRelatedKeyMap(tonic) {
     return {
       tonic,
       parallel: { pc, mode: "minor" },
-      subdominant: { pc: mod12(pc - 5), mode: "major" },
+      subdominant: { pc: mod12(pc + 5), mode: "major" },
       dominant: { pc: mod12(pc + 7), mode: "major" },
       relative: { pc: mod12(pc - 3), mode: "minor" }
     };
@@ -185,7 +187,7 @@ function buildRelatedKeyMap(tonic) {
   return {
     tonic,
     parallel: { pc, mode: "major" },
-    subdominant: { pc: mod12(pc - 5), mode: "minor" },
+    subdominant: { pc: mod12(pc + 5), mode: "minor" },
     dominant: { pc: mod12(pc + 7), mode: "minor" },
     relative: { pc: mod12(pc + 3), mode: "major" }
   };

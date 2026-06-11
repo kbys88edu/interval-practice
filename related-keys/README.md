@@ -18,3 +18,6 @@ Practice:
 - CHECK button is styled blue
 
 - Restored the classic related-key diagram layout with dashed auxiliary boxes
+
+- Subdominant corrected: IV, a perfect fourth above the tonic (+5 semitones)
+- Dominant: V, a perfect fifth above the tonic (+7 semitones)

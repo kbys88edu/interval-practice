@@ -552,8 +552,9 @@ function answer(choiceId) {
     tonality: currentQuestion.correct.tonality,
     roman: currentQuestion.correct.roman.join(" - "),
     selectedRoman: selected?.roman.join(" - ") || "",
-    tonic: midiToNoteName(currentQuestion.tonicMidi),
+tonic: midiToNoteName(currentQuestion.tonicMidi),
     label: currentQuestion.correct.label,
+    abc: currentQuestion.correct.abc,
     isCorrect,
     responseTimeSec: latestResponseTimeSec
   });
@@ -724,11 +725,14 @@ async function exportResultsPdf() {
     const rate = totalCount === 0 ? 0 : Math.round((correctCount / totalCount) * 100);
     const date = new Date().toLocaleString();
     const answeredWithTime = resultLog.filter(item => item.responseTimeSec !== null);
-    const avgTime = answeredWithTime.length ? answeredWithTime.reduce((sum, item) => sum + item.responseTimeSec, 0) / answeredWithTime.length : null;
+    const avgTime = answeredWithTime.length
+      ? answeredWithTime.reduce((sum, item) => sum + item.responseTimeSec, 0) / answeredWithTime.length
+      : null;
 
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(22);
     doc.text('Chord Progression Practice Result', 16, 18);
+
     doc.setDrawColor(40);
     doc.setLineWidth(1.4);
     doc.line(16, 23, 194, 23);
@@ -742,29 +746,137 @@ async function exportResultsPdf() {
     doc.text(`Avg. time: ${avgTime !== null ? avgTime.toFixed(1) + 's' : '-'}`, 138, 39);
 
     let y = 52;
-    resultLog.forEach((item) => {
-      if (y > 266) {
+
+    for (const item of resultLog) {
+      if (y > 238) {
         doc.addPage();
         y = 18;
       }
+
       doc.setFont('helvetica', 'bold');
       doc.setFontSize(10);
       doc.text(`${String(item.number).padStart(2, '0')}  ${item.tonic}  ${item.roman}`, 16, y);
+
       doc.setFont('helvetica', 'normal');
       doc.setFontSize(9);
       doc.text(`Your answer: ${item.selectedRoman || '-'} / ${item.isCorrect ? 'OK' : 'NG'} / Time: ${formatResponseTime(item.responseTimeSec)}`, 16, y + 6);
       doc.text(`Function: ${item.label}`, 16, y + 12);
-      y += 22;
-    });
+
+      if (item.abc) {
+        try {
+          const notation = await abcToPngDataUrl(item.abc, 620);
+          const maxWidth = 178;
+          const maxHeight = 32;
+          const scale = Math.min(maxWidth / notation.widthMm, maxHeight / notation.heightMm);
+          const imgW = notation.widthMm * scale;
+          const imgH = notation.heightMm * scale;
+
+          doc.addImage(
+            notation.dataUrl,
+            'PNG',
+            16 + (maxWidth - imgW) / 2,
+            y + 16,
+            imgW,
+            imgH
+          );
+
+          y += 22 + imgH;
+        } catch (notationError) {
+          console.error(notationError);
+          doc.setFontSize(8);
+          doc.text('[Notation could not be rendered]', 16, y + 18);
+          y += 30;
+        }
+      } else {
+        y += 28;
+      }
+
+      y += 6;
+    }
 
     doc.save('chord-progression-practice-result.pdf');
-    setStatus('結果PDFを出力しました。', 'correct');
+    setStatus('楽譜入りの結果PDFを出力しました。', 'correct');
   } catch (error) {
     console.error(error);
     setStatus('PDF作成中にエラーが発生しました。', 'incorrect');
   } finally {
     exportButton.disabled = false;
   }
+}
+
+async function abcToPngDataUrl(abc, staffwidth = 620) {
+  if (!window.ABCJS) {
+    throw new Error('ABCJS is not available.');
+  }
+
+  const holder = document.createElement('div');
+  holder.style.position = 'fixed';
+  holder.style.left = '-10000px';
+  holder.style.top = '0';
+  holder.style.width = `${staffwidth}px`;
+  holder.style.background = '#ffffff';
+  holder.style.color = '#000000';
+  document.body.appendChild(holder);
+
+  try {
+    ABCJS.renderAbc(holder, abc, {
+      responsive: 'resize',
+      staffwidth,
+      paddingtop: 0,
+      paddingbottom: 0,
+      paddingleft: 0,
+      paddingright: 0,
+      add_classes: true
+    });
+
+    const svg = holder.querySelector('svg');
+    if (!svg) {
+      throw new Error('No SVG generated.');
+    }
+
+    svg.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+    svg.style.background = '#ffffff';
+
+    const bbox = svg.getBBox();
+    const width = Math.max(1, Math.ceil(bbox.width + 12));
+    const height = Math.max(1, Math.ceil(bbox.height + 12));
+    svg.setAttribute('width', String(width));
+    svg.setAttribute('height', String(height));
+    svg.setAttribute('viewBox', `${bbox.x - 6} ${bbox.y - 6} ${width} ${height}`);
+
+    const svgText = new XMLSerializer().serializeToString(svg);
+    const svgBlob = new Blob([svgText], { type: 'image/svg+xml;charset=utf-8' });
+    const url = URL.createObjectURL(svgBlob);
+
+    const img = await loadImage(url);
+    URL.revokeObjectURL(url);
+
+    const scale = 2;
+    const canvas = document.createElement('canvas');
+    canvas.width = Math.ceil(width * scale);
+    canvas.height = Math.ceil(height * scale);
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+    return {
+      dataUrl: canvas.toDataURL('image/png'),
+      widthMm: width * 0.264583,
+      heightMm: height * 0.264583
+    };
+  } finally {
+    holder.remove();
+  }
+}
+
+function loadImage(url) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => resolve(img);
+    img.onerror = reject;
+    img.src = url;
+  });
 }
 
 init();

@@ -9,3 +9,5 @@ Features:
 - notation inside each answer choice
 - result log and PDF export
 - mobile-friendly layout
+
+- PDF export includes the correct notation for each answered progression
