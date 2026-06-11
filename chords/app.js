@@ -231,7 +231,7 @@ function newQuestion() {
   questionDisplay.textContent = "LISTEN";
 
   renderChoices();
-  setStatus("聴いてから右側の3択を選んでください。");
+  setStatus("聴いて、譜例だけを見て右側の3択を選んでください。");
   playCurrentQuestion();
 }
 
@@ -334,24 +334,33 @@ function renderChoices() {
   choiceList.innerHTML = "";
   if (!currentQuestion) return;
 
+  const renderId = currentQuestion.renderId;
+
   currentQuestion.choices.forEach((choice, index) => {
+    const notationId = `choice-notation-${renderId}-${index}`;
     const card = document.createElement("button");
     card.type = "button";
     card.className = "choice-card chord-choice-card";
     card.dataset.id = choice.id;
 
-    // Do not show chord name, spelling, key signature, or notation during the question.
-    // The page is an ear-training question; the answer is revealed only after answering or SHOW.
+    // 出題時は和音名・調号名・構成音を隠す。
+    // ただし選択肢として必要な譜例だけは表示する。
     card.innerHTML = `
       <span class="choice-top">
         <span class="choice-label">${String.fromCharCode(65 + index)}</span>
         <span class="choice-name">Choice ${String.fromCharCode(65 + index)}</span>
       </span>
-      <span class="choice-info">Listen first, then choose.</span>
+      <span class="choice-info">譜例を見て選んでください</span>
+      <span class="choice-notation" id="${notationId}"></span>
     `;
 
     card.addEventListener("click", () => answer(choice.id));
     choiceList.appendChild(card);
+
+    requestAnimationFrame(() => {
+      if (!currentQuestion || currentQuestion.renderId !== renderId) return;
+      renderAbc(notationId, choice.abc, 230);
+    });
   });
 }
 
@@ -409,7 +418,7 @@ async function playCurrentQuestion() {
     });
   }
 
-  setStatus("再生中。右側の3択を選んでください。");
+  setStatus("再生中。譜例だけを見て右側の3択を選んでください。");
 }
 
 
