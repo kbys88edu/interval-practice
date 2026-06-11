@@ -11,3 +11,5 @@ Features:
 - mobile-friendly layout
 
 - PDF export includes the correct notation for each answered progression
+
+- PC layout repaired: smaller score strip, visible global buttons, compact centered notation

@@ -198,7 +198,7 @@ function renderChoices() {
     choiceList.appendChild(card);
 
     requestAnimationFrame(() => {
-      renderAbc(`choice-notation-${index}`, choice.abc, 270);
+      renderAbc(`choice-notation-${index}`, choice.abc, 230);
     });
   });
 }
@@ -572,7 +572,7 @@ function showAnswer() {
 
   answerText.textContent = `正解：${currentQuestion.correct.roman.join(" - ")} / ${currentQuestion.correct.tonality === "major" ? "長調" : "短調"} / 主音 ${midiToNoteName(currentQuestion.tonicMidi)}`;
   analysisText.textContent = `機能：${currentQuestion.correct.label} / ヴォイシング：低音 + 上3声、共通音保持と平行五度・八度の回避を優先`;
-  renderAbc("notation", currentQuestion.correct.abc, 540);
+  renderAbc("notation", currentQuestion.correct.abc, 480);
 }
 
 function buildGrandStaffAbc(progression, voiced) {
