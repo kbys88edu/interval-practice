@@ -18,3 +18,5 @@ Features:
 - notation is generated from the exact same voiced MIDI arrays used for playback
 
 - final octave/stale-render fix: unique ABC render IDs per question, K:C explicit MIDI notation, and shared voiced MIDI source
+
+- key-aware progression notation: grand-staff notation now uses the progression key signature and chord-degree spelling, not sharp-only MIDI names

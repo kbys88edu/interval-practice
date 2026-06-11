@@ -155,10 +155,12 @@ function newQuestion() {
 }
 
 function buildChoice(progression, tonicMidi) {
-  const voiced = voiceLeadProgression(progression, tonicMidi);
+  const chordInfos = buildChordInfos(progression, tonicMidi);
+  const voiced = voiceLeadProgressionFromInfos(chordInfos);
   const choice = {
     ...progression,
     tonicMidi,
+    chordInfos,
     voiced
   };
   choice.abc = buildGrandStaffAbc(choice, voiced);
@@ -289,8 +291,15 @@ function getBeatDurations(count) {
   return Array.from({ length: count }, () => 1);
 }
 
+function buildChordInfos(progression, tonicMidi) {
+  return progression.chords.map((chord) => buildChordInfo(chord, progression.tonality, tonicMidi));
+}
+
 function voiceLeadProgression(progression, tonicMidi) {
-  const infos = progression.chords.map((chord) => buildChordInfo(chord, progression.tonality, tonicMidi));
+  return voiceLeadProgressionFromInfos(buildChordInfos(progression, tonicMidi));
+}
+
+function voiceLeadProgressionFromInfos(infos) {
   let prevVoicing = null;
   return infos.map((info, index) => {
     const voicing = chooseBestVoicing(info, prevVoicing, index === 0);
@@ -553,7 +562,7 @@ function abcKeyFromTonicMidi(tonality, tonicMidi) {
   const pc = mod12(tonicMidi);
   const majorKeys = {
     0: "C", 1: "Db", 2: "D", 3: "Eb", 4: "E", 5: "F",
-    6: "F#", 7: "G", 8: "Ab", 9: "A", 10: "Bb", 11: "B"
+    6: "Gb", 7: "G", 8: "Ab", 9: "A", 10: "Bb", 11: "B"
   };
   const minorKeys = {
     0: "Cm", 1: "C#m", 2: "Dm", 3: "Ebm", 4: "Em", 5: "Fm",
@@ -567,33 +576,144 @@ function abcKeyLine(progression) {
   return `K:${abcKeyFromTonicMidi(progression.tonality, progression.tonicMidi)}`;
 }
 
-// buildGrandStaffAbc uses the exact same voiced MIDI arrays used for playback.
-// Do not recompute pitches here; this keeps sound and notation identical.
-// buildGrandStaffAbc uses the exact same voiced MIDI arrays used for playback.
-// Sound and notation are generated from the same source: choice.voiced.
-function buildGrandStaffAbc(progression, voiced) {
-  const durations = getBeatDurations(voiced.length);
-  const treble = [];
-  const bass = [];
+const naturalPitchClasses = {
+  C: 0, D: 2, E: 4, F: 5, G: 7, A: 9, B: 11
+};
 
-  voiced.forEach((notes, index) => {
-    const dur = durations[index];
-    // notes = [bass, tenor, alto, soprano]
-    treble.push(`[${notes.slice(1).map(midiToAbc).join("")}]${durToAbc(dur)}`);
-    bass.push(`${midiToAbc(notes[0])}${durToAbc(dur)}`);
-  });
+const letterOrder = ["C", "D", "E", "F", "G", "A", "B"];
 
-  return [
-    "X:1",
-    "M:4/4",
-    "L:1/4",
-    "K:C",
-    "%%staves {1 2}",
-    "V:1 clef=treble",
-    "V:2 clef=bass",
-    `[V:1] ${treble.join(" ")} |`,
-    `[V:2] ${bass.join(" ")} |`
-  ].join("\n");
+const qualityLetterSteps = {
+  maj: [0, 2, 4],
+  min: [0, 2, 4],
+  dim: [0, 2, 4],
+  aug: [0, 2, 4],
+  maj7: [0, 2, 4, 6],
+  min7: [0, 2, 4, 6],
+  dom7: [0, 2, 4, 6],
+  halfDim7: [0, 2, 4, 6],
+  dim7: [0, 2, 4, 6]
+};
+
+function midiToAbcProgressionTone(midi, chordInfo, progression) {
+  if (!chordInfo) return midiToAbcAbsolute(midi);
+
+  const toneIndex = chordToneIndexForMidi(midi, chordInfo);
+  const steps = qualityLetterSteps[chordInfo.q] || [0, 2, 4];
+  const step = steps[toneIndex];
+
+  if (step === undefined) return midiToAbcAbsolute(midi);
+
+  const tonicKey = abcKeyFromTonicMidi(progression.tonality, progression.tonicMidi);
+  const rootLetter = rootLetterForDegree(tonicKey, chordInfo.deg);
+  const rootLetterIndex = letterOrder.indexOf(rootLetter);
+  const letter = letterOrder[(rootLetterIndex + step) % 7];
+  const naturalPc = naturalPitchClasses[letter];
+  const actualPc = mod12(midi);
+  const absoluteAlt = absoluteAccidentalFromNatural(actualPc, naturalPc);
+  const octave = Math.floor(midi / 12) - 1;
+  const keySigAlt = keySignatureAlteration(tonicKey, letter);
+
+  if (keySigAlt === absoluteAlt) {
+    return abcLetterWithOctave(letter, octave);
+  }
+
+  return `${abcAccidentalPrefix(absoluteAlt)}${abcLetterWithOctave(letter, octave)}`;
+}
+
+function chordToneIndexForMidi(midi, chordInfo) {
+  const pc = mod12(midi);
+  const index = chordInfo.pcs.findIndex((candidatePc) => candidatePc === pc);
+  return index >= 0 ? index : 0;
+}
+
+function rootLetterForDegree(keySig, degree) {
+  const tonicLetter = tonicLetterFromKey(keySig);
+  const tonicIndex = letterOrder.indexOf(tonicLetter);
+  return letterOrder[(tonicIndex + degree - 1) % 7];
+}
+
+function tonicLetterFromKey(keySig) {
+  return keySig.replace("m", "").replace("#", "").replace("b", "").charAt(0) || "C";
+}
+
+function keySignatureAlteration(keySig, letter) {
+  const accidentalCount = keySignatureAccidentalCount(keySig);
+  const sharps = ["F", "C", "G", "D", "A", "E", "B"];
+  const flats = ["B", "E", "A", "D", "G", "C", "F"];
+
+  if (accidentalCount > 0) {
+    const fullCycles = Math.floor(accidentalCount / 7);
+    const remainder = accidentalCount % 7;
+    return fullCycles + (sharps.slice(0, remainder).includes(letter) ? 1 : 0);
+  }
+
+  if (accidentalCount < 0) {
+    const count = Math.abs(accidentalCount);
+    const fullCycles = Math.floor(count / 7);
+    const remainder = count % 7;
+    return -(fullCycles + (flats.slice(0, remainder).includes(letter) ? 1 : 0));
+  }
+
+  return 0;
+}
+
+function keySignatureAccidentalCount(keySig) {
+  const map = {
+    C: 0, Am: 0,
+    G: 1, Em: 1,
+    D: 2, Bm: 2,
+    A: 3, "F#m": 3,
+    E: 4, "C#m": 4,
+    B: 5, "G#m": 5,
+    "F#": 6, "D#m": 6,
+    "C#": 7, "A#m": 7,
+
+    F: -1, Dm: -1,
+    Bb: -2, Gm: -2,
+    Eb: -3, Cm: -3,
+    Ab: -4, Fm: -4,
+    Db: -5, Bbm: -5,
+    Gb: -6, Ebm: -6,
+    Cb: -7, Abm: -7
+  };
+  return map[keySig] ?? 0;
+}
+
+function absoluteAccidentalFromNatural(actualPc, naturalPc) {
+  const candidates = [-2, -1, 0, 1, 2];
+  const match = candidates.find((alt) => mod12(naturalPc + alt) === actualPc);
+  return match ?? 0;
+}
+
+function abcAccidentalPrefix(absoluteAlt) {
+  if (absoluteAlt === 0) return "=";
+  if (absoluteAlt === 1) return "^";
+  if (absoluteAlt === 2) return "^^";
+  if (absoluteAlt === -1) return "_";
+  if (absoluteAlt === -2) return "__";
+  return "";
+}
+
+function abcLetterWithOctave(letter, octave) {
+  if (octave >= 5) return letter.toLowerCase() + "'".repeat(octave - 5);
+  if (octave <= 3) return letter + ",".repeat(4 - octave);
+  return letter;
+}
+
+function midiToAbcAbsolute(midi) {
+  const names = ["C", "^C", "D", "^D", "E", "F", "^F", "G", "^G", "A", "^A", "B"];
+  const pc = mod12(midi);
+  const octave = Math.floor(midi / 12) - 1;
+  let name = names[pc];
+
+  if (octave >= 5) name = name.toLowerCase() + "'".repeat(octave - 5);
+  else if (octave <= 3) name = name + ",".repeat(4 - octave);
+
+  return name;
+}
+
+function midiToAbc(midi) {
+  return midiToAbcAbsolute(midi);
 }
 
 function durToAbc(dur) {
@@ -675,26 +795,6 @@ function midiToToneNote(midi) {
 
 function midiToNoteName(midi) {
   return midiToToneNote(midi);
-}
-
-function midiToAbc(midi) {
-  // Final absolute ABC octave mapping.
-  // MIDI 48 = C3 = C,
-  // MIDI 60 = C4 = middle C = C
-  // MIDI 72 = C5 = c
-  // This matches Tone.js note names: C4 is middle C.
-  const names = ["C", "^C", "D", "^D", "E", "F", "^F", "G", "^G", "A", "^A", "B"];
-  const pc = mod12(midi);
-  const octave = Math.floor(midi / 12) - 1;
-  let name = names[pc];
-
-  if (octave >= 5) {
-    name = name.toLowerCase() + "'".repeat(octave - 5);
-  } else if (octave <= 3) {
-    name = name + ",".repeat(4 - octave);
-  }
-
-  return name;
 }
 
 async function exportResultsPdf() {
