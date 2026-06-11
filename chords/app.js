@@ -23,8 +23,9 @@ const presets = {
   advanced: chords.map((chord) => chord.id)
 };
 
-// 低すぎると濁りすぎるため、C3からA3を中心にしています。
-const rootMidiNotes = [48, 50, 52, 53, 55, 57];
+// C3からA4までを候補にし、転回形を含む和音の最高音がA5を超えない範囲で出題します。
+const MAX_TREBLE_MIDI = 81; // A5
+const rootMidiNotes = [48, 50, 52, 53, 55, 57, 59, 60, 62, 64, 65, 67, 69];
 
 const inversionLabels = {
   0: "根音位置",
@@ -175,7 +176,6 @@ function newQuestion() {
   }
 
   const chord = randomItem(selectedChords);
-  const rootMidi = randomItem(rootMidiNotes);
   const validInversions = selectedInversions.filter((inversion) => inversion < chord.intervals.length);
 
   if (validInversions.length === 0) {
@@ -183,8 +183,25 @@ function newQuestion() {
     return;
   }
 
-  const inversion = randomItem(validInversions);
-  const midiNotes = buildChordVoicing(rootMidi, chord.intervals, inversion);
+  const playableVoicings = [];
+  rootMidiNotes.forEach((rootMidi) => {
+    validInversions.forEach((inversion) => {
+      const midiNotes = buildChordVoicing(rootMidi, chord.intervals, inversion);
+      if (Math.max(...midiNotes) <= MAX_TREBLE_MIDI) {
+        playableVoicings.push({ rootMidi, inversion, midiNotes });
+      }
+    });
+  });
+
+  if (playableVoicings.length === 0) {
+    setStatus("この和音と転回形では、A5以内に収まる出題がありません。", "incorrect");
+    return;
+  }
+
+  const voicing = randomItem(playableVoicings);
+  const rootMidi = voicing.rootMidi;
+  const inversion = voicing.inversion;
+  const midiNotes = voicing.midiNotes;
 
   currentQuestion = {
     number: totalCount + 1,

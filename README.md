@@ -23,3 +23,10 @@ Some functions use external CDN libraries:
 - jsPDF
 
 Real piano sounds and PDF export require an internet connection.
+
+- `/modes/` mode trainer
+
+
+## Range update
+
+Interval and chord trainers use treble-range notes up to A5 where possible.

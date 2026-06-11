@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Minor Scale Practice | 短音階の聞き分け</title>
+  <title>Mode Practice | 教会旋法</title>
   <link rel="stylesheet" href="style.css" />
   <script src="https://unpkg.com/tone@14.8.49/build/Tone.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/abcjs@6.4.4/dist/abcjs-basic-min.js"></script>
@@ -13,23 +13,26 @@
   <main class="screen">
     <header class="topbar">
       <div class="top-item">
-        <span class="label">MINOR SCALE</span>
+        <span class="label">MODE</span>
       </div>
       <div class="top-copy">
-        <span>Ear training for natural, harmonic, and melodic minor scales</span>
-        <span>Ascending / Descending / Up and down</span>
+        <span>Modal ear training with scales, phrases, and tonic drones</span>
+        <span>Ionian / Dorian / Phrygian / Lydian / Mixolydian / Aeolian / Locrian</span>
       </div>
       <div class="top-count">
-        <a class="tool-link" href="../">HOME</a><a class="tool-link" href="../intervals/">INTERVALS</a>
-        <a class="tool-link" href="../chords/">CHORDS</a><a class="tool-link" href="../related-keys/">KEYS</a><a class="tool-link" href="../modes/">MODES</a>
+        <a class="tool-link" href="../">HOME</a>
+        <a class="tool-link" href="../intervals/">INTERVALS</a>
+        <a class="tool-link" href="../chords/">CHORDS</a>
+        <a class="tool-link" href="../minor-scales/">MINOR</a>
+        <a class="tool-link" href="../related-keys/">KEYS</a>
         <span id="progress-count">00 / 00</span>
       </div>
     </header>
 
     <section class="brand-zone">
-      <div class="big-mark">m</div>
+      <div class="big-mark">M</div>
       <div class="brand-line"></div>
-      <div class="brand-sub">LISTEN / ANSWER / NOTATE / EXPORT</div>
+      <div class="brand-sub">SCALE / PHRASE / DRONE / EXPORT</div>
     </section>
 
     <section class="workbench">
@@ -37,11 +40,11 @@
         <div class="panel-title">SETTINGS</div>
 
         <div class="field">
-          <div class="field-label">MODE</div>
+          <div class="field-label">QUESTION TYPE</div>
           <div class="mode-stack">
-            <label><input type="radio" name="mode" value="ascending" checked> 上行</label>
-            <label><input type="radio" name="mode" value="descending"> 下行</label>
-            <label><input type="radio" name="mode" value="upDown"> 往復</label>
+            <label><input type="radio" name="questionType" value="scale" checked> Scale</label>
+            <label><input type="radio" name="questionType" value="phrase"> Phrase</label>
+            <label><input type="radio" name="questionType" value="dronePhrase"> Drone + Phrase</label>
           </div>
         </div>
 
@@ -64,6 +67,15 @@
             <button class="mini" data-tonics="all" type="button">全調</button>
           </div>
         </div>
+
+        <div class="field">
+          <div class="field-label">PRESET</div>
+          <div class="preset-row three">
+            <button class="mini" data-preset="beginner" type="button">初級</button>
+            <button class="mini" data-preset="middle" type="button">中級</button>
+            <button class="mini" data-preset="advanced" type="button">上級</button>
+          </div>
+        </div>
       </aside>
 
       <section class="panel main-panel">
@@ -72,11 +84,11 @@
             <div class="panel-title row-title">
               <span>RANGE</span>
               <span class="range-tools">
-                <button id="select-all-scales" class="micro" type="button">ALL</button>
-                <button id="clear-all-scales" class="micro" type="button">NONE</button>
+                <button id="select-all-modes" class="micro" type="button">ALL</button>
+                <button id="clear-all-modes" class="micro" type="button">NONE</button>
               </span>
             </div>
-            <div id="scale-options" class="choice-grid"></div>
+            <div id="mode-options" class="choice-grid"></div>
           </div>
 
           <div class="quiz-center">
@@ -114,8 +126,9 @@
 
     <section class="bottom-area">
       <div class="notation-card">
-        <div class="panel-title">NOTATION</div>
+        <div class="panel-title">NOTATION / ANALYSIS</div>
         <div id="answer-text" class="answer-text"></div>
+        <div id="analysis-text" class="analysis-text"></div>
         <div id="notation" class="notation"></div>
       </div>
 

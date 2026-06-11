@@ -1,25 +1,85 @@
-const intervals = [
-  { id: "m2", name: "短2度", semitones: 1 },
-  { id: "M2", name: "長2度", semitones: 2 },
-  { id: "m3", name: "短3度", semitones: 3 },
-  { id: "M3", name: "長3度", semitones: 4 },
-  { id: "P4", name: "完全4度", semitones: 5 },
-  { id: "TT", name: "増4度 / 減5度", semitones: 6 },
-  { id: "P5", name: "完全5度", semitones: 7 },
-  { id: "m6", name: "短6度", semitones: 8 },
-  { id: "M6", name: "長6度", semitones: 9 },
-  { id: "m7", name: "短7度", semitones: 10 },
-  { id: "M7", name: "長7度", semitones: 11 }
+const modes = [
+  {
+    id: "ionian",
+    name: "Ionian",
+    ja: "アイオニアン",
+    intervals: [0, 2, 4, 5, 7, 9, 11, 12],
+    degrees: "1 2 3 4 5 6 7",
+    feature: "長音階",
+    comment: "明るく安定した長調の基準。",
+    phrase: [0, 2, 4, 7, 9, 7, 4, 2, 0]
+  },
+  {
+    id: "dorian",
+    name: "Dorian",
+    ja: "ドリアン",
+    intervals: [0, 2, 3, 5, 7, 9, 10, 12],
+    degrees: "1 2 ♭3 4 5 6 ♭7",
+    feature: "長6度",
+    comment: "短調の中に6度だけ明るく残る。",
+    phrase: [0, 3, 5, 7, 9, 7, 5, 3, 0]
+  },
+  {
+    id: "phrygian",
+    name: "Phrygian",
+    ja: "フリジアン",
+    intervals: [0, 1, 3, 5, 7, 8, 10, 12],
+    degrees: "1 ♭2 ♭3 4 5 ♭6 ♭7",
+    feature: "短2度",
+    comment: "主音のすぐ上に半音があり、強い緊張がある。",
+    phrase: [0, 1, 0, 3, 5, 3, 1, 0]
+  },
+  {
+    id: "lydian",
+    name: "Lydian",
+    ja: "リディアン",
+    intervals: [0, 2, 4, 6, 7, 9, 11, 12],
+    degrees: "1 2 3 #4 5 6 7",
+    feature: "増4度",
+    comment: "長調より浮遊感があり、4度が上ずって聴こえる。",
+    phrase: [0, 2, 4, 6, 7, 6, 4, 2, 0]
+  },
+  {
+    id: "mixolydian",
+    name: "Mixolydian",
+    ja: "ミクソリディアン",
+    intervals: [0, 2, 4, 5, 7, 9, 10, 12],
+    degrees: "1 2 3 4 5 6 ♭7",
+    feature: "短7度",
+    comment: "長調に近いが、7度が低く、少し民俗的・開放的。",
+    phrase: [0, 4, 7, 10, 9, 7, 4, 2, 0]
+  },
+  {
+    id: "aeolian",
+    name: "Aeolian",
+    ja: "エオリアン",
+    intervals: [0, 2, 3, 5, 7, 8, 10, 12],
+    degrees: "1 2 ♭3 4 5 ♭6 ♭7",
+    feature: "短6度",
+    comment: "自然短音階。暗く、6度も7度も低い。",
+    phrase: [0, 2, 3, 7, 8, 7, 5, 3, 0]
+  },
+  {
+    id: "locrian",
+    name: "Locrian",
+    ja: "ロクリアン",
+    intervals: [0, 1, 3, 5, 6, 8, 10, 12],
+    degrees: "1 ♭2 ♭3 4 ♭5 ♭6 ♭7",
+    feature: "短2度 + 減5度",
+    comment: "主音上の5度が減5度になり、非常に不安定。",
+    phrase: [0, 1, 3, 5, 6, 5, 3, 1, 0]
+  }
 ];
 
 const presets = {
-  beginner: ["M2", "m3", "M3", "P5"],
-  intermediate: ["m2", "M2", "m3", "M3", "P4", "TT", "P5"],
-  advanced: intervals.map((interval) => interval.id)
+  beginner: ["ionian", "dorian", "mixolydian", "aeolian"],
+  middle: ["dorian", "phrygian", "lydian", "mixolydian", "aeolian"],
+  advanced: modes.map((mode) => mode.id)
 };
 
-const MAX_TREBLE_MIDI = 81; // A5
-const baseMidiNotes = [60, 62, 64, 65, 67, 69, 71, 72, 74, 76, 77, 79, 81];
+const whiteKeyTonics = [60, 62, 64, 65, 67, 69, 71]; // C D E F G A B
+const allTonics = [60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71];
+let tonicPool = whiteKeyTonics.slice();
 
 let currentQuestion = null;
 let hasAnsweredCurrentQuestion = false;
@@ -32,18 +92,17 @@ let resultLog = [];
 let questionStartTime = null;
 let latestResponseTimeSec = null;
 
-const intervalOptions = document.querySelector("#interval-options");
+const modeOptions = document.querySelector("#mode-options");
 const answerButtons = document.querySelector("#answer-buttons");
 const statusEl = document.querySelector("#status");
 const answerText = document.querySelector("#answer-text");
+const analysisText = document.querySelector("#analysis-text");
 const notationEl = document.querySelector("#notation");
 const totalCountEl = document.querySelector("#total-count");
 const correctCountEl = document.querySelector("#correct-count");
 const scorePercentEl = document.querySelector("#score-percent");
 const currentTimeEl = document.querySelector("#current-time");
 const progressCountEl = document.querySelector("#progress-count");
-const questionDisplay = document.querySelector("#question-display");
-const bigNote = document.querySelector("#big-note");
 const historyList = document.querySelector("#history-list");
 const instrumentSelect = document.querySelector("#instrument-select");
 
@@ -52,6 +111,19 @@ document.querySelector("#play-question").addEventListener("click", playCurrentQu
 document.querySelector("#show-answer").addEventListener("click", showAnswerAndNotation);
 document.querySelector("#reset-score").addEventListener("click", resetScore);
 document.querySelector("#export-pdf").addEventListener("click", exportResultsPdf);
+document.querySelector("#select-all-modes").addEventListener("click", () => setAllModeSelections(true));
+document.querySelector("#clear-all-modes").addEventListener("click", () => setAllModeSelections(false));
+
+document.querySelectorAll("[data-preset]").forEach((button) => {
+  button.addEventListener("click", () => applyPreset(button.dataset.preset));
+});
+
+document.querySelectorAll("[data-tonics]").forEach((button) => {
+  button.addEventListener("click", () => {
+    tonicPool = button.dataset.tonics === "all" ? allTonics.slice() : whiteKeyTonics.slice();
+    setStatus(button.dataset.tonics === "all" ? "全調モードにしました。" : "白鍵の主音だけにしました。");
+  });
+});
 
 instrumentSelect.addEventListener("change", () => {
   disposeCurrentInstrument();
@@ -60,55 +132,58 @@ instrumentSelect.addEventListener("change", () => {
   setStatus(`音色：${instrumentSelect.options[instrumentSelect.selectedIndex].text}`);
 });
 
-document.querySelectorAll("[data-preset]").forEach((button) => {
-  button.addEventListener("click", () => applyPreset(button.dataset.preset));
-});
-
 function init() {
-  renderIntervalOptions();
+  renderModeOptions();
   renderAnswerButtons();
   applyPreset("beginner");
   updateScore();
 }
 
-function renderIntervalOptions() {
-  intervalOptions.innerHTML = "";
-  intervals.forEach((interval) => {
+function renderModeOptions() {
+  modeOptions.innerHTML = "";
+  modes.forEach((mode) => {
     const label = document.createElement("label");
-    label.className = "interval-check";
-    label.innerHTML = `<input type="checkbox" value="${interval.id}" /><span>${interval.name}</span>`;
-    intervalOptions.appendChild(label);
+    label.className = "choice-check";
+    label.innerHTML = `<input type="checkbox" value="${mode.id}" /><span>${mode.name} / ${mode.ja}</span>`;
+    modeOptions.appendChild(label);
   });
 }
 
 function renderAnswerButtons() {
   answerButtons.innerHTML = "";
-  intervals.forEach((interval) => {
+  modes.forEach((mode) => {
     const button = document.createElement("button");
     button.type = "button";
-    button.dataset.answer = interval.id;
-    button.textContent = interval.name;
-    button.addEventListener("click", () => answer(interval.id));
+    button.dataset.answer = mode.id;
+    button.textContent = `${mode.name} / ${mode.ja}`;
+    button.addEventListener("click", () => answer(mode.id));
     answerButtons.appendChild(button);
   });
 }
 
+function setAllModeSelections(checked) {
+  document.querySelectorAll("#mode-options input").forEach((input) => {
+    input.checked = checked;
+  });
+  setStatus(checked ? "旋法をすべて選択しました。" : "旋法をすべて外しました。");
+}
+
 function applyPreset(name) {
   const selected = presets[name] || [];
-  document.querySelectorAll("#interval-options input").forEach((input) => {
+  document.querySelectorAll("#mode-options input").forEach((input) => {
     input.checked = selected.includes(input.value);
   });
   setStatus("プリセットを選択しました。NEW を押してください。");
 }
 
-function getSelectedIntervals() {
-  const selectedIds = Array.from(document.querySelectorAll("#interval-options input:checked"))
+function getSelectedModes() {
+  const selectedIds = Array.from(document.querySelectorAll("#mode-options input:checked"))
     .map((input) => input.value);
-  return intervals.filter((interval) => selectedIds.includes(interval.id));
+  return modes.filter((mode) => selectedIds.includes(mode.id));
 }
 
-function getMode() {
-  return document.querySelector('input[name="mode"]:checked').value;
+function getQuestionType() {
+  return document.querySelector('input[name="questionType"]:checked').value;
 }
 
 function randomItem(array) {
@@ -116,40 +191,52 @@ function randomItem(array) {
 }
 
 function newQuestion() {
-  const selectedIntervals = getSelectedIntervals();
+  const selectedModes = getSelectedModes();
 
-  if (selectedIntervals.length === 0) {
+  if (selectedModes.length === 0) {
     setStatus("出題範囲を1つ以上選択してください。", "incorrect");
     return;
   }
 
   clearFeedback();
 
-  const interval = randomItem(selectedIntervals);
-  const possibleBaseNotes = baseMidiNotes.filter((midi) => midi + interval.semitones <= MAX_TREBLE_MIDI);
-  const lowerMidi = randomItem(possibleBaseNotes);
-  const upperMidi = lowerMidi + interval.semitones;
+  const mode = randomItem(selectedModes);
+  const tonicMidi = randomItem(tonicPool);
+  const questionType = getQuestionType();
+  const midiNotes = buildQuestionNotes(tonicMidi, mode, questionType);
 
   currentQuestion = {
     number: totalCount + 1,
-    interval,
-    mode: getMode(),
-    lowerMidi,
-    upperMidi
+    mode,
+    questionType,
+    tonicMidi,
+    midiNotes
   };
 
   hasAnsweredCurrentQuestion = false;
   answerText.textContent = "";
+  analysisText.textContent = "";
   notationEl.innerHTML = "";
   questionStartTime = null;
   latestResponseTimeSec = null;
   currentTimeEl.textContent = "--";
 
-  // 問題ごとにタイポグラフィが変化すると、視覚情報から推測できるため固定します。
-  questionDisplay.textContent = "LISTEN";
-  bigNote.textContent = "C";
   setStatus("問題を作成しました。再生します。");
   playCurrentQuestion();
+}
+
+function buildQuestionNotes(tonicMidi, mode, questionType) {
+  if (questionType === "scale") {
+    return mode.intervals.map((interval) => tonicMidi + interval);
+  }
+
+  if (questionType === "phrase" || questionType === "dronePhrase") {
+    const opening = [tonicMidi, tonicMidi + 12];
+    const phrase = mode.phrase.map((interval) => tonicMidi + interval);
+    return opening.concat(phrase);
+  }
+
+  return mode.intervals.map((interval) => tonicMidi + interval);
 }
 
 async function ensureAudio() {
@@ -189,11 +276,11 @@ async function createInstrument(name) {
         "A6": "A6.mp3", "C7": "C7.mp3", "D#7": "Ds7.mp3", "F#7": "Fs7.mp3",
         "A7": "A7.mp3", "C8": "C8.mp3"
       },
-      release: 1.4,
+      release: 1.2,
       baseUrl: "https://tonejs.github.io/audio/salamander/"
     }).toDestination();
 
-    sampler.volume.value = -6;
+    sampler.volume.value = -8;
     await Tone.loaded();
     setStatus("リアルピアノの読み込みが完了しました。");
     return sampler;
@@ -202,51 +289,51 @@ async function createInstrument(name) {
   if (name === "softPiano") {
     const synth = new Tone.PolySynth(Tone.Synth, {
       oscillator: { type: "triangle" },
-      envelope: { attack: 0.015, decay: 0.18, sustain: 0.22, release: 0.9 }
+      envelope: { attack: 0.015, decay: 0.18, sustain: 0.22, release: 0.65 }
     }).toDestination();
-    synth.volume.value = -9;
+    synth.volume.value = -11;
     return synth;
   }
 
   if (name === "clearSine") {
     const synth = new Tone.PolySynth(Tone.Synth, {
       oscillator: { type: "sine" },
-      envelope: { attack: 0.01, decay: 0.08, sustain: 0.5, release: 0.45 }
+      envelope: { attack: 0.01, decay: 0.08, sustain: 0.5, release: 0.35 }
     }).toDestination();
-    synth.volume.value = -8;
+    synth.volume.value = -9;
     return synth;
   }
 
   if (name === "warmSynth") {
     const synth = new Tone.PolySynth(Tone.Synth, {
       oscillator: { type: "sawtooth" },
-      envelope: { attack: 0.04, decay: 0.18, sustain: 0.35, release: 0.7 }
+      envelope: { attack: 0.04, decay: 0.18, sustain: 0.35, release: 0.55 }
     });
     const filter = new Tone.Filter(1200, "lowpass");
     synth.connect(filter);
     filter.toDestination();
-    synth.volume.value = -16;
+    synth.volume.value = -20;
     return synth;
   }
 
   if (name === "organ") {
     const synth = new Tone.PolySynth(Tone.Synth, {
       oscillator: { type: "square" },
-      envelope: { attack: 0.01, decay: 0.02, sustain: 0.85, release: 0.25 }
+      envelope: { attack: 0.01, decay: 0.02, sustain: 0.85, release: 0.2 }
     });
     const filter = new Tone.Filter(1800, "lowpass");
     synth.connect(filter);
     filter.toDestination();
-    synth.volume.value = -18;
+    synth.volume.value = -22;
     return synth;
   }
 
   if (name === "pluck") {
     const synth = new Tone.PolySynth(Tone.Synth, {
       oscillator: { type: "triangle" },
-      envelope: { attack: 0.005, decay: 0.12, sustain: 0.05, release: 0.35 }
+      envelope: { attack: 0.005, decay: 0.12, sustain: 0.05, release: 0.25 }
     }).toDestination();
-    synth.volume.value = -8;
+    synth.volume.value = -10;
     return synth;
   }
 
@@ -280,35 +367,29 @@ async function playCurrentQuestion() {
     return;
   }
 
-  const lower = midiToToneNote(currentQuestion.lowerMidi);
-  const upper = midiToToneNote(currentQuestion.upperMidi);
+  const notes = currentQuestion.midiNotes.map(midiToToneNote);
   const now = Tone.now();
 
-  // 回答時間は、問題音の再生開始時から最初の回答までを計測します。
   if (!hasAnsweredCurrentQuestion) {
     questionStartTime = performance.now();
     latestResponseTimeSec = null;
     currentTimeEl.textContent = "0.0s";
   }
 
-  if (currentQuestion.mode === "ascending") {
-    instrument.triggerAttackRelease(lower, "4n", now);
-    instrument.triggerAttackRelease(upper, "4n", now + 0.75);
+  if (currentQuestion.questionType === "dronePhrase") {
+    const droneNote = midiToToneNote(currentQuestion.tonicMidi - 12);
+    instrument.triggerAttackRelease(droneNote, "1m", now);
   }
 
-  if (currentQuestion.mode === "descending") {
-    instrument.triggerAttackRelease(upper, "4n", now);
-    instrument.triggerAttackRelease(lower, "4n", now + 0.75);
-  }
-
-  if (currentQuestion.mode === "harmonic") {
-    instrument.triggerAttackRelease([lower, upper], "2n", now);
-  }
+  notes.forEach((note, index) => {
+    const duration = index < 2 && currentQuestion.questionType !== "scale" ? "4n" : "8n";
+    instrument.triggerAttackRelease(note, duration, now + index * 0.28);
+  });
 
   setStatus("再生しました。答えを選んでください。");
 }
 
-function answer(intervalId) {
+function answer(modeId) {
   if (!currentQuestion) {
     setStatus("先に NEW を押してください。", "incorrect");
     return;
@@ -326,35 +407,37 @@ function answer(intervalId) {
   hasAnsweredCurrentQuestion = true;
   totalCount += 1;
 
-  const isCorrect = intervalId === currentQuestion.interval.id;
-  const selectedInterval = intervals.find((interval) => interval.id === intervalId);
-
+  const isCorrect = modeId === currentQuestion.mode.id;
+  const selectedMode = modes.find((mode) => mode.id === modeId);
   const timeText = latestResponseTimeSec !== null ? ` / ${latestResponseTimeSec.toFixed(1)}秒` : "";
 
   if (isCorrect) {
     correctCount += 1;
-    setStatus(`正解：${currentQuestion.interval.name}${timeText}`, "correct");
+    setStatus(`正解：${currentQuestion.mode.name}${timeText}`, "correct");
   } else {
-    setStatus(`不正解：選択 ${selectedInterval?.name || ""} / 正解 ${currentQuestion.interval.name}${timeText}`, "incorrect");
+    setStatus(`不正解：選択 ${selectedMode?.name || ""} / 正解 ${currentQuestion.mode.name}${timeText}`, "incorrect");
   }
 
   currentTimeEl.textContent = latestResponseTimeSec !== null ? `${latestResponseTimeSec.toFixed(1)}s` : "--";
 
   resultLog.push({
     number: totalCount,
-    mode: currentQuestion.mode,
-    modeLabel: getModeLabel(currentQuestion.mode),
-    lowerMidi: currentQuestion.lowerMidi,
-    upperMidi: currentQuestion.upperMidi,
-    intervalName: currentQuestion.interval.name,
-    selectedName: selectedInterval?.name || "",
+    questionType: currentQuestion.questionType,
+    questionTypeLabel: getQuestionTypeLabel(currentQuestion.questionType),
+    tonicMidi: currentQuestion.tonicMidi,
+    tonicNote: midiToToneNote(currentQuestion.tonicMidi),
+    modeName: currentQuestion.mode.name,
+    modeJa: currentQuestion.mode.ja,
+    selectedName: selectedMode?.name || "",
+    feature: currentQuestion.mode.feature,
+    degrees: currentQuestion.mode.degrees,
+    comment: currentQuestion.mode.comment,
     isCorrect,
     responseTimeSec: latestResponseTimeSec,
-    lowerNote: midiToToneNote(currentQuestion.lowerMidi),
-    upperNote: midiToToneNote(currentQuestion.upperMidi)
+    midiNotes: currentQuestion.midiNotes
   });
 
-  markAnswerButtons(intervalId, isCorrect);
+  markAnswerButtons(modeId, isCorrect);
   updateScore();
   renderHistory();
 }
@@ -363,7 +446,7 @@ function markAnswerButtons(selectedId, isCorrect) {
   document.querySelectorAll("#answer-buttons button").forEach((button) => {
     button.classList.remove("selected-correct", "selected-incorrect");
 
-    if (button.dataset.answer === currentQuestion.interval.id) {
+    if (button.dataset.answer === currentQuestion.mode.id) {
       button.classList.add("selected-correct");
     }
 
@@ -411,16 +494,14 @@ function showAnswerAndNotation() {
     return;
   }
 
-  const modeLabel = getModeLabel(currentQuestion.mode);
-  const lowerName = midiToToneNote(currentQuestion.lowerMidi);
-  const upperName = midiToToneNote(currentQuestion.upperMidi);
-
-  answerText.textContent = `正解：${currentQuestion.interval.name} / ${modeLabel} / ${lowerName} – ${upperName}`;
+  const tonicName = midiToToneNote(currentQuestion.tonicMidi);
+  answerText.textContent = `正解：${tonicName} ${currentQuestion.mode.name} / ${currentQuestion.mode.ja} / ${getQuestionTypeLabel(currentQuestion.questionType)}`;
+  analysisText.textContent = `特徴音：${currentQuestion.mode.feature} / 構成：${currentQuestion.mode.degrees} / 聴き方：${currentQuestion.mode.comment}`;
 
   const abc = buildAbcNotation(currentQuestion);
   ABCJS.renderAbc("notation", abc, {
     responsive: "resize",
-    staffwidth: 520,
+    staffwidth: 680,
     paddingtop: 0,
     paddingbottom: 0,
     paddingleft: 0,
@@ -440,7 +521,7 @@ function renderHistory() {
     row.className = "history-item";
     row.innerHTML = `
       <span>${String(item.number).padStart(2, "0")}</span>
-      <span>${item.modeLabel} / ${item.intervalName} / ${formatResponseTime(item.responseTimeSec)}</span>
+      <span>${item.questionTypeLabel} / ${item.modeName} / ${formatResponseTime(item.responseTimeSec)}</span>
       <span class="${item.isCorrect ? "ok" : "ng"}">${item.isCorrect ? "OK" : "NG"}</span>
     `;
     historyList.appendChild(row);
@@ -451,36 +532,21 @@ function formatResponseTime(value) {
   return typeof value === "number" && Number.isFinite(value) ? `${value.toFixed(1)}s` : "-";
 }
 
+function getQuestionTypeLabel(type) {
+  return {
+    scale: "Scale",
+    phrase: "Phrase",
+    dronePhrase: "Drone + Phrase"
+  }[type] || type;
+}
+
 function buildAbcNotation(question) {
-  const lower = midiToAbc(question.lowerMidi);
-  const upper = midiToAbc(question.upperMidi);
-
-  let body = "";
-  if (question.mode === "ascending") body = `${lower} ${upper} |`;
-  if (question.mode === "descending") body = `${upper} ${lower} |`;
-  if (question.mode === "harmonic") body = `[${lower}${upper}]2 |`;
-
+  const notes = question.midiNotes.map(midiToAbc);
   return `X:1
 M:4/4
-L:1/4
+L:1/8
 K:C
-${body}`;
-}
-
-function getModeLabel(mode) {
-  return {
-    ascending: "旋律音程・上行",
-    descending: "旋律音程・下行",
-    harmonic: "和声音程・同時"
-  }[mode];
-}
-
-function getModeShortLabel(mode) {
-  return {
-    ascending: "A / UP",
-    descending: "B / DOWN",
-    harmonic: "D / HARM."
-  }[mode];
+${notes.join(" ")} |`;
 }
 
 function midiToToneNote(midi) {
@@ -491,7 +557,7 @@ function midiToToneNote(midi) {
 }
 
 function midiToAbc(midi) {
-  const names = ["C", "_D", "D", "_E", "E", "F", "^F", "G", "_A", "A", "_B", "B"];
+  const names = ["C", "^C", "D", "_E", "E", "F", "^F", "G", "^G", "A", "_B", "B"];
   const pc = ((midi % 12) + 12) % 12;
   const octave = Math.floor(midi / 12) - 1;
   let name = names[pc];
@@ -504,9 +570,6 @@ function midiToAbc(midi) {
   return name;
 }
 
-// PDF出力。
-// 画面の楽譜と同じ abcjs SVG を生成し、それをPNG画像化してPDFに貼ります。
-// これにより、PDF内の五線譜・音符の位置が崩れにくくなります。
 async function exportResultsPdf() {
   if (!window.jspdf || !window.jspdf.jsPDF) {
     setStatus("PDFライブラリを読み込めませんでした。インターネット接続を確認してください。", "incorrect");
@@ -528,10 +591,14 @@ async function exportResultsPdf() {
 
     const rate = totalCount === 0 ? 0 : Math.round((correctCount / totalCount) * 100);
     const date = new Date().toLocaleString();
+    const answeredWithTime = resultLog.filter(item => item.responseTimeSec !== null);
+    const avgTime = answeredWithTime.length
+      ? answeredWithTime.reduce((sum, item) => sum + item.responseTimeSec, 0) / answeredWithTime.length
+      : null;
 
     doc.setFont("helvetica", "bold");
     doc.setFontSize(22);
-    doc.text("Interval Practice Result", 16, 18);
+    doc.text("Mode Practice Result", 16, 18);
 
     doc.setDrawColor(40);
     doc.setLineWidth(1.4);
@@ -540,11 +607,6 @@ async function exportResultsPdf() {
     doc.setFont("helvetica", "normal");
     doc.setFontSize(10);
     doc.text(`Date: ${date}`, 16, 32);
-    const answeredWithTime = resultLog.filter(item => item.responseTimeSec !== null);
-    const avgTime = answeredWithTime.length
-      ? answeredWithTime.reduce((sum, item) => sum + item.responseTimeSec, 0) / answeredWithTime.length
-      : null;
-
     doc.text(`Questions: ${totalCount}`, 16, 39);
     doc.text(`Correct: ${correctCount}`, 58, 39);
     doc.text(`Accuracy: ${rate}%`, 96, 39);
@@ -553,7 +615,7 @@ async function exportResultsPdf() {
     let y = 52;
 
     for (const item of resultLog) {
-      if (y > 248) {
+      if (y > 246) {
         doc.addPage();
         y = 18;
       }
@@ -561,7 +623,7 @@ async function exportResultsPdf() {
       doc.setFont("helvetica", "bold");
       doc.setFontSize(10);
       doc.text(
-        `${String(item.number).padStart(2, "0")}  ${modeToPdfLabel(item.mode)}  ${item.lowerNote} - ${item.upperNote}`,
+        `${String(item.number).padStart(2, "0")}  ${item.questionTypeLabel}  Tonic: ${item.tonicNote}  ${item.modeName}`,
         16,
         y
       );
@@ -569,32 +631,27 @@ async function exportResultsPdf() {
       doc.setFont("helvetica", "normal");
       doc.setFontSize(9);
       doc.text(
-        `Correct interval: ${intervalToPdfLabel(item.intervalName)} / Your answer: ${intervalToPdfLabel(item.selectedName)} / ${item.isCorrect ? "OK" : "NG"} / Time: ${formatResponseTime(item.responseTimeSec)}`,
+        `Your answer: ${item.selectedName || "-"} / ${item.isCorrect ? "OK" : "NG"} / Time: ${formatResponseTime(item.responseTimeSec)}`,
         16,
         y + 6
       );
+      doc.text(`Feature: ${item.feature} / Degrees: ${item.degrees}`, 16, y + 12);
 
-      const abc = buildAbcNotation({
-        mode: item.mode,
-        lowerMidi: item.lowerMidi,
-        upperMidi: item.upperMidi
-      });
-
+      const abc = buildAbcNotation({ midiNotes: item.midiNotes });
       const notationImage = await renderAbcToPngDataUrl(abc);
-      const imageWidthMm = 92;
+      const imageWidthMm = 118;
       const imageHeightMm = imageWidthMm * (notationImage.height / notationImage.width);
 
-      if (y + 12 + imageHeightMm > 282) {
+      if (y + 20 + imageHeightMm > 282) {
         doc.addPage();
         y = 18;
       }
 
-      doc.addImage(notationImage.dataUrl, "PNG", 16, y + 10, imageWidthMm, imageHeightMm);
-
-      y += 18 + imageHeightMm;
+      doc.addImage(notationImage.dataUrl, "PNG", 16, y + 16, imageWidthMm, imageHeightMm);
+      y += 27 + imageHeightMm;
     }
 
-    doc.save("interval-practice-result.pdf");
+    doc.save("mode-practice-result.pdf");
     setStatus("結果PDFを出力しました。", "correct");
   } catch (error) {
     console.error(error);
@@ -604,43 +661,18 @@ async function exportResultsPdf() {
   }
 }
 
-function modeToPdfLabel(mode) {
-  return {
-    ascending: "Mode A: ascending melodic",
-    descending: "Mode B: descending melodic",
-    harmonic: "Mode D: harmonic"
-  }[mode] || mode;
-}
-
-function intervalToPdfLabel(name) {
-  const map = {
-    "短2度": "minor 2nd",
-    "長2度": "major 2nd",
-    "短3度": "minor 3rd",
-    "長3度": "major 3rd",
-    "完全4度": "perfect 4th",
-    "増4度 / 減5度": "tritone",
-    "完全5度": "perfect 5th",
-    "短6度": "minor 6th",
-    "長6度": "major 6th",
-    "短7度": "minor 7th",
-    "長7度": "major 7th"
-  };
-  return map[name] || name || "-";
-}
-
 async function renderAbcToPngDataUrl(abc) {
   const host = document.createElement("div");
   host.style.position = "fixed";
   host.style.left = "-10000px";
   host.style.top = "0";
-  host.style.width = "720px";
+  host.style.width = "840px";
   host.style.background = "white";
   document.body.appendChild(host);
 
   ABCJS.renderAbc(host, abc, {
     responsive: "resize",
-    staffwidth: 620,
+    staffwidth: 760,
     paddingtop: 0,
     paddingbottom: 0,
     paddingleft: 0,
