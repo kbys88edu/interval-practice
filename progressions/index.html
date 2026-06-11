@@ -14,8 +14,8 @@
     <header class="topbar">
       <div class="top-item"><span class="label">PROGRESSION</span></div>
       <div class="top-copy">
-        <span>Listen to a voiced harmonic progression and choose the correct Roman numerals</span>
-        <span>Triads / seventh chords / centered notation</span>
+        <span>Chord progression dictation</span>
+        <span>Four-part voicing / triads / seventh chords / notation export</span>
       </div>
       <div class="top-count">
         <a class="tool-link" href="../">HOME</a>
@@ -33,7 +33,7 @@
     <section class="brand-zone">
       <div class="big-mark">P</div>
       <div class="brand-line"></div>
-      <div class="brand-sub">LISTEN / ROMAN NUMERALS / NOTATION / EXPORT</div>
+      <div class="brand-sub">LISTEN / ROMAN NUMERALS / GRAND STAFF</div>
     </section>
 
     <section class="workbench">
@@ -85,17 +85,17 @@
         </div>
       </aside>
 
-      <section class="panel main-panel">
-        <div class="main-grid">
-          <div class="quiz-center">
-            <div class="display-card">
-              <div class="display-label">CURRENT QUESTION</div>
-              <div id="question-display" class="question-display">LISTEN</div>
-              <div id="status" class="status" aria-live="polite">
-                NEW を押して、演奏されたコード進行を3つの選択肢から選んでください。
-              </div>
+      <section class="main-panel">
+        <div class="question-strip">
+          <div class="display-card">
+            <div class="display-label">CURRENT QUESTION</div>
+            <div id="question-display" class="question-display">LISTEN</div>
+            <div id="status" class="status" aria-live="polite">
+              NEW を押して、演奏されたコード進行を3つの選択肢から選んでください。
             </div>
+          </div>
 
+          <div class="control-zone">
             <div class="button-row">
               <button id="new-question" type="button">NEW</button>
               <button id="play-question" type="button">PLAY</button>
@@ -111,27 +111,27 @@
               <button id="reset-score" type="button" class="mini">RESET</button>
             </div>
           </div>
+        </div>
 
-          <div class="quiz-right">
-            <div class="panel-title">CHOOSE ONE</div>
-            <div id="choice-list" class="choice-list"></div>
+        <div class="choices-zone">
+          <div class="panel-title">CHOOSE ONE</div>
+          <div id="choice-list" class="choice-list"></div>
+        </div>
+
+        <div class="answer-zone">
+          <div class="notation-card">
+            <div class="panel-title">ANSWER / NOTATION</div>
+            <div id="answer-text" class="answer-text"></div>
+            <div id="analysis-text" class="analysis-text"></div>
+            <div id="notation" class="notation"></div>
+          </div>
+
+          <div class="history-card">
+            <div class="panel-title">RESULT LOG</div>
+            <div id="history-list" class="history-list">まだ解答履歴がありません。</div>
           </div>
         </div>
       </section>
-    </section>
-
-    <section class="bottom-area">
-      <div class="notation-card">
-        <div class="panel-title">ANSWER / NOTATION</div>
-        <div id="answer-text" class="answer-text"></div>
-        <div id="analysis-text" class="analysis-text"></div>
-        <div id="notation" class="notation"></div>
-      </div>
-
-      <div class="history-card">
-        <div class="panel-title">RESULT LOG</div>
-        <div id="history-list" class="history-list">まだ解答履歴がありません。</div>
-      </div>
     </section>
   </main>
 

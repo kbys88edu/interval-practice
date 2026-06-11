@@ -1,15 +1,13 @@
 # Chord Progression Practice
 
-This page has been rebuilt from scratch.
+Rebuilt from scratch.
 
 Features:
-- natural four-part-style playback instead of parallel-planed chords
-- triads and seventh chords
-- centered notation
+- compact PC layout with visible global buttons and score
+- three answer cards on one screen
 - notation inside each answer choice
-- result log and PDF export
-- mobile-friendly layout
-
-- PDF export includes the correct notation for each answered progression
-
-- PC layout repaired: smaller score strip, visible global buttons, compact centered notation
+- centered answer notation
+- PDF export with notation for each answered progression
+- triads and seventh chords
+- four-part-style voicing
+- voice-leading scoring: common tones, small motion, and parallel perfect interval avoidance
