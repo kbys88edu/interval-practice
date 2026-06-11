@@ -231,7 +231,7 @@ function newQuestion() {
   questionDisplay.textContent = "LISTEN";
 
   renderChoices();
-  setStatus(`${modeLabel(mode)} / ${correct.root.name}${correct.chord.symbol} / ${inversionLabel(correct.inversion)}`);
+  setStatus(`${modeLabel(mode)} / 聴いてから右側の3択を選んでください。`);
   playCurrentQuestion();
 }
 
@@ -349,7 +349,7 @@ function renderChoices() {
         <span class="choice-name">${choice.answerLabel}</span>
       </span>
       <span class="choice-info">${choice.keySig} / ${choice.chord.label} / ${inversionLabel(choice.inversion)}</span>
-      <span class="choice-tones">${choice.spelledTones.map((tone) => tone.label).join(" - ")}</span>
+      <span class="choice-tones">Listen and choose</span>
       <span class="choice-notation" id="${notationId}"></span>
     `;
 
@@ -417,7 +417,7 @@ async function playCurrentQuestion() {
     });
   }
 
-  setStatus(`${modeLabel(currentQuestion.mode)} / ${choice.detailLabel}`);
+  setStatus(`${modeLabel(currentQuestion.mode)} / 再生中。右側の3択を選んでください。`);
 }
 
 function answer(choiceId) {
