@@ -21,3 +21,7 @@ Practice:
 - The rhythm starts immediately after the count-in without an extra gap
 
 - Rhythm answer notation contrast increased for clearer reading
+
+- Reconfirmed same-meter answer generation with a safety check
+- Added explicit ALL CHOICES meter header
+- Added audio scheduling lead time to avoid perceived gap after count-in

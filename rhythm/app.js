@@ -42,6 +42,7 @@ let rhythmSynth = null;
 let clickSynth = null;
 
 const choiceList = document.querySelector("#choice-list");
+const choiceMeterHeader = document.querySelector("#choice-meter-header");
 const statusEl = document.querySelector("#status");
 const questionDisplay = document.querySelector("#question-display");
 const answerText = document.querySelector("#answer-text");
@@ -133,6 +134,7 @@ function newQuestion() {
   answerText.textContent = "";
   answerNotation.innerHTML = "";
   questionDisplay.textContent = `METER ${correct.meter}`;
+  if (choiceMeterHeader) choiceMeterHeader.textContent = `ALL CHOICES: ${correct.meter}`;
 
   renderChoices();
   setStatus(`${correct.meter} の1小節です。3つの答えはすべて同じ拍子です。カウント後にリズムを再生します。`);
@@ -217,9 +219,17 @@ async function playCurrentQuestion() {
   }
 
   const { rhythmSynth, clickSynth } = await ensureAudio();
-  const now = Tone.now();
+
+  // Schedule slightly ahead of the current audio time.
+  // This avoids browser timing instability and removes the perceived gap before the bar.
+  const scheduleLeadSec = 0.12;
+  const now = Tone.now() + scheduleLeadSec;
+
   const beatSec = 60 / currentQuestion.tempo;
-  const unitSec = currentQuestion.correct.meter === "6/8" ? beatSec / 2 : beatSec;
+  const isSixEight = currentQuestion.correct.meter === "6/8";
+
+  // In 6/8, one unit is the eighth note. In 4/4 and 3/4, one unit is the quarter note.
+  const unitSec = isSixEight ? beatSec / 2 : beatSec;
   const rhythmPitch = getSoundType() === "kick" ? "C2" : "C4";
 
   if (!hasAnsweredCurrentQuestion) {
@@ -228,34 +238,34 @@ async function playCurrentQuestion() {
     currentTimeEl.textContent = "0.0s";
   }
 
-  // Count-in and in-measure metronome.
-  // 4/4 and 3/4: quarter-note clicks.
-  // 6/8: six eighth-note clicks, with the 1st and 4th eighths accented.
-  const isSixEight = currentQuestion.correct.meter === "6/8";
+  // Count-in:
+  // 4/4: 4 quarter-note clicks
+  // 3/4: 3 quarter-note clicks
+  // 6/8: 6 eighth-note clicks
   const countClicks = isSixEight ? 6 : Number(currentQuestion.correct.meter.split("/")[0]);
   const clickStepSec = isSixEight ? unitSec : beatSec;
+  const countStart = now;
+  const barStart = countStart + countClicks * clickStepSec;
 
   for (let i = 0; i < countClicks; i += 1) {
     const isAccent = isSixEight ? (i === 0 || i === 3) : i === 0;
     const countPitch = isAccent ? "A5" : "C5";
-    clickSynth.triggerAttackRelease(countPitch, "32n", now + i * clickStepSec);
+    clickSynth.triggerAttackRelease(countPitch, "32n", countStart + i * clickStepSec);
   }
 
-  // Enter immediately after the count-in, with only a tiny scheduling offset.
-  const start = now + countClicks * clickStepSec;
-
-  // Metronome during the played bar.
+  // The played bar starts exactly one pulse after the last count click.
+  // There is no additional silent offset.
   for (let i = 0; i < countClicks; i += 1) {
     const isAccent = isSixEight ? (i === 0 || i === 3) : i === 0;
     const clickPitch = isAccent ? "A5" : "C5";
-    clickSynth.triggerAttackRelease(clickPitch, "32n", start + i * clickStepSec);
+    clickSynth.triggerAttackRelease(clickPitch, "32n", barStart + i * clickStepSec);
   }
 
   currentQuestion.correct.events.forEach((event) => {
-    rhythmSynth.triggerAttackRelease(rhythmPitch, "32n", start + event.t * unitSec);
+    rhythmSynth.triggerAttackRelease(rhythmPitch, "32n", barStart + event.t * unitSec);
   });
 
-  setStatus(`${currentQuestion.correct.meter} のリズムです。6/8では8分音符単位で6回クリックします。強拍は高いクリックです。`);
+  setStatus(`${currentQuestion.correct.meter} のリズムです。選択肢はすべて同じ拍子です。6/8では8分音符単位で6回クリックします。`);
 }
 
 function answer(choiceId) {

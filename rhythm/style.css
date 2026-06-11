@@ -714,3 +714,21 @@ select {
 .notation svg text {
   fill: #111111 !important;
 }
+
+
+/* Explicit meter header for rhythm choices */
+.choice-meter-header {
+  margin-top: 8px;
+  border: 1px solid var(--line);
+  background: var(--ink);
+  color: var(--bg);
+  padding: 8px 10px;
+  font-size: 0.78rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-align: center;
+}
+
+.choice-list {
+  margin-top: 8px;
+}
