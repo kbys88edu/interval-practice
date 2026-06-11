@@ -266,13 +266,18 @@ function checkAnswer() {
   let userAnswer = "";
   let correctAnswer = "";
 
+  const correctSignature = currentQuestion.sig.label;
+  let userSignature = "";
+
   if (currentQuestion.questionType === "signatureToKey") {
     userAnswer = answerInput.value;
     correctAnswer = getKeyName(currentQuestion.sig, currentQuestion.keyMode);
+    userSignature = "調名回答";
     isCorrect = normalizeKeyAnswer(userAnswer) === normalizeKeyAnswer(correctAnswer);
   } else {
     userAnswer = signatureLabel(Number(signatureSelect.value));
     correctAnswer = currentQuestion.sig.label;
+    userSignature = userAnswer;
     isCorrect = Number(signatureSelect.value) === currentQuestion.sig.acc;
   }
 
@@ -283,9 +288,12 @@ function checkAnswer() {
   currentTimeEl.textContent = formatResponseTime(latestResponseTimeSec);
 
   setStatus(
-    `${isCorrect ? "正解" : "不正解"} / 正解：${correctAnswer} / 回答：${userAnswer || "-"} / ${formatResponseTime(latestResponseTimeSec)}`,
+    `${isCorrect ? "正解" : "不正解"} / 正解：${correctAnswer} / 正解調号：${correctSignature} / 回答：${userAnswer || "-"} / ${formatResponseTime(latestResponseTimeSec)}`,
     isCorrect ? "correct" : "incorrect"
   );
+
+  answerText.textContent = `正解：${correctAnswer} / 正解調号：${correctSignature} / 回答：${userAnswer || "-"} / 回答調号：${userSignature || "-"}`;
+  renderSignature(notationEl, currentQuestion.sig, currentQuestion.clef);
 
   resultLog.push({
     number: totalCount,
@@ -296,6 +304,8 @@ function checkAnswer() {
     clef: currentQuestion.clef,
     correctAnswer,
     userAnswer,
+    correctSignature,
+    userSignature,
     isCorrect,
     responseTimeSec: latestResponseTimeSec
   });
@@ -311,7 +321,15 @@ function showAnswer() {
   }
 
   const keyName = getKeyName(currentQuestion.sig, currentQuestion.keyMode);
-  answerText.textContent = `正解：${keyName} / ${getKeyRoman(currentQuestion.sig, currentQuestion.keyMode)} / 調号：${currentQuestion.sig.label}`;
+  const latest = resultLog.length > 0 ? resultLog[resultLog.length - 1] : null;
+  const answeredThisQuestion = latest && latest.number === totalCount && hasAnsweredCurrentQuestion;
+
+  if (answeredThisQuestion) {
+    answerText.textContent = `正解：${latest.correctAnswer} / 正解調号：${latest.correctSignature} / 回答：${latest.userAnswer || "-"} / 回答調号：${latest.userSignature || "-"}`;
+  } else {
+    answerText.textContent = `正解：${keyName} / ${getKeyRoman(currentQuestion.sig, currentQuestion.keyMode)} / 正解調号：${currentQuestion.sig.label}`;
+  }
+
   renderSignature(notationEl, currentQuestion.sig, currentQuestion.clef);
 }
 
@@ -394,7 +412,7 @@ function renderHistory() {
     row.className = "history-item";
     row.innerHTML = `
       <span>${String(item.number).padStart(2, "0")}</span>
-      <span>${item.questionTypeLabel} / ${item.correctAnswer} / ${formatResponseTime(item.responseTimeSec)}</span>
+      <span>${item.questionTypeLabel} / 正解 ${item.correctAnswer}・${item.correctSignature || item.sig.label} / 回答 ${item.userAnswer || "-"} / ${formatResponseTime(item.responseTimeSec)}</span>
       <span class="${item.isCorrect ? "ok" : "ng"}">${item.isCorrect ? "OK" : "NG"}</span>
     `;
     historyList.appendChild(row);
@@ -460,10 +478,11 @@ async function exportResultsPdf() {
 
       doc.setFont("helvetica", "normal");
       doc.setFontSize(9);
-      doc.text(`Correct: ${item.correctAnswer} / Signature: ${item.sig.label}`, 16, y + 6);
-      doc.text(`Your answer: ${item.userAnswer || "-"} / ${item.isCorrect ? "OK" : "NG"} / Time: ${formatResponseTime(item.responseTimeSec)}`, 16, y + 12);
+      doc.text(`Correct: ${item.correctAnswer} / Correct signature: ${item.correctSignature || item.sig.label}`, 16, y + 6);
+      doc.text(`Your answer: ${item.userAnswer || "-"} / Selected signature: ${item.userSignature || "-"} / ${item.isCorrect ? "OK" : "NG"}`, 16, y + 12);
+      doc.text(`Time: ${formatResponseTime(item.responseTimeSec)}`, 16, y + 18);
 
-      y += 24;
+      y += 30;
     });
 
     doc.save("key-signature-practice-result.pdf");

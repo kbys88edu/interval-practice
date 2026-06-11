@@ -13,3 +13,5 @@ Practice:
 - Treble clef / bass clef
 
 - Key-to-signature answers show only accidental counts, not key names
+
+- correct and selected signature output added to on-screen answer, history, and PDF
