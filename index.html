@@ -3,122 +3,98 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Interval Practice | 音程の聞き分け</title>
+  <title>Ear Training Tools | Music Practice</title>
   <link rel="stylesheet" href="style.css" />
-  <script src="https://unpkg.com/tone@14.8.49/build/Tone.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/abcjs@6.4.4/dist/abcjs-basic-min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
 </head>
 <body>
-  <main class="screen">
+  <main class="screen hub-screen">
     <header class="topbar">
       <div class="top-item">
-        <span class="label">INTERVAL</span>
+        <span class="label">MUSIC TOOLS</span>
       </div>
       <div class="top-copy">
-        <span>Ear training for melodic and harmonic intervals</span>
-        <span>Mode A / Mode B / Mode D</span>
+        <span>Browser-based ear training and theory practice tools</span>
+        <span>Intervals / Chords / Minor scales / Related keys</span>
       </div>
       <div class="top-count">
-        <a class="tool-link" href="chords/">CHORDS</a><a class="tool-link" href="minor-scales/">MINOR</a><span id="progress-count">00 / 00</span>
+        <span>INDEX</span>
       </div>
     </header>
 
-    <section class="brand-zone">
-      <div class="big-mark" id="big-note">C</div>
+    <section class="brand-zone hub-brand">
+      <div class="big-mark">E</div>
       <div class="brand-line"></div>
       <div class="brand-sub">LISTEN / ANSWER / NOTATE / EXPORT</div>
     </section>
 
-    <section class="workbench">
-      <aside class="panel config-panel">
-        <div class="panel-title">SETTINGS</div>
-
-        <div class="field">
-          <div class="field-label">MODE</div>
-          <div class="mode-stack">
-            <label><input type="radio" name="mode" value="ascending" checked> A 上行</label>
-            <label><input type="radio" name="mode" value="descending"> B 下行</label>
-            <label><input type="radio" name="mode" value="harmonic"> D 同時</label>
-          </div>
-        </div>
-
-        <div class="field">
-          <label class="field-label" for="instrument-select">SOUND</label>
-          <select id="instrument-select">
-            <option value="realPiano">リアルピアノ</option>
-            <option value="softPiano">ソフトピアノ</option>
-            <option value="clearSine">サイン波</option>
-            <option value="warmSynth">ウォームシンセ</option>
-            <option value="organ">オルガン</option>
-            <option value="pluck">プラック</option>
-          </select>
-        </div>
-
-        <div class="field">
-          <div class="field-label">PRESET</div>
-          <div class="preset-row">
-            <button class="mini" data-preset="beginner" type="button">初級</button>
-            <button class="mini" data-preset="intermediate" type="button">中級</button>
-            <button class="mini" data-preset="advanced" type="button">上級</button>
-          </div>
-        </div>
-      </aside>
-
-      <section class="panel main-panel">
-        <div class="main-grid">
-          <div class="quiz-left">
-            <div class="panel-title">RANGE</div>
-            <div id="interval-options" class="interval-grid"></div>
-          </div>
-
-          <div class="quiz-center">
-            <div class="display-card">
-              <div class="display-label">CURRENT QUESTION</div>
-              <div id="question-display" class="question-display">LISTEN</div>
-              <div id="status" class="status" aria-live="polite">
-                出題範囲を選び、新しい問題を押してください。
-              </div>
-            </div>
-
-            <div class="button-row">
-              <button id="new-question" type="button">NEW</button>
-              <button id="play-question" type="button">PLAY</button>
-              <button id="show-answer" type="button">SHOW</button>
-              <button id="export-pdf" type="button">PDF</button>
-            </div>
-
-            <div class="score-strip">
-              <div><span>QUESTIONS</span><strong id="total-count">0</strong></div>
-              <div><span>CORRECT</span><strong id="correct-count">0</strong></div>
-              <div><span>RATE</span><strong id="score-percent">0%</strong></div>
-              <div><span>TIME</span><strong id="current-time">--</strong></div>
-              <button id="reset-score" type="button" class="mini">RESET</button>
-            </div>
-          </div>
-
-          <div class="quiz-right">
-            <div class="panel-title">ANSWER</div>
-            <div id="answer-buttons" class="answer-grid"></div>
-          </div>
-        </div>
-      </section>
+    <section class="hub-intro">
+      <div>
+        <div class="panel-title">PRACTICE SUITE</div>
+        <h1>Ear Training<br>and Theory Tools</h1>
+      </div>
+      <p>
+        音程、コード、短音階、近親調をブラウザで練習するための教材です。
+        各ページはスマホ対応、結果ログ、PDF出力に対応しています。
+      </p>
     </section>
 
-    <section class="bottom-area">
-      <div class="notation-card">
-        <div class="panel-title">NOTATION</div>
-        <div id="answer-text" class="answer-text"></div>
-        <div id="notation" class="notation"></div>
-      </div>
+    <section class="tool-grid">
+      <a class="tool-card" href="intervals/">
+        <div class="card-number">01</div>
+        <div class="card-main">
+          <h2>Interval Practice</h2>
+          <p>2度から7度までの音程を、上行・下行・同時音程で聞き分けます。</p>
+        </div>
+        <div class="card-meta">
+          <span>音程</span>
+          <span>OPEN</span>
+        </div>
+      </a>
 
-      <div class="history-card">
-        <div class="panel-title">RESULT LOG</div>
-        <div id="history-list" class="history-list">まだ解答履歴がありません。</div>
-      </div>
+      <a class="tool-card" href="chords/">
+        <div class="card-number">02</div>
+        <div class="card-main">
+          <h2>Chord Practice</h2>
+          <p>三和音、七の和音、応用コードを、同時・分散・転回形で練習します。</p>
+        </div>
+        <div class="card-meta">
+          <span>和音</span>
+          <span>OPEN</span>
+        </div>
+      </a>
+
+      <a class="tool-card" href="minor-scales/">
+        <div class="card-number">03</div>
+        <div class="card-main">
+          <h2>Minor Scale Practice</h2>
+          <p>自然短音階、和声短音階、旋律短音階を、上行・下行・往復で聞き分けます。</p>
+        </div>
+        <div class="card-meta">
+          <span>短音階</span>
+          <span>OPEN</span>
+        </div>
+      </a>
+
+      <a class="tool-card" href="related-keys/">
+        <div class="card-number">04</div>
+        <div class="card-main">
+          <h2>Related Key Practice</h2>
+          <p>主調を中心に、同主調・属調・下属調・平行調などの近親調を答えます。</p>
+        </div>
+        <div class="card-meta">
+          <span>近親調</span>
+          <span>OPEN</span>
+        </div>
+      </a>
+    </section>
+
+    <section class="hub-footer">
+      <div class="panel-title">NOTE</div>
+      <p>
+        リアルピアノ音源、楽譜表示、PDF出力には外部CDNを使用します。
+        オンライン環境での使用を前提としています。
+      </p>
     </section>
   </main>
-
-  <script src="app.js"></script>
 </body>
 </html>

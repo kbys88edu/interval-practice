@@ -989,3 +989,13 @@ button.micro:hover {
     margin-top: 0;
   }
 }
+
+
+/* Main hub navigation */
+.top-count {
+  display: flex;
+  justify-content: flex-end;
+  align-items: flex-start;
+  gap: 6px;
+  flex-wrap: wrap;
+}

@@ -1,67 +1,25 @@
-# Interval Practice / 音程の聞き分け
+# Ear Training Tools
 
-Browser-based interval ear training app for melodic and harmonic intervals.
+Static browser-based practice tools.
 
-## Features
+Published structure:
 
-- Mode A: ascending melodic intervals
-- Mode B: descending melodic intervals
-- Mode D: harmonic intervals
-- Interval range selection from minor 2nd to major 7th
-- Sound selection, including real piano samples
-- Answer logging
-- Response time measurement
-- Score and accuracy display
-- PDF export with notation images
+- `/` main index
+- `/intervals/` interval trainer
+- `/chords/` chord trainer
+- `/minor-scales/` minor scale trainer
+- `/related-keys/` related key trainer
 
-## Libraries
+GitHub Pages URL example:
 
-This app uses external CDN scripts:
+`https://kbys88edu.github.io/interval-ear-trainer/`
+
+## Notes
+
+Some functions use external CDN libraries:
 
 - Tone.js
 - abcjs
 - jsPDF
 
-The real piano sound uses online sample loading. If the page is used offline, select one of the built-in synth sounds.
-
-## GitHub Pages
-
-This is a static site. Publish the repository with GitHub Pages from the root directory.
-
-Recommended settings:
-
-- Branch: `main`
-- Folder: `/root`
-
-## Files
-
-- `index.html`
-- `style.css`
-- `app.js`
-- `.nojekyll`
-
-## License
-
-All rights reserved unless you choose another license.
-
-
-## Additional tool
-
-Chord ear trainer is included in:
-
-`/chords/`
-
-Published URL example:
-
-`https://kbys88edu.github.io/interval-ear-trainer/chords/`
-
-
-## Additional tool
-
-Minor scale trainer is included in:
-
-`/minor-scales/`
-
-Published URL example:
-
-`https://kbys88edu.github.io/interval-ear-trainer/minor-scales/`
+Real piano sounds and PDF export require an internet connection.

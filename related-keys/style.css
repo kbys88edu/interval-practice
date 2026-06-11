@@ -693,3 +693,13 @@ input[type="text"] {
     grid-template-columns: 1fr;
   }
 }
+
+
+/* Main hub navigation */
+.top-count {
+  display: flex;
+  justify-content: flex-end;
+  align-items: flex-start;
+  gap: 6px;
+  flex-wrap: wrap;
+}
