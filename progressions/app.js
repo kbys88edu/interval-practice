@@ -131,6 +131,7 @@ function newQuestion() {
 
   currentQuestion = {
     number: totalCount + 1,
+    renderId: `q-${Date.now()}-${Math.random().toString(16).slice(2)}`,
     tonality: correctProg.tonality,
     tonicMidi,
     tempo: getTempo(),
@@ -174,7 +175,10 @@ function renderChoices() {
   choiceList.innerHTML = "";
   if (!currentQuestion) return;
 
+  const renderId = currentQuestion.renderId;
+
   currentQuestion.choices.forEach((choice, index) => {
+    const notationId = `choice-notation-${renderId}-${index}`;
     const card = document.createElement("button");
     card.type = "button";
     card.className = "choice-card";
@@ -185,13 +189,14 @@ function renderChoices() {
         <span class="choice-roman">${choice.roman.join(" - ")}</span>
       </span>
       <span class="choice-meta">${choice.tonality === "major" ? "Major" : "Minor"} / ${choice.label}</span>
-      <span class="choice-notation" id="choice-notation-${index}"></span>
+      <span class="choice-notation" id="${notationId}"></span>
     `;
     card.addEventListener("click", () => answer(choice.id));
     choiceList.appendChild(card);
 
     requestAnimationFrame(() => {
-      renderAbc(`choice-notation-${index}`, choice.abc, 230);
+      if (!currentQuestion || currentQuestion.renderId !== renderId) return;
+      renderAbc(notationId, choice.abc, 230);
     });
   });
 }
@@ -539,7 +544,7 @@ function showAnswer() {
   }
 
   answerText.textContent = `正解：${currentQuestion.correct.roman.join(" - ")} / ${currentQuestion.correct.tonality === "major" ? "長調" : "短調"} / 主音 ${midiToNoteName(currentQuestion.tonicMidi)}`;
-  analysisText.textContent = `演奏と楽譜は同一MIDI配列から生成：${currentQuestion.correct.midiSummary}`;
+  analysisText.textContent = "演奏と楽譜は同じ4声MIDI配列から生成しています。";
   renderAbc("notation", currentQuestion.correct.abc, 420);
 }
 
@@ -564,6 +569,8 @@ function abcKeyLine(progression) {
 
 // buildGrandStaffAbc uses the exact same voiced MIDI arrays used for playback.
 // Do not recompute pitches here; this keeps sound and notation identical.
+// buildGrandStaffAbc uses the exact same voiced MIDI arrays used for playback.
+// Sound and notation are generated from the same source: choice.voiced.
 function buildGrandStaffAbc(progression, voiced) {
   const durations = getBeatDurations(voiced.length);
   const treble = [];
@@ -580,7 +587,7 @@ function buildGrandStaffAbc(progression, voiced) {
     "X:1",
     "M:4/4",
     "L:1/4",
-    abcKeyLine(progression),
+    "K:C",
     "%%staves {1 2}",
     "V:1 clef=treble",
     "V:2 clef=bass",
@@ -671,10 +678,11 @@ function midiToNoteName(midi) {
 }
 
 function midiToAbc(midi) {
-  // ABC octave mapping:
+  // Final absolute ABC octave mapping.
+  // MIDI 48 = C3 = C,
   // MIDI 60 = C4 = middle C = C
   // MIDI 72 = C5 = c
-  // MIDI 48 = C3 = C,
+  // This matches Tone.js note names: C4 is middle C.
   const names = ["C", "^C", "D", "^D", "E", "F", "^F", "G", "^G", "A", "^A", "B"];
   const pc = mod12(midi);
   const octave = Math.floor(midi / 12) - 1;
