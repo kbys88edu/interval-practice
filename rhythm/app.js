@@ -103,7 +103,14 @@ function newQuestion() {
   clearFeedback();
 
   const correct = randomItem(pool);
-  const distractors = shuffle(pool.filter((pattern) => pattern.id !== correct.id)).slice(0, 2);
+  const sameMeterPool = pool.filter((pattern) => pattern.meter === correct.meter && pattern.id !== correct.id);
+
+  if (sameMeterPool.length < 2) {
+    setStatus("同じ拍子で3択を作るには、候補が足りません。設定を増やしてください。", "incorrect");
+    return;
+  }
+
+  const distractors = shuffle(sameMeterPool).slice(0, 2);
   const choices = shuffle([correct, ...distractors]);
 
   currentQuestion = {
@@ -122,7 +129,7 @@ function newQuestion() {
   questionDisplay.textContent = correct.meter;
 
   renderChoices();
-  setStatus("問題を作成しました。再生します。");
+  setStatus(`${correct.meter} の1小節です。カウント後にリズムを再生します。`);
   playCurrentQuestion();
 }
 
@@ -138,7 +145,10 @@ function renderChoices() {
     card.dataset.id = choice.id;
     card.innerHTML = `
       <span class="choice-label">${String.fromCharCode(65 + index)}</span>
-      <div class="choice-notation" id="choice-${index}"></div>
+      <div class="choice-body">
+        <div class="choice-meter">${choice.meter}</div>
+        <div class="choice-notation" id="choice-${index}"></div>
+      </div>
     `;
     card.addEventListener("click", () => answer(choice.id));
     choiceList.appendChild(card);
@@ -204,10 +214,11 @@ async function playCurrentQuestion() {
     currentTimeEl.textContent = "0.0s";
   }
 
-  // Count-in
+  // Count-in. Strong beat is slightly higher so the meter is audible.
   const countBeats = currentQuestion.correct.meter === "6/8" ? 2 : Number(currentQuestion.correct.meter.split("/")[0]);
   for (let i = 0; i < countBeats; i += 1) {
-    instrument.triggerAttackRelease("C5", "32n", now + i * beatSec);
+    const countPitch = i === 0 ? "G5" : "C5";
+    instrument.triggerAttackRelease(countPitch, "32n", now + i * beatSec);
   }
 
   const start = now + (countBeats + 0.75) * beatSec;
@@ -215,7 +226,7 @@ async function playCurrentQuestion() {
     instrument.triggerAttackRelease(pitch, "32n", start + event.t * unitSec);
   });
 
-  setStatus("再生しました。正しい譜例を選んでください。");
+  setStatus(`${currentQuestion.correct.meter} のリズムです。強拍は高いクリックで示しています。正しい譜例を選んでください。`);
 }
 
 function answer(choiceId) {

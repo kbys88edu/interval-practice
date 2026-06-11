@@ -598,3 +598,26 @@ select {
     font-size: 0.68rem;
   }
 }
+
+
+/* Rhythm meter visibility */
+.choice-body {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.choice-meter {
+  font-size: 0.68rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  text-align: left;
+  line-height: 1;
+}
+
+@media (max-width: 760px) {
+  .choice-meter {
+    font-size: 0.72rem;
+  }
+}
