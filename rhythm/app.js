@@ -285,7 +285,7 @@ function renderChoices() {
     choiceList.appendChild(card);
 
     requestAnimationFrame(() => {
-      renderAbc(`choice-notation-${index}`, buildAbc(choice), 240);
+      renderAbc(`choice-notation-${index}`, buildAbc(choice), 260);
     });
   });
 }
@@ -438,7 +438,7 @@ function showAnswer() {
 
   answerText.textContent = `正解：${currentQuestion.correct.meter} / ${currentQuestion.correct.label}`;
   analysisText.textContent = `すべて ${currentQuestion.correct.meter}。L:1/16で表示しているため、16分音符は16分音符として表記されます。`;
-  renderAbc("notation", buildAbc(currentQuestion.correct), 500);
+  renderAbc("notation", buildAbc(currentQuestion.correct), 520);
 }
 
 function buildAbc(pattern) {

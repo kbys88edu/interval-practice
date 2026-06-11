@@ -12,3 +12,5 @@ Rules:
 - Distractors are selected by rhythmic similarity
 - 6/8 count-in uses six eighth-note clicks, accents on 1 and 4
 - No metronome during the performed rhythm
+
+- PC rhythm choices use a stable three-column layout to prevent notation from becoming too large or too small
