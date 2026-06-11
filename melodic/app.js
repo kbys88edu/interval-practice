@@ -3,49 +3,159 @@ function t(text) {
 }
 
 const keyDefs = {
-  C: { label: "C major", tonic: 60, mode: "major", keySig: "C", scale: [0, 2, 4, 5, 7, 9, 11] },
-  G: { label: "G major", tonic: 67, mode: "major", keySig: "G", scale: [0, 2, 4, 5, 7, 9, 11] },
-  F: { label: "F major", tonic: 65, mode: "major", keySig: "F", scale: [0, 2, 4, 5, 7, 9, 11] },
-  Am: { label: "A minor", tonic: 57, mode: "minor", keySig: "Am", scale: [0, 2, 3, 5, 7, 8, 10] }
+  C:  { label: "C major",  tonic: 60, mode: "major", keySig: "C",  scale: [0, 2, 4, 5, 7, 9, 11] },
+  Db: { label: "Db major", tonic: 61, mode: "major", keySig: "Db", scale: [0, 2, 4, 5, 7, 9, 11] },
+  D:  { label: "D major",  tonic: 62, mode: "major", keySig: "D",  scale: [0, 2, 4, 5, 7, 9, 11] },
+  Eb: { label: "Eb major", tonic: 63, mode: "major", keySig: "Eb", scale: [0, 2, 4, 5, 7, 9, 11] },
+  E:  { label: "E major",  tonic: 64, mode: "major", keySig: "E",  scale: [0, 2, 4, 5, 7, 9, 11] },
+  F:  { label: "F major",  tonic: 65, mode: "major", keySig: "F",  scale: [0, 2, 4, 5, 7, 9, 11] },
+  Gb: { label: "Gb major", tonic: 66, mode: "major", keySig: "Gb", scale: [0, 2, 4, 5, 7, 9, 11] },
+  G:  { label: "G major",  tonic: 67, mode: "major", keySig: "G",  scale: [0, 2, 4, 5, 7, 9, 11] },
+  Ab: { label: "Ab major", tonic: 68, mode: "major", keySig: "Ab", scale: [0, 2, 4, 5, 7, 9, 11] },
+  A:  { label: "A major",  tonic: 69, mode: "major", keySig: "A",  scale: [0, 2, 4, 5, 7, 9, 11] },
+  Bb: { label: "Bb major", tonic: 70, mode: "major", keySig: "Bb", scale: [0, 2, 4, 5, 7, 9, 11] },
+  B:  { label: "B major",  tonic: 71, mode: "major", keySig: "B",  scale: [0, 2, 4, 5, 7, 9, 11] },
+
+  Cm:  { label: "C minor",  tonic: 60, mode: "minor", keySig: "Cm",  scale: [0, 2, 3, 5, 7, 8, 10] },
+  Csm: { label: "C# minor", tonic: 61, mode: "minor", keySig: "C#m", scale: [0, 2, 3, 5, 7, 8, 10] },
+  Dm:  { label: "D minor",  tonic: 62, mode: "minor", keySig: "Dm",  scale: [0, 2, 3, 5, 7, 8, 10] },
+  Ebm: { label: "Eb minor", tonic: 63, mode: "minor", keySig: "Ebm", scale: [0, 2, 3, 5, 7, 8, 10] },
+  Em:  { label: "E minor",  tonic: 64, mode: "minor", keySig: "Em",  scale: [0, 2, 3, 5, 7, 8, 10] },
+  Fm:  { label: "F minor",  tonic: 65, mode: "minor", keySig: "Fm",  scale: [0, 2, 3, 5, 7, 8, 10] },
+  Fsm: { label: "F# minor", tonic: 66, mode: "minor", keySig: "F#m", scale: [0, 2, 3, 5, 7, 8, 10] },
+  Gm:  { label: "G minor",  tonic: 67, mode: "minor", keySig: "Gm",  scale: [0, 2, 3, 5, 7, 8, 10] },
+  Abm: { label: "Ab minor", tonic: 68, mode: "minor", keySig: "Abm", scale: [0, 2, 3, 5, 7, 8, 10] },
+  Am:  { label: "A minor",  tonic: 69, mode: "minor", keySig: "Am",  scale: [0, 2, 3, 5, 7, 8, 10] },
+  Bbm: { label: "Bb minor", tonic: 70, mode: "minor", keySig: "Bbm", scale: [0, 2, 3, 5, 7, 8, 10] },
+  Bm:  { label: "B minor",  tonic: 71, mode: "minor", keySig: "Bm",  scale: [0, 2, 3, 5, 7, 8, 10] }
 };
 
-const majorProgressions = [
-  { label: "I - V", degrees: [1, 5] },
-  { label: "I - IV", degrees: [1, 4] },
-  { label: "I - V - I", degrees: [1, 5] },
-  { label: "I - vi", degrees: [1, 6] },
-  { label: "ii - V", degrees: [2, 5] },
-  { label: "IV - V", degrees: [4, 5] }
-];
+const allKeyIds = Object.keys(keyDefs);
 
-const minorProgressions = [
-  { label: "i - V", degrees: [1, 5] },
-  { label: "i - iv", degrees: [1, 4] },
-  { label: "i - ♭VI", degrees: [1, 6] },
-  { label: "iv - V", degrees: [4, 5] },
-  { label: "ii° - V", degrees: [2, 5] }
-];
-
-// All rhythm cells sum to 16 sixteenth-units = one 4/4 bar.
-// ABC uses L:1/16, so true 16ths stay true 16ths.
-const rhythmCells = {
-  simple: [
-    { label: "four quarters", units: [4, 4, 4, 4], abcDur: ["4", "4", "4", "4"], triplet: [false, false, false, false] },
-    { label: "half + quarters", units: [8, 4, 4], abcDur: ["8", "4", "4"], triplet: [false, false, false] },
-    { label: "quarters + half", units: [4, 4, 8], abcDur: ["4", "4", "8"], triplet: [false, false, false] }
+const progressions = {
+  major: [
+    { label: "I - V - I", roman: ["I", "V"], harmony: [1, 5], final: 0 },
+    { label: "I - IV - V", roman: ["I", "IV"], harmony: [1, 4], final: 4 },
+    { label: "I - vi - IV", roman: ["I", "vi"], harmony: [1, 6], final: 5 },
+    { label: "ii - V - I", roman: ["ii", "V"], harmony: [2, 5], final: 0 },
+    { label: "IV - V - I", roman: ["IV", "V"], harmony: [4, 5], final: 0 }
   ],
-  eighth: [
-    { label: "eighth pair + quarters", units: [2, 2, 4, 4, 4], abcDur: ["2", "2", "4", "4", "4"], triplet: [false, false, false, false, false] },
-    { label: "quarters + eighth pair", units: [4, 4, 2, 2, 4], abcDur: ["4", "4", "2", "2", "4"], triplet: [false, false, false, false, false] },
-    { label: "two eighth pairs", units: [2, 2, 4, 2, 2, 4], abcDur: ["2", "2", "4", "2", "2", "4"], triplet: [false, false, false, false, false, false] },
-    { label: "dotted opening", units: [3, 1, 4, 4, 4], abcDur: ["3", "", "4", "4", "4"], triplet: [false, false, false, false, false] },
-    { label: "reverse dotted", units: [1, 3, 4, 4, 4], abcDur: ["", "3", "4", "4", "4"], triplet: [false, false, false, false, false] },
-    { label: "middle dotted", units: [4, 3, 1, 4, 4], abcDur: ["4", "3", "", "4", "4"], triplet: [false, false, false, false, false] },
-    { label: "triplet opening", units: [4/3, 4/3, 4/3, 4, 4, 4], abcDur: ["2", "2", "2", "4", "4", "4"], triplet: [true, true, true, false, false, false] },
-    { label: "triplet middle", units: [4, 4/3, 4/3, 4/3, 4, 4], abcDur: ["4", "2", "2", "2", "4", "4"], triplet: [false, true, true, true, false, false] },
-    { label: "dotted quarter", units: [6, 2, 4, 4], abcDur: ["6", "2", "4", "4"], triplet: [false, false, false, false] }
+  minor: [
+    { label: "i - V - i", roman: ["i", "V"], harmony: [1, 5], final: 0 },
+    { label: "i - iv - V", roman: ["i", "iv"], harmony: [1, 4], final: 4 },
+    { label: "iv - V - i", roman: ["iv", "V"], harmony: [4, 5], final: 0 },
+    { label: "i - ♭VI - V", roman: ["i", "♭VI"], harmony: [1, 6], final: 4 },
+    { label: "ii° - V - i", roman: ["ii°", "V"], harmony: [2, 5], final: 0 }
   ]
 };
+
+// One bar = 16 sixteenth units. Each group inside a bar is one beat group.
+// Tokens are joined within a group, spaces separate beat groups, so beams follow beat units.
+const rhythmPatterns = [
+  {
+    id: "simple-quarters",
+    group: "simple",
+    label: "four quarters",
+    bars: [
+      [{ units: 4, abcDur: "4" }, { units: 4, abcDur: "4" }, { units: 4, abcDur: "4" }, { units: 4, abcDur: "4" }],
+      [{ units: 4, abcDur: "4" }, { units: 4, abcDur: "4" }, { units: 4, abcDur: "4" }, { units: 4, abcDur: "4" }]
+    ]
+  },
+  {
+    id: "eighth-pairs",
+    group: "eighth",
+    label: "eighth pairs",
+    bars: [
+      [{ units: 2, abcDur: "2" }, { units: 2, abcDur: "2" }, { units: 4, abcDur: "4" }, { units: 2, abcDur: "2" }, { units: 2, abcDur: "2" }, { units: 4, abcDur: "4" }],
+      [{ units: 4, abcDur: "4" }, { units: 2, abcDur: "2" }, { units: 2, abcDur: "2" }, { units: 4, abcDur: "4" }, { units: 4, abcDur: "4" }]
+    ]
+  },
+  {
+    id: "dotted-opening",
+    group: "dotted",
+    label: "dotted eighth",
+    bars: [
+      [{ units: 3, abcDur: "3" }, { units: 1, abcDur: "" }, { units: 4, abcDur: "4" }, { units: 4, abcDur: "4" }, { units: 4, abcDur: "4" }],
+      [{ units: 4, abcDur: "4" }, { units: 3, abcDur: "3" }, { units: 1, abcDur: "" }, { units: 4, abcDur: "4" }, { units: 4, abcDur: "4" }]
+    ]
+  },
+  {
+    id: "reverse-dotted",
+    group: "dotted",
+    label: "reverse dotted",
+    bars: [
+      [{ units: 1, abcDur: "" }, { units: 3, abcDur: "3" }, { units: 4, abcDur: "4" }, { units: 4, abcDur: "4" }, { units: 4, abcDur: "4" }],
+      [{ units: 4, abcDur: "4" }, { units: 4, abcDur: "4" }, { units: 1, abcDur: "" }, { units: 3, abcDur: "3" }, { units: 4, abcDur: "4" }]
+    ]
+  },
+  {
+    id: "dotted-quarter",
+    group: "dotted",
+    label: "dotted quarter",
+    bars: [
+      [{ units: 6, abcDur: "6" }, { units: 2, abcDur: "2" }, { units: 4, abcDur: "4" }, { units: 4, abcDur: "4" }],
+      [{ units: 4, abcDur: "4" }, { units: 6, abcDur: "6" }, { units: 2, abcDur: "2" }, { units: 4, abcDur: "4" }]
+    ]
+  },
+  {
+    id: "triplet-first",
+    group: "triplet",
+    label: "triplet first beat",
+    bars: [
+      [{ units: 4/3, abcDur: "2", triplet: "start" }, { units: 4/3, abcDur: "2", triplet: "mid" }, { units: 4/3, abcDur: "2", triplet: "mid" }, { units: 4, abcDur: "4" }, { units: 4, abcDur: "4" }, { units: 4, abcDur: "4" }],
+      [{ units: 4, abcDur: "4" }, { units: 4, abcDur: "4" }, { units: 4/3, abcDur: "2", triplet: "start" }, { units: 4/3, abcDur: "2", triplet: "mid" }, { units: 4/3, abcDur: "2", triplet: "mid" }, { units: 4, abcDur: "4" }]
+    ]
+  },
+  {
+    id: "triplet-middle",
+    group: "triplet",
+    label: "triplet middle",
+    bars: [
+      [{ units: 4, abcDur: "4" }, { units: 4/3, abcDur: "2", triplet: "start" }, { units: 4/3, abcDur: "2", triplet: "mid" }, { units: 4/3, abcDur: "2", triplet: "mid" }, { units: 4, abcDur: "4" }, { units: 4, abcDur: "4" }],
+      [{ units: 4, abcDur: "4" }, { units: 4, abcDur: "4" }, { units: 4, abcDur: "4" }, { units: 4/3, abcDur: "2", triplet: "start" }, { units: 4/3, abcDur: "2", triplet: "mid" }, { units: 4/3, abcDur: "2", triplet: "mid" }]
+    ]
+  }
+];
+
+
+rhythmPatterns.push(
+  {
+    id: "sixteenth-run",
+    group: "sixteenth",
+    label: "sixteenth run",
+    bars: [
+      [{ units: 1, abcDur: "" }, { units: 1, abcDur: "" }, { units: 1, abcDur: "" }, { units: 1, abcDur: "" }, { units: 4, abcDur: "4" }, { units: 4, abcDur: "4" }, { units: 4, abcDur: "4" }],
+      [{ units: 4, abcDur: "4" }, { units: 1, abcDur: "" }, { units: 1, abcDur: "" }, { units: 1, abcDur: "" }, { units: 1, abcDur: "" }, { units: 4, abcDur: "4" }, { units: 4, abcDur: "4" }]
+    ]
+  },
+  {
+    id: "eighth-two-sixteenths",
+    group: "sixteenth",
+    label: "eighth + two sixteenths",
+    bars: [
+      [{ units: 2, abcDur: "2" }, { units: 1, abcDur: "" }, { units: 1, abcDur: "" }, { units: 4, abcDur: "4" }, { units: 2, abcDur: "2" }, { units: 1, abcDur: "" }, { units: 1, abcDur: "" }, { units: 4, abcDur: "4" }],
+      [{ units: 4, abcDur: "4" }, { units: 2, abcDur: "2" }, { units: 1, abcDur: "" }, { units: 1, abcDur: "" }, { units: 4, abcDur: "4" }, { units: 4, abcDur: "4" }]
+    ]
+  },
+  {
+    id: "two-sixteenths-eighth",
+    group: "sixteenth",
+    label: "two sixteenths + eighth",
+    bars: [
+      [{ units: 1, abcDur: "" }, { units: 1, abcDur: "" }, { units: 2, abcDur: "2" }, { units: 4, abcDur: "4" }, { units: 4, abcDur: "4" }, { units: 4, abcDur: "4" }],
+      [{ units: 4, abcDur: "4" }, { units: 4, abcDur: "4" }, { units: 1, abcDur: "" }, { units: 1, abcDur: "" }, { units: 2, abcDur: "2" }, { units: 4, abcDur: "4" }]
+    ]
+  },
+  {
+    id: "syncopated-sixteenth",
+    group: "sixteenth",
+    label: "syncopated sixteenth",
+    bars: [
+      [{ units: 2, abcDur: "2" }, { units: 1, abcDur: "" }, { units: 1, abcDur: "" }, { units: 2, abcDur: "2" }, { units: 2, abcDur: "2" }, { units: 4, abcDur: "4" }, { units: 4, abcDur: "4" }],
+      [{ units: 4, abcDur: "4" }, { units: 4, abcDur: "4" }, { units: 2, abcDur: "2" }, { units: 1, abcDur: "" }, { units: 1, abcDur: "" }, { units: 4, abcDur: "4" }]
+    ]
+  }
+);
 
 let currentQuestion = null;
 let hasAnsweredCurrentQuestion = false;
@@ -54,9 +164,8 @@ let correctCount = 0;
 let resultLog = [];
 let questionStartTime = null;
 let latestResponseTimeSec = null;
-let piano = null;
-let fallbackSynth = null;
-let instrumentLoadPromise = null;
+let melodySynth = null;
+let clickSynth = null;
 
 const choiceList = document.querySelector("#choice-list");
 const choiceKeyHeader = document.querySelector("#choice-key-header");
@@ -83,16 +192,8 @@ function init() {
   setStatus("NEW を押して、演奏された2小節の旋律を3つの譜例から選んでください。");
 }
 
-function getSelectedKeys() {
-  return Array.from(document.querySelectorAll('input[name="key"]:checked')).map((input) => input.value);
-}
-
-function getLevel() {
-  return document.querySelector('input[name="level"]:checked').value;
-}
-
-function getRhythmMode() {
-  return document.querySelector('input[name="rhythm"]:checked').value;
+function getSelectedValues(name) {
+  return Array.from(document.querySelectorAll(`input[name="${name}"]:checked`)).map((input) => input.value);
 }
 
 function getTempo() {
@@ -108,34 +209,38 @@ function shuffle(array) {
 }
 
 function newQuestion() {
-  const keys = getSelectedKeys();
-  if (keys.length === 0) {
-    setStatus("少なくとも1つの調を選んでください。", "incorrect");
+  const keyIds = allKeyIds;
+  const selectedFigures = getSelectedValues("figure");
+  const selectedRhythms = getSelectedValues("rhythm");
+
+  if (selectedFigures.length === 0) {
+    setStatus("旋律型を1つ以上選んでください。", "incorrect");
+    return;
+  }
+
+  if (selectedRhythms.length === 0) {
+    setStatus("リズムを1つ以上選んでください。", "incorrect");
     return;
   }
 
   clearFeedback();
 
-  const keyId = randomItem(keys);
-  const key = keyDefs[keyId];
-  const rhythmMode = getRhythmMode();
-  const level = getLevel();
+  const key = keyDefs[randomItem(keyIds)];
+  const progression = randomItem(progressions[key.mode]);
+  const rhythmPool = rhythmPatterns.filter((pattern) => selectedRhythms.includes(pattern.group));
+  const rhythm = randomItem(rhythmPool);
 
-  const harmonicPlan = randomItem(key.mode === "major" ? majorProgressions : minorProgressions);
-  const rhythms = chooseTwoBarRhythm(rhythmMode);
-  const correct = generateHarmonicMelody(key, harmonicPlan, rhythms, level);
-  const distractors = generateDistractors(correct, key, harmonicPlan, rhythms, level, 2);
+  const correct = buildMelody(key, progression, rhythm, selectedFigures);
+  const distractors = buildMelodyDistractors(correct, key, progression, rhythm, selectedFigures, 2);
   const choices = shuffle([correct, ...distractors]);
 
   currentQuestion = {
     number: totalCount + 1,
-    renderId: `m-${Date.now()}-${Math.random().toString(16).slice(2)}`,
-    keyId,
+    renderId: `mel-${Date.now()}-${Math.random().toString(16).slice(2)}`,
     key,
-    lengthBars: 2,
-    rhythmMode,
-    level,
-    harmonicPlan,
+    progression,
+    rhythm,
+    figures: selectedFigures,
     tempo: getTempo(),
     correct,
     choices
@@ -149,217 +254,226 @@ function newQuestion() {
   analysisText.textContent = "";
   notationEl.innerHTML = "";
   questionDisplay.textContent = key.label.toUpperCase();
-  choiceKeyHeader.textContent = `KEY: ${key.label} / 2 BARS / IMPLIED ${harmonicPlan.label}`;
+  choiceKeyHeader.textContent = `KEY: ${key.label} / 2 BARS / ${progression.label}`;
 
   renderChoices();
-  setStatus(`${key.label} / 2小節 / 想定和声：${harmonicPlan.label} / ${levelLabel(level)}。`);
+  setStatus(`${key.label} / 2小節 / 全調ランダム / 想定和声：${progression.label} / ${rhythm.label}`);
   playCurrentQuestion();
 }
 
-function chooseTwoBarRhythm(rhythmMode) {
-  const pool = rhythmMode === "simple"
-    ? rhythmCells.simple
-    : rhythmCells.simple.concat(rhythmCells.eighth);
-
-  return [randomItem(pool), randomItem(pool)];
-}
-
-function generateHarmonicMelody(key, harmonicPlan, rhythmBars, level) {
-  const notes = [];
-  const harmonyDegrees = harmonicPlan.degrees;
-
-  rhythmBars.forEach((rhythm, barIndex) => {
-    const chordDegree = harmonyDegrees[barIndex] || harmonyDegrees[harmonyDegrees.length - 1];
-    const chordTones = chordToneDegreesForHarmony(key, chordDegree);
-    const nextChordDegree = harmonyDegrees[barIndex + 1] || chordDegree;
-    const nextChordTones = chordToneDegreesForHarmony(key, nextChordDegree);
-
-    let currentDegree = barIndex === 0
-      ? randomItem(chordTones.filter((degree) => degree >= 0 && degree <= 4))
-      : notes[notes.length - 1].degree;
-
-    rhythm.units.forEach((unit, eventIndex) => {
-      const isStrong = eventIndex === 0 || approxBeatBoundary(rhythm.units, eventIndex);
-      const isLastInBar = eventIndex === rhythm.units.length - 1;
-      const isLastOverall = barIndex === rhythmBars.length - 1 && isLastInBar;
-
-      if (eventIndex === 0 && barIndex === 0) {
-        currentDegree = randomItem(chordTones.filter((degree) => degree >= 0 && degree <= 4));
-      } else if (isLastOverall) {
-        currentDegree = chooseCadentialEnd(key, harmonicPlan);
-      } else if (isLastInBar && barIndex === 0) {
-        currentDegree = chooseApproachToNextHarmony(currentDegree, nextChordTones, level);
-      } else if (isStrong) {
-        currentDegree = chooseNearChordTone(currentDegree, chordTones, level);
-      } else {
-        currentDegree = choosePassingOrNeighbor(currentDegree, chordTones, level);
-      }
-
-      notes.push({
-        midi: degreeToMidi(key, currentDegree),
-        degree: currentDegree,
-        dur: unit,
-        abcDur: rhythm.abcDur[eventIndex],
-        triplet: rhythm.triplet[eventIndex],
+function buildMelody(key, progression, rhythm, selectedFigures) {
+  const events = [];
+  rhythm.bars.forEach((bar, barIndex) => {
+    bar.forEach((cell, eventIndex) => {
+      const position = sumUnits(bar, eventIndex);
+      const harmonyDegree = progression.harmony[barIndex] || progression.harmony[progression.harmony.length - 1];
+      events.push({
+        ...cell,
         barIndex,
-        harmonicDegree: chordDegree
+        eventIndex,
+        position,
+        harmonyDegree,
+        role: "chord"
       });
     });
   });
 
-  return finalizeMelody(key, notes, harmonicPlan);
+  const notes = [];
+  let previousDegree = null;
+
+  events.forEach((event, index) => {
+    const isFirst = index === 0;
+    const isLast = index === events.length - 1;
+    const isStrong = event.position === 0 || event.position === 4 || event.position === 8 || event.position === 12;
+    const chordTones = chordToneDegrees(key, event.harmonyDegree);
+    const nextEvent = events[index + 1];
+    const prevNote = notes[notes.length - 1];
+
+    let degree;
+    let role = "chord";
+
+    if (isFirst) {
+      degree = chooseOpeningDegree(chordTones);
+    } else if (isLast) {
+      degree = cadenceDegree(key, progression);
+      role = "cadence";
+    } else if (selectedFigures.includes("suspension") && canMakeSuspension(event, prevNote, chordTones)) {
+      degree = prevNote.degree;
+      role = "suspension";
+    } else if (!isStrong && selectedFigures.includes("passing") && prevNote && nextEvent) {
+      const target = chooseNearChordTone(prevNote.degree, chordToneDegrees(key, nextEvent.harmonyDegree));
+      const passing = choosePassingDegree(prevNote.degree, target);
+      degree = passing ?? chooseNeighborOrChord(prevNote.degree, chordTones, selectedFigures);
+      role = passing === null ? "neighbor" : "passing";
+    } else if (!isStrong && selectedFigures.includes("neighbor") && prevNote) {
+      degree = chooseNeighborDegree(prevNote.degree, key);
+      role = "neighbor";
+    } else {
+      degree = chooseNearChordTone(previousDegree, chordTones);
+    }
+
+    if (!Number.isFinite(degree)) degree = chooseNearChordTone(previousDegree, chordTones);
+    degree = clampDegree(degree);
+
+    const note = {
+      ...event,
+      degree,
+      midi: degreeToMidi(key, degree, event.harmonyDegree),
+      role
+    };
+
+    notes.push(note);
+    previousDegree = degree;
+  });
+
+  return finalizeMelody(key, progression, rhythm, notes);
 }
 
-function approxBeatBoundary(units, eventIndex) {
-  let pos = 0;
-  for (let i = 0; i < eventIndex; i += 1) pos += units[i];
-  return Math.abs(pos - 4) < 0.01 || Math.abs(pos - 8) < 0.01 || Math.abs(pos - 12) < 0.01;
+function sumUnits(bar, eventIndex) {
+  let total = 0;
+  for (let i = 0; i < eventIndex; i += 1) total += bar[i].units;
+  return Math.round(total * 1000) / 1000;
 }
 
-function chordToneDegreesForHarmony(key, degree) {
+function chooseOpeningDegree(chordTones) {
+  return randomItem(chordTones.filter((degree) => degree >= 0 && degree <= 4));
+}
+
+function cadenceDegree(key, progression) {
+  if (progression.final === 4) return 4;
+  return randomItem([0, 0, 2, 4, 7]);
+}
+
+function canMakeSuspension(event, prevNote, chordTones) {
+  if (!prevNote) return false;
+  if (!(event.position === 0 || event.position === 4 || event.position === 8 || event.position === 12)) return false;
+  if (chordTones.includes(prevNote.degree)) return false;
+  return Math.abs(prevNote.degree - chordTones[0]) <= 4;
+}
+
+function choosePassingDegree(fromDegree, toDegree) {
+  const diff = toDegree - fromDegree;
+  if (Math.abs(diff) < 2) return null;
+  return fromDegree + Math.sign(diff);
+}
+
+function chooseNeighborDegree(centerDegree, key) {
+  const candidates = [centerDegree - 1, centerDegree + 1].filter((degree) => degree >= 0 && degree <= 9);
+  return candidates.length ? randomItem(candidates) : centerDegree;
+}
+
+function chooseNeighborOrChord(prevDegree, chordTones, selectedFigures) {
+  if (selectedFigures.includes("neighbor") && Math.random() < 0.7) return chooseNeighborDegree(prevDegree);
+  return chooseNearChordTone(prevDegree, chordTones);
+}
+
+function chooseNearChordTone(previousDegree, chordTones) {
+  const inRange = chordTones.filter((degree) => degree >= 0 && degree <= 9);
+  if (!Number.isFinite(previousDegree)) return randomItem(inRange);
+  const sorted = inRange.slice().sort((a, b) => Math.abs(a - previousDegree) - Math.abs(b - previousDegree));
+  return randomItem(sorted.slice(0, Math.min(3, sorted.length)));
+}
+
+function chordToneDegrees(key, harmonyDegree) {
   if (key.mode === "major") {
     const map = {
       1: [0, 2, 4, 7],
-      2: [1, 3, 5],
+      2: [1, 3, 5, 8],
       4: [3, 5, 7],
       5: [4, 6, 8],
       6: [5, 7, 9]
     };
-    return map[degree] || map[1];
+    return map[harmonyDegree] || map[1];
   }
 
   const map = {
     1: [0, 2, 4, 7],
     2: [1, 3, 5],
     4: [3, 5, 7],
-    5: [4, 6, 8],     // harmonic-minor dominant implication
+    5: [4, 6, 8],
     6: [5, 7, 9]
   };
-  return map[degree] || map[1];
+  return map[harmonyDegree] || map[1];
 }
 
-function chooseCadentialEnd(key, harmonicPlan) {
-  const finalHarmony = harmonicPlan.degrees[harmonicPlan.degrees.length - 1];
-  if (finalHarmony === 5) return randomItem([4, 6, 8]); // half cadence: V tones
-  return randomItem([0, 2, 4, 7]); // stable tonic-area close
+function clampDegree(degree) {
+  return Math.max(0, Math.min(9, degree));
 }
 
-function chooseApproachToNextHarmony(currentDegree, nextChordTones, level) {
-  const candidates = nextChordTones
-    .filter((degree) => degree >= 0 && degree <= 9)
-    .sort((a, b) => Math.abs(a - currentDegree) - Math.abs(b - currentDegree));
+function degreeToMidi(key, degree, harmonyDegree) {
+  const octaveShift = Math.floor(degree / 7) * 12;
+  const scaleDegree = ((degree % 7) + 7) % 7;
 
-  const filtered = candidates.filter((degree) => Math.abs(degree - currentDegree) <= maxMelodicMove(level) + 1);
-  return randomItem((filtered.length ? filtered : candidates).slice(0, 3));
+  if (key.mode === "minor" && harmonyDegree === 5 && scaleDegree === 6) {
+    return key.tonic + 11 + octaveShift;
+  }
+
+  return key.tonic + key.scale[scaleDegree] + octaveShift;
 }
 
-function chooseNearChordTone(currentDegree, chordTones, level) {
-  const maxMove = maxMelodicMove(level);
-  const candidates = chordTones
-    .filter((degree) => degree >= 0 && degree <= 9 && Math.abs(degree - currentDegree) <= maxMove + 1)
-    .sort((a, b) => Math.abs(a - currentDegree) - Math.abs(b - currentDegree));
-
-  if (candidates.length) return randomItem(candidates.slice(0, 3));
-  return currentDegree;
-}
-
-function choosePassingOrNeighbor(currentDegree, chordTones, level) {
-  const maxMove = maxMelodicMove(level);
-  const moves = level === "step"
-    ? [-1, 0, 1]
-    : level === "thirds"
-      ? [-2, -1, 0, 1, 2]
-      : [-4, -3, -2, -1, 0, 1, 2, 3, 4];
-
-  const weighted = [];
-  moves.forEach((move) => {
-    const next = currentDegree + move;
-    if (next < 0 || next > 9) return;
-
-    const isChordTone = chordTones.includes(next);
-    const distance = Math.abs(move);
-    const weight = isChordTone ? 4 : distance <= 1 ? 3 : distance <= maxMove ? 1 : 0;
-    for (let i = 0; i < weight; i += 1) weighted.push(next);
-  });
-
-  return weighted.length ? randomItem(weighted) : currentDegree;
-}
-
-function maxMelodicMove(level) {
-  if (level === "step") return 1;
-  if (level === "thirds") return 2;
-  return 4;
-}
-
-function generateDistractors(correct, key, harmonicPlan, rhythmBars, level, count) {
+function buildMelodyDistractors(correct, key, progression, rhythm, selectedFigures, count) {
   const out = [];
   const seen = new Set([melodyKey(correct.notes)]);
 
   let guard = 0;
   while (out.length < count && guard < 100) {
     guard += 1;
-    const candidate = mutateMelody(correct, key, harmonicPlan, level);
+    const candidate = mutateMelody(correct, key, progression);
     const k = melodyKey(candidate.notes);
     if (seen.has(k)) continue;
     seen.add(k);
     out.push(candidate);
   }
 
-  while (out.length < count) {
-    const candidate = generateHarmonicMelody(key, harmonicPlan, rhythmBars, level);
-    const k = melodyKey(candidate.notes);
-    if (!seen.has(k)) {
-      seen.add(k);
-      out.push(candidate);
-    }
-  }
-
   return out;
 }
 
-function mutateMelody(correct, key, harmonicPlan, level) {
+function mutateMelody(correct, key, progression) {
   const notes = correct.notes.map((note) => ({ ...note }));
-  const mutable = notes
-    .map((note, index) => ({ note, index }))
-    .filter((item) => item.index !== notes.length - 1);
+  const mutable = notes.map((note, index) => ({ note, index })).filter((item) => item.index > 0 && item.index < notes.length - 1);
+  const count = Math.min(mutable.length, randomItem([1, 2, 2, 3]));
 
-  const changeCount = Math.min(mutable.length, randomItem([1, 2, 2, 3]));
-  shuffle(mutable).slice(0, changeCount).forEach(({ note }) => {
-    const chordTones = chordToneDegreesForHarmony(key, note.harmonicDegree);
-    if (Math.random() < 0.65) {
-      note.degree = chooseNearChordTone(note.degree, chordTones, level);
+  shuffle(mutable).slice(0, count).forEach(({ note }) => {
+    const chordTones = chordToneDegrees(key, note.harmonyDegree);
+    if (note.role === "passing") {
+      note.degree = chooseNeighborDegree(note.degree, key);
+      note.role = "neighbor";
+    } else if (note.role === "neighbor") {
+      note.degree = chooseNearChordTone(note.degree, chordTones);
+      note.role = "chord";
+    } else if (note.role === "suspension") {
+      note.degree = chooseNearChordTone(note.degree, chordTones);
+      note.role = "resolution";
     } else {
-      note.degree = choosePassingOrNeighbor(note.degree, chordTones, level);
+      note.degree = chooseNeighborDegree(note.degree, key);
+      note.role = "neighbor";
     }
-    note.midi = degreeToMidi(key, note.degree);
+    note.degree = clampDegree(note.degree);
+    note.midi = degreeToMidi(key, note.degree, note.harmonyDegree);
   });
 
-  return finalizeMelody(key, notes, harmonicPlan);
+  return finalizeMelody(key, progression, correct.rhythm, notes);
 }
 
-function finalizeMelody(key, notes, harmonicPlan) {
+function finalizeMelody(key, progression, rhythm, notes) {
   const abc = buildAbc(key, notes);
+  const contour = contourFromNotes(notes);
+  const roles = Array.from(new Set(notes.map((note) => note.role))).join(" / ");
   return {
     id: `mel-${Date.now()}-${Math.random().toString(16).slice(2)}`,
     key,
+    progression,
+    rhythm,
     notes,
-    contour: contourFromNotes(notes),
-    harmonicLabel: harmonicPlan.label,
+    contour,
+    roles,
     abc,
-    label: contourFromNotes(notes).join(" ")
+    label: contour.join(" ")
   };
 }
 
-function degreeToMidi(key, degree) {
-  const octave = Math.floor(degree / 7) * 12;
-  const scaleDegree = ((degree % 7) + 7) % 7;
-
-  if (key.mode === "minor" && scaleDegree === 6) {
-    // For melodic/harmonic dominant implication, allow raised leading tone when degree 6 appears over V.
-    return key.tonic + 11 + octave;
-  }
-
-  return key.tonic + key.scale[scaleDegree] + octave;
+function melodyKey(notes) {
+  return notes.map((note) => `${note.midi}:${note.units}:${note.role}`).join("|");
 }
 
 function contourFromNotes(notes) {
@@ -369,10 +483,6 @@ function contourFromNotes(notes) {
     contour.push(diff > 0 ? "↑" : diff < 0 ? "↓" : "→");
   }
   return contour;
-}
-
-function melodyKey(notes) {
-  return notes.map((note) => `${note.midi}:${note.dur}:${note.abcDur}:${note.triplet}`).join("|");
 }
 
 function renderChoices() {
@@ -390,9 +500,8 @@ function renderChoices() {
     card.innerHTML = `
       <span class="choice-top">
         <span class="choice-label">${String.fromCharCode(65 + index)}</span>
-        <span class="choice-info">${currentQuestion.key.label}</span>
+        <span class="choice-meter">${currentQuestion.key.label}</span>
       </span>
-      <span class="choice-contour">${choice.contour.join(" ") || "single line"}</span>
       <span class="choice-notation" id="${notationId}"></span>
     `;
     card.addEventListener("click", () => answer(choice.id));
@@ -400,42 +509,31 @@ function renderChoices() {
 
     requestAnimationFrame(() => {
       if (!currentQuestion || currentQuestion.renderId !== renderId) return;
-      renderAbc(notationId, choice.abc, 310);
+      renderAbc(notationId, choice.abc, 330);
     });
   });
 }
 
 async function ensureAudio() {
   if (Tone.context.state !== "running") await Tone.start();
-  if (!instrumentLoadPromise) instrumentLoadPromise = createInstrument();
-  return instrumentLoadPromise;
-}
 
-async function createInstrument() {
-  piano = new Tone.Sampler({
-    urls: {
-      "A0":"A0.mp3","C1":"C1.mp3","D#1":"Ds1.mp3","F#1":"Fs1.mp3",
-      "A1":"A1.mp3","C2":"C2.mp3","D#2":"Ds2.mp3","F#2":"Fs2.mp3",
-      "A2":"A2.mp3","C3":"C3.mp3","D#3":"Ds3.mp3","F#3":"Fs3.mp3",
-      "A3":"A3.mp3","C4":"C4.mp3","D#4":"Ds4.mp3","F#4":"Fs4.mp3",
-      "A4":"A4.mp3","C5":"C5.mp3","D#5":"Ds5.mp3","F#5":"Fs5.mp3",
-      "A5":"A5.mp3","C6":"C6.mp3","D#6":"Ds6.mp3","F#6":"Fs6.mp3",
-      "A6":"A6.mp3","C7":"C7.mp3","D#7":"Ds7.mp3","F#7":"Fs7.mp3",
-      "A7":"A7.mp3","C8":"C8.mp3"
-    },
-    release: 0.8,
-    baseUrl: "https://tonejs.github.io/audio/salamander/"
-  }).toDestination();
-  piano.volume.value = -6;
+  if (!melodySynth) {
+    melodySynth = new Tone.PolySynth(Tone.Synth, {
+      oscillator: { type: "triangle" },
+      envelope: { attack: 0.01, decay: 0.10, sustain: 0.35, release: 0.28 }
+    }).toDestination();
+    melodySynth.volume.value = -10;
+  }
 
-  fallbackSynth = new Tone.PolySynth(Tone.Synth, {
-    oscillator: { type: "triangle" },
-    envelope: { attack: 0.01, decay: 0.08, sustain: 0.45, release: 0.35 }
-  }).toDestination();
-  fallbackSynth.volume.value = -12;
+  if (!clickSynth) {
+    clickSynth = new Tone.Synth({
+      oscillator: { type: "square" },
+      envelope: { attack: 0.001, decay: 0.035, sustain: 0, release: 0.01 }
+    }).toDestination();
+    clickSynth.volume.value = -18;
+  }
 
-  await Tone.loaded();
-  return piano;
+  return { melodySynth, clickSynth };
 }
 
 async function playCurrentQuestion() {
@@ -444,17 +542,13 @@ async function playCurrentQuestion() {
     return;
   }
 
-  let instrument;
-  try {
-    instrument = await ensureAudio();
-  } catch (error) {
-    console.error(error);
-    instrument = fallbackSynth;
-  }
+  const { melodySynth, clickSynth } = await ensureAudio();
 
+  const tempo = currentQuestion.tempo;
+  const quarterSec = 60 / tempo;
+  const sixteenthSec = quarterSec / 4;
   const now = Tone.now() + 0.12;
-  const quarterSec = 60 / currentQuestion.tempo;
-  let cursor = now;
+  const barStart = now + 4 * quarterSec;
 
   if (!hasAnsweredCurrentQuestion) {
     questionStartTime = performance.now();
@@ -462,13 +556,18 @@ async function playCurrentQuestion() {
     currentTimeEl.textContent = "0.0s";
   }
 
+  // Count-in only. No metronome during melody.
+  for (let i = 0; i < 4; i += 1) {
+    clickSynth.triggerAttackRelease(i === 0 ? "A5" : "C5", "32n", now + i * quarterSec);
+  }
+
   currentQuestion.correct.notes.forEach((note) => {
-    const durSec = (note.dur / 4) * quarterSec;
-    instrument.triggerAttackRelease(midiToToneNote(note.midi), Math.max(0.08, durSec * 0.88), cursor);
-    cursor += durSec;
+    const start = barStart + (note.barIndex * 16 + note.position) * sixteenthSec;
+    const durSec = note.units * sixteenthSec;
+    melodySynth.triggerAttackRelease(midiToToneNote(note.midi), Math.max(0.06, durSec * 0.88), start);
   });
 
-  setStatus(`${currentQuestion.key.label} / 2小節 / 想定和声：${currentQuestion.harmonicPlan.label}`);
+  setStatus(`${currentQuestion.key.label} / 2小節 / ${currentQuestion.progression.label} / カウント後に旋律のみ再生します。`);
 }
 
 function answer(choiceId) {
@@ -482,16 +581,12 @@ function answer(choiceId) {
     return;
   }
 
-  latestResponseTimeSec = questionStartTime
-    ? Math.max(0, (performance.now() - questionStartTime) / 1000)
-    : null;
-
+  latestResponseTimeSec = questionStartTime ? Math.max(0, (performance.now() - questionStartTime) / 1000) : null;
   hasAnsweredCurrentQuestion = true;
   totalCount += 1;
 
   const isCorrect = choiceId === currentQuestion.correct.id;
   if (isCorrect) correctCount += 1;
-
   currentTimeEl.textContent = formatResponseTime(latestResponseTimeSec);
 
   document.querySelectorAll(".choice-card").forEach((card) => {
@@ -503,17 +598,15 @@ function answer(choiceId) {
   const selected = currentQuestion.choices.find((item) => item.id === choiceId);
 
   setStatus(
-    `${isCorrect ? "正解" : "不正解"} / ${currentQuestion.key.label} / ${currentQuestion.harmonicPlan.label} / ${formatResponseTime(latestResponseTimeSec)}`,
+    `${isCorrect ? "正解" : "不正解"} / ${currentQuestion.key.label} / ${currentQuestion.progression.label} / ${formatResponseTime(latestResponseTimeSec)}`,
     isCorrect ? "correct" : "incorrect"
   );
 
   resultLog.push({
     number: totalCount,
     keyLabel: currentQuestion.key.label,
-    lengthBars: 2,
-    level: currentQuestion.level,
-    rhythmMode: currentQuestion.rhythmMode,
-    harmony: currentQuestion.harmonicPlan.label,
+    harmony: currentQuestion.progression.label,
+    roles: currentQuestion.correct.roles,
     correctContour: currentQuestion.correct.contour.join(" "),
     selectedContour: selected?.contour.join(" ") || "",
     correctAbc: currentQuestion.correct.abc,
@@ -533,26 +626,34 @@ function showAnswer() {
     return;
   }
 
-  answerText.textContent = `正解：${currentQuestion.key.label} / 2小節 / 想定和声：${currentQuestion.harmonicPlan.label}`;
-  analysisText.textContent = `旋律輪郭：${currentQuestion.correct.contour.join(" ") || "単音"} / ${levelLabel(currentQuestion.level)}`;
-  renderAbc("notation", currentQuestion.correct.abc, 620);
+  answerText.textContent = `正解：${currentQuestion.key.label} / 2小節 / 想定和声：${currentQuestion.progression.label}`;
+  analysisText.textContent = `含まれる要素：${currentQuestion.correct.roles}`;
+  renderAbc("notation", currentQuestion.correct.abc, 680);
 }
 
 function buildAbc(key, notes) {
-  const bar1 = [];
-  const bar2 = [];
+  const bars = [[], []];
 
   notes.forEach((note) => {
-    const token = `${note.triplet ? "(3" : ""}${midiToAbc(note.midi)}${note.abcDur}`;
-    if (note.barIndex === 0) bar1.push(token);
-    else bar2.push(token);
+    const prefix = note.triplet === "start" ? "(3" : "";
+    const token = `${prefix}${midiToAbc(note.midi)}${note.abcDur}`;
+    bars[note.barIndex].push({ token, position: note.position });
   });
 
   return `X:1
 M:4/4
 L:1/16
 K:${key.keySig}
-${bar1.join(" ")} | ${bar2.join(" ")} |`;
+${formatBarByBeat(bars[0])} | ${formatBarByBeat(bars[1])} |`;
+}
+
+function formatBarByBeat(items) {
+  const groups = [[], [], [], []];
+  items.forEach((item) => {
+    const beat = Math.min(3, Math.max(0, Math.floor(item.position / 4)));
+    groups[beat].push(item.token);
+  });
+  return groups.map((group) => group.join("")).join(" ");
 }
 
 function renderAbc(targetId, abc, width) {
@@ -588,12 +689,6 @@ function midiToAbc(midi) {
   }
 
   return name;
-}
-
-function levelLabel(level) {
-  if (level === "step") return "順次進行中心";
-  if (level === "thirds") return "3度跳躍まで";
-  return "4度・5度少し";
 }
 
 function clearFeedback() {
@@ -706,8 +801,8 @@ async function exportResultsPdf() {
 
       doc.setFont("helvetica", "normal");
       doc.setFontSize(9);
-      doc.text(`Correct contour: ${item.correctContour || "-"}`, 16, y + 6);
-      doc.text(`Selected contour: ${item.selectedContour || "-"} / Time: ${formatResponseTime(item.responseTimeSec)}`, 16, y + 12);
+      doc.text(`Elements: ${item.roles || "-"}`, 16, y + 6);
+      doc.text(`Time: ${formatResponseTime(item.responseTimeSec)}`, 16, y + 12);
 
       y += 18;
 
@@ -715,8 +810,8 @@ async function exportResultsPdf() {
         doc.setFont("helvetica", "bold");
         doc.setFontSize(8);
         doc.text("Correct notation", 16, y);
-        const correctNotation = await abcToPngDataUrl(item.correctAbc, 700);
-        const correctSize = fitImageSize(correctNotation, 174, 30);
+        const correctNotation = await abcToPngDataUrl(item.correctAbc, 760);
+        const correctSize = fitImageSize(correctNotation, 174, 32);
         doc.addImage(correctNotation.dataUrl, "PNG", 18 + (174 - correctSize.width) / 2, y + 2, correctSize.width, correctSize.height);
         y += correctSize.height + 8;
       }
@@ -729,8 +824,8 @@ async function exportResultsPdf() {
         doc.setFont("helvetica", "bold");
         doc.setFontSize(8);
         doc.text("Selected notation", 16, y);
-        const selectedNotation = await abcToPngDataUrl(item.selectedAbc, 700);
-        const selectedSize = fitImageSize(selectedNotation, 174, 30);
+        const selectedNotation = await abcToPngDataUrl(item.selectedAbc, 760);
+        const selectedSize = fitImageSize(selectedNotation, 174, 32);
         doc.addImage(selectedNotation.dataUrl, "PNG", 18 + (174 - selectedSize.width) / 2, y + 2, selectedSize.width, selectedSize.height);
         y += selectedSize.height + 10;
       } else {
