@@ -12,12 +12,10 @@
 <body>
   <main class="screen">
     <header class="topbar">
-      <div class="top-item">
-        <span class="label">RHYTHM</span>
-      </div>
+      <div class="top-item"><span class="label">RHYTHM</span></div>
       <div class="top-copy">
         <span>1-bar rhythm dictation</span>
-        <span>16th-note grid / dotted rhythms / same-meter choices</span>
+        <span>Correct beaming / 16th notes / dotted rhythms / PDF notation</span>
       </div>
       <div class="top-count">
         <a class="tool-link" href="../">HOME</a>
@@ -35,11 +33,11 @@
     <section class="brand-zone">
       <div class="big-mark">R</div>
       <div class="brand-line"></div>
-      <div class="brand-sub">LISTEN / SAME METER / CHOOSE NOTATION</div>
+      <div class="brand-sub">LISTEN / SAME METER / BEAMED NOTATION</div>
     </section>
 
     <section class="workbench">
-      <aside class="panel config-panel">
+      <aside class="config-panel">
         <div class="panel-title">SETTINGS</div>
 
         <div class="field">
@@ -57,8 +55,8 @@
             <label><input type="checkbox" name="content" value="basic" checked> 基本</label>
             <label><input type="checkbox" name="content" value="sixteenth" checked> 16分音符</label>
             <label><input type="checkbox" name="content" value="dotted" checked> 付点</label>
-            <label><input type="checkbox" name="content" value="triplet" checked> 三連符</label>
             <label><input type="checkbox" name="content" value="tie" checked> タイ</label>
+            <label><input type="checkbox" name="content" value="triplet" checked> 三連符</label>
           </div>
         </div>
 
@@ -82,17 +80,17 @@
         </div>
       </aside>
 
-      <section class="panel main-panel">
-        <div class="main-grid">
-          <div class="quiz-center">
-            <div class="display-card">
-              <div class="display-label">CURRENT METER</div>
-              <div id="question-display" class="question-display">METER</div>
-              <div id="status" class="status" aria-live="polite">
-                NEW を押して、演奏されたリズムを3つの譜例から選んでください。
-              </div>
+      <section class="main-panel">
+        <div class="question-strip">
+          <div class="display-card">
+            <div class="display-label">CURRENT METER</div>
+            <div id="question-display" class="question-display">METER</div>
+            <div id="status" class="status" aria-live="polite">
+              NEW を押して、演奏されたリズムを3つの譜例から選んでください。
             </div>
+          </div>
 
+          <div class="control-zone">
             <div class="button-row">
               <button id="new-question" type="button">NEW</button>
               <button id="play-question" type="button">PLAY</button>
@@ -108,28 +106,27 @@
               <button id="reset-score" type="button" class="mini">RESET</button>
             </div>
           </div>
+        </div>
 
-          <div class="quiz-right">
-            <div class="panel-title">CHOOSE ONE</div>
-            <div id="choice-meter-header" class="choice-meter-header">ALL CHOICES: --</div>
-            <div id="choice-list" class="choice-list"></div>
+        <div class="choices-zone">
+          <div id="choice-meter-header" class="choice-meter-header">ALL CHOICES: --</div>
+          <div id="choice-list" class="choice-list"></div>
+        </div>
+
+        <div class="answer-zone">
+          <div class="notation-card">
+            <div class="panel-title">ANSWER / NOTATION</div>
+            <div id="answer-text" class="answer-text"></div>
+            <div id="analysis-text" class="analysis-text"></div>
+            <div id="notation" class="notation"></div>
+          </div>
+
+          <div class="history-card">
+            <div class="panel-title">RESULT LOG</div>
+            <div id="history-list" class="history-list">まだ解答履歴がありません。</div>
           </div>
         </div>
       </section>
-    </section>
-
-    <section class="bottom-area">
-      <div class="notation-card">
-        <div class="panel-title">ANSWER / NOTATION</div>
-        <div id="answer-text" class="answer-text"></div>
-        <div id="analysis-text" class="analysis-text"></div>
-        <div id="notation" class="notation"></div>
-      </div>
-
-      <div class="history-card">
-        <div class="panel-title">RESULT LOG</div>
-        <div id="history-list" class="history-list">まだ解答履歴がありません。</div>
-      </div>
     </section>
   </main>
 

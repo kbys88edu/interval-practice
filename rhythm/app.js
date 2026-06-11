@@ -2,104 +2,94 @@ function t(text) {
   return window.EarTrainingLang?.translateText(text) || text;
 }
 
-// Rhythm engine rebuilt on a strict 16th-note grid.
-// ABC notation is rendered with L:1/16 for every meter.
-// Therefore a 16th note is always written as C, an 8th note as C2, a quarter note as C4, etc.
+// New rhythm engine.
+// Rendering rule:
+// - 4/4 and 3/4 are beamed by quarter-note groups.
+// - 6/8 is beamed by dotted-quarter groups, i.e. 3 eighth notes.
+// - L:1/16 is always used, so a true sixteenth is never displayed as an eighth.
 
 const patterns = [
   // 4/4 basic
-  p("44-basic-1", "4/4", "basic", "quarter notes", "C4 C4 C4 C4", [0,4,8,12]),
-  p("44-basic-2", "4/4", "basic", "half + quarters", "C8 C4 C4", [0,8,12]),
-  p("44-basic-3", "4/4", "basic", "eighth motion", "C4 C2 C2 C4 C4", [0,4,6,8,12]),
-  p("44-basic-4", "4/4", "basic", "rests", "C4 z4 C4 C4", [0,8,12]),
-  p("44-basic-5", "4/4", "basic", "off eighth", "C2 z2 C2 C2 C4 C4", [0,4,6,8,12]),
+  makePattern("44-basic-1", "4/4", "basic", "quarter notes", [["C4"], ["C4"], ["C4"], ["C4"]], [0,4,8,12]),
+  makePattern("44-basic-2", "4/4", "basic", "half + quarters", [["C8"], ["C4"], ["C4"]], [0,8,12]),
+  makePattern("44-basic-3", "4/4", "basic", "eighth motion", [["C2C2"], ["C4"], ["C2C2"], ["C4"]], [0,2,4,8,10,12]),
+  makePattern("44-basic-4", "4/4", "basic", "rests", [["C4"], ["z4"], ["C4"], ["C4"]], [0,8,12]),
 
-  // 4/4 true sixteenths
-  p("44-16-1", "4/4", "sixteenth", "four sixteenths", "C C C C C4 C4 C4", [0,1,2,3,4,8,12]),
-  p("44-16-2", "4/4", "sixteenth", "sixteenth turn", "C2 C C C4 C2 C C C4", [0,2,3,4,8,10,11,12]),
-  p("44-16-3", "4/4", "sixteenth", "eighth + sixteenths", "C2 C C C4 C4 C4", [0,2,3,4,8,12]),
-  p("44-16-4", "4/4", "sixteenth", "two sixteenth groups", "C C C C C4 C C C C C4", [0,1,2,3,4,8,9,10,11,12]),
-  p("44-16-5", "4/4", "sixteenth", "late sixteenths", "C4 C4 C2 C C C4", [0,4,8,10,11,12]),
-  p("44-16-6", "4/4", "sixteenth", "syncopated sixteenths", "C2 C C C2 C2 C4 C2", [0,2,3,4,6,8,12,14]),
+  // 4/4 sixteenth
+  makePattern("44-16-1", "4/4", "sixteenth", "sixteenths beat 1", [["CCCC"], ["C4"], ["C4"], ["C4"]], [0,1,2,3,4,8,12]),
+  makePattern("44-16-2", "4/4", "sixteenth", "eighth + two sixteenths", [["C2CC"], ["C4"], ["C2CC"], ["C4"]], [0,2,3,4,8,10,11,12]),
+  makePattern("44-16-3", "4/4", "sixteenth", "late sixteenths", [["C4"], ["C4"], ["C2CC"], ["C4"]], [0,4,8,10,11,12]),
+  makePattern("44-16-4", "4/4", "sixteenth", "running sixteenths", [["CCCC"], ["CCCC"], ["C4"], ["C4"]], [0,1,2,3,4,5,6,7,8,12]),
+  makePattern("44-16-5", "4/4", "sixteenth", "syncopated sixteenths", [["C2CC"], ["C2C2"], ["C4"], ["C2C2"]], [0,2,3,4,6,8,12,14]),
 
-  // 4/4 dotted rhythms
-  p("44-dot-1", "4/4", "dotted", "dotted eighth + sixteenth", "C3 C C4 C4 C4", [0,3,4,8,12]),
-  p("44-dot-2", "4/4", "dotted", "sixteenth + dotted eighth", "C C3 C4 C4 C4", [0,1,4,8,12]),
-  p("44-dot-3", "4/4", "dotted", "two dotted figures", "C3 C C3 C C4 C4", [0,3,4,7,8,12]),
-  p("44-dot-4", "4/4", "dotted", "dotted quarter", "C6 C2 C4 C4", [0,6,8,12]),
-  p("44-dot-5", "4/4", "dotted", "dotted middle", "C4 C3 C C4 C4", [0,4,7,8,12]),
-  p("44-dot-6", "4/4", "dotted", "reverse dotted middle", "C4 C C3 C4 C4", [0,4,5,8,12]),
+  // 4/4 dotted
+  makePattern("44-dot-1", "4/4", "dotted", "dotted eighth + sixteenth", [["C3C"], ["C4"], ["C4"], ["C4"]], [0,3,4,8,12]),
+  makePattern("44-dot-2", "4/4", "dotted", "sixteenth + dotted eighth", [["CC3"], ["C4"], ["C4"], ["C4"]], [0,1,4,8,12]),
+  makePattern("44-dot-3", "4/4", "dotted", "two dotted figures", [["C3C"], ["C3C"], ["C4"], ["C4"]], [0,3,4,7,8,12]),
+  makePattern("44-dot-4", "4/4", "dotted", "dotted quarter", [["C6C2"], ["C4"], ["C4"]], [0,6,8,12]),
+  makePattern("44-dot-5", "4/4", "dotted", "middle dotted rhythm", [["C4"], ["C3C"], ["C4"], ["C4"]], [0,4,7,8,12]),
+  makePattern("44-dot-6", "4/4", "dotted", "reverse middle dotted", [["C4"], ["CC3"], ["C4"], ["C4"]], [0,4,5,8,12]),
 
-  // 4/4 triplets
-  p("44-trip-1", "4/4", "triplet", "triplet opening", "(3C2C2C2 C4 C4 C4", [0,1.333,2.667,4,8,12]),
-  p("44-trip-2", "4/4", "triplet", "triplet second beat", "C4 (3C2C2C2 C4 C4", [0,4,5.333,6.667,8,12]),
-  p("44-trip-3", "4/4", "triplet", "two triplet beats", "(3C2C2C2 (3C2C2C2 C4 C4", [0,1.333,2.667,4,5.333,6.667,8,12]),
-
-  // 4/4 ties
-  p("44-tie-1", "4/4", "tie", "eighth tied syncopation", "C2 C2-C2 C2 C4 C4", [0,2,6,8,12]),
-  p("44-tie-2", "4/4", "tie", "quarter tie", "C4 C4-C4 C4", [0,4,12]),
-  p("44-tie-3", "4/4", "tie", "dotted tie", "C3 C-C2 C4 C4", [0,3,6,8,12]),
+  // 4/4 tie and triplet
+  makePattern("44-tie-1", "4/4", "tie", "syncopated tie", [["C2C2-"], ["C2C2"], ["C4"], ["C4"]], [0,2,6,8,12]),
+  makePattern("44-tie-2", "4/4", "tie", "quarter tie", [["C4"], ["C4-"], ["C4"], ["C4"]], [0,4,12]),
+  makePattern("44-trip-1", "4/4", "triplet", "triplet opening", [["(3C2C2C2"], ["C4"], ["C4"], ["C4"]], [0,1.333,2.667,4,8,12]),
+  makePattern("44-trip-2", "4/4", "triplet", "triplet second beat", [["C4"], ["(3C2C2C2"], ["C4"], ["C4"]], [0,4,5.333,6.667,8,12]),
 
   // 3/4 basic
-  p("34-basic-1", "3/4", "basic", "three quarters", "C4 C4 C4", [0,4,8]),
-  p("34-basic-2", "3/4", "basic", "half + quarter", "C8 C4", [0,8]),
-  p("34-basic-3", "3/4", "basic", "eighth motion", "C4 C2 C2 C4", [0,4,6,8]),
-  p("34-basic-4", "3/4", "basic", "rest", "C4 z4 C4", [0,8]),
+  makePattern("34-basic-1", "3/4", "basic", "three quarters", [["C4"], ["C4"], ["C4"]], [0,4,8]),
+  makePattern("34-basic-2", "3/4", "basic", "half + quarter", [["C8"], ["C4"]], [0,8]),
+  makePattern("34-basic-3", "3/4", "basic", "eighth motion", [["C2C2"], ["C4"], ["C2C2"]], [0,2,4,8,10]),
+  makePattern("34-basic-4", "3/4", "basic", "rest middle", [["C4"], ["z4"], ["C4"]], [0,8]),
 
-  // 3/4 sixteenths
-  p("34-16-1", "3/4", "sixteenth", "sixteenth opening", "C C C C C4 C4", [0,1,2,3,4,8]),
-  p("34-16-2", "3/4", "sixteenth", "eighth + sixteenths", "C2 C C C4 C4", [0,2,3,4,8]),
-  p("34-16-3", "3/4", "sixteenth", "late sixteenths", "C4 C4 C C C C", [0,4,8,9,10,11]),
-  p("34-16-4", "3/4", "sixteenth", "two short groups", "C C C C C2 C C C2", [0,1,2,3,4,6,7,8]),
+  // 3/4 sixteenth
+  makePattern("34-16-1", "3/4", "sixteenth", "sixteenths beat 1", [["CCCC"], ["C4"], ["C4"]], [0,1,2,3,4,8]),
+  makePattern("34-16-2", "3/4", "sixteenth", "eighth + sixteenths", [["C2CC"], ["C4"], ["C4"]], [0,2,3,4,8]),
+  makePattern("34-16-3", "3/4", "sixteenth", "late sixteenths", [["C4"], ["C4"], ["CCCC"]], [0,4,8,9,10,11]),
+  makePattern("34-16-4", "3/4", "sixteenth", "middle sixteenths", [["C4"], ["CCCC"], ["C4"]], [0,4,5,6,7,8]),
 
   // 3/4 dotted
-  p("34-dot-1", "3/4", "dotted", "dotted opening", "C3 C C4 C4", [0,3,4,8]),
-  p("34-dot-2", "3/4", "dotted", "reverse dotted opening", "C C3 C4 C4", [0,1,4,8]),
-  p("34-dot-3", "3/4", "dotted", "dotted middle", "C4 C3 C C4", [0,4,7,8]),
-  p("34-dot-4", "3/4", "dotted", "dotted quarter", "C6 C2 C4", [0,6,8]),
-  p("34-dot-5", "3/4", "dotted", "two dotted figures", "C3 C C3 C C4", [0,3,4,7,8]),
+  makePattern("34-dot-1", "3/4", "dotted", "dotted opening", [["C3C"], ["C4"], ["C4"]], [0,3,4,8]),
+  makePattern("34-dot-2", "3/4", "dotted", "reverse dotted opening", [["CC3"], ["C4"], ["C4"]], [0,1,4,8]),
+  makePattern("34-dot-3", "3/4", "dotted", "dotted middle", [["C4"], ["C3C"], ["C4"]], [0,4,7,8]),
+  makePattern("34-dot-4", "3/4", "dotted", "dotted quarter", [["C6C2"], ["C4"]], [0,6,8]),
+  makePattern("34-dot-5", "3/4", "dotted", "two dotted figures", [["C3C"], ["C3C"], ["C4"]], [0,3,4,7,8]),
 
-  // 3/4 triplets
-  p("34-trip-1", "3/4", "triplet", "triplet opening", "(3C2C2C2 C4 C4", [0,1.333,2.667,4,8]),
-  p("34-trip-2", "3/4", "triplet", "triplet middle", "C4 (3C2C2C2 C4", [0,4,5.333,6.667,8]),
+  // 3/4 tie and triplet
+  makePattern("34-tie-1", "3/4", "tie", "middle tie", [["C2C2-"], ["C2C2"], ["C4"]], [0,2,6,8]),
+  makePattern("34-tie-2", "3/4", "tie", "held start", [["C4-"], ["C4"], ["C4"]], [0,8]),
+  makePattern("34-trip-1", "3/4", "triplet", "triplet opening", [["(3C2C2C2"], ["C4"], ["C4"]], [0,1.333,2.667,4,8]),
+  makePattern("34-trip-2", "3/4", "triplet", "triplet middle", [["C4"], ["(3C2C2C2"], ["C4"]], [0,4,5.333,6.667,8]),
 
-  // 3/4 ties
-  p("34-tie-1", "3/4", "tie", "middle tie", "C2 C2-C2 C2 C4", [0,2,6,8]),
-  p("34-tie-2", "3/4", "tie", "held start", "C4-C4 C4", [0,8]),
+  // 6/8 basic — groups are dotted-quarter units = 6 sixteenths
+  makePattern("68-basic-1", "6/8", "basic", "six eighths", [["C2C2C2"], ["C2C2C2"]], [0,2,4,6,8,10]),
+  makePattern("68-basic-2", "6/8", "basic", "two dotted quarters", [["C6"], ["C6"]], [0,6]),
+  makePattern("68-basic-3", "6/8", "basic", "3 + 1 + 1 + 1", [["C6"], ["C2C2C2"]], [0,6,8,10]),
+  makePattern("68-basic-4", "6/8", "basic", "1 + 1 + 1 + 3", [["C2C2C2"], ["C6"]], [0,2,4,6]),
 
-  // 6/8 basic
-  p("68-basic-1", "6/8", "basic", "six eighths", "C2 C2 C2 C2 C2 C2", [0,2,4,6,8,10]),
-  p("68-basic-2", "6/8", "basic", "two dotted quarters", "C6 C6", [0,6]),
-  p("68-basic-3", "6/8", "basic", "3 + 1 + 1 + 1", "C6 C2 C2 C2", [0,6,8,10]),
-  p("68-basic-4", "6/8", "basic", "1 + 1 + 1 + 3", "C2 C2 C2 C6", [0,2,4,6]),
-  p("68-basic-5", "6/8", "basic", "rest inside", "C2 z2 C2 C2 C2 C2", [0,4,6,8,10]),
+  // 6/8 sixteenth
+  makePattern("68-16-1", "6/8", "sixteenth", "sixteenths first eighth", [["CCC2C2"], ["C2C2C2"]], [0,1,2,4,6,8,10]),
+  makePattern("68-16-2", "6/8", "sixteenth", "sixteenths middle", [["C2C2CC"], ["C2C2C2"]], [0,2,4,5,6,8,10]),
+  makePattern("68-16-3", "6/8", "sixteenth", "sixteenths second group", [["C2C2C2"], ["CCC2C2"]], [0,2,4,6,7,8,10]),
+  makePattern("68-16-4", "6/8", "sixteenth", "running sixteenths", [["CCCCCC"], ["C2C2C2"]], [0,1,2,3,4,5,6,8,10]),
+  makePattern("68-16-5", "6/8", "sixteenth", "late sixteenths", [["C2C2C2"], ["C2CCC"]], [0,2,4,6,8,9,10]),
 
-  // 6/8 sixteenths
-  p("68-16-1", "6/8", "sixteenth", "sixteenths first eighth", "C C C2 C2 C2 C2 C2", [0,1,2,4,6,8,10]),
-  p("68-16-2", "6/8", "sixteenth", "sixteenths middle", "C2 C2 C C C2 C2 C2", [0,2,4,5,6,8,10]),
-  p("68-16-3", "6/8", "sixteenth", "sixteenths second dotted beat", "C2 C2 C2 C C C2 C2", [0,2,4,6,7,8,10]),
-  p("68-16-4", "6/8", "sixteenth", "running sixteenths", "C C C C C C C2 C2 C2", [0,1,2,3,4,5,6,8,10]),
-  p("68-16-5", "6/8", "sixteenth", "late sixteenths", "C2 C2 C2 C2 C C C", [0,2,4,6,8,9,10]),
+  // 6/8 dotted
+  makePattern("68-dot-1", "6/8", "dotted", "dotted eighth + sixteenth", [["C3CC2"], ["C2C2C2"]], [0,3,4,6,8,10]),
+  makePattern("68-dot-2", "6/8", "dotted", "sixteenth + dotted eighth", [["CC3C2"], ["C2C2C2"]], [0,1,4,6,8,10]),
+  makePattern("68-dot-3", "6/8", "dotted", "two dotted figures", [["C3CC3C"], ["C2C2C2"]], [0,3,4,7,8,10]),
+  makePattern("68-dot-4", "6/8", "dotted", "dotted second group", [["C2C2C2"], ["C3CC2"]], [0,2,4,6,9,10]),
+  makePattern("68-dot-5", "6/8", "dotted", "reverse dotted second group", [["C2C2C2"], ["CC3C2"]], [0,2,4,6,7,10]),
 
-  // 6/8 dotted rhythms
-  p("68-dot-1", "6/8", "dotted", "dotted eighth + sixteenth", "C3 C C2 C2 C2 C2", [0,3,4,6,8,10]),
-  p("68-dot-2", "6/8", "dotted", "sixteenth + dotted eighth", "C C3 C2 C2 C2 C2", [0,1,4,6,8,10]),
-  p("68-dot-3", "6/8", "dotted", "two dotted figures", "C3 C C3 C C2 C2", [0,3,4,7,8,10]),
-  p("68-dot-4", "6/8", "dotted", "dotted in second group", "C2 C2 C2 C3 C C2", [0,2,4,6,9,10]),
-  p("68-dot-5", "6/8", "dotted", "reverse dotted second group", "C2 C2 C2 C C3 C2", [0,2,4,6,7,10]),
-
-  // 6/8 triplets
-  p("68-trip-1", "6/8", "triplet", "triplet opening", "(3C2C2C2 C2 C2 C2 C2", [0,1.333,2.667,4,6,8,10]),
-  p("68-trip-2", "6/8", "triplet", "triplet second group", "C2 C2 C2 (3C2C2C2 C2 C2", [0,2,4,6,7.333,8.667,10]),
-
-  // 6/8 ties
-  p("68-tie-1", "6/8", "tie", "tie across middle", "C2 C2-C2 C2 C2 C2", [0,2,6,8,10]),
-  p("68-tie-2", "6/8", "tie", "held dotted beat", "C6-C2 C2 C2", [0,8,10]),
-  p("68-tie-3", "6/8", "tie", "dotted tie", "C3 C-C2 C2 C2 C2", [0,3,6,8,10])
+  // 6/8 tie and triplet
+  makePattern("68-tie-1", "6/8", "tie", "tie across compound beat", [["C2C2C2-"], ["C2C2C2"]], [0,2,4,8,10]),
+  makePattern("68-tie-2", "6/8", "tie", "held dotted beat", [["C6-"], ["C2C2C2"]], [0,8,10]),
+  makePattern("68-trip-1", "6/8", "triplet", "triplet opening", [["(3C2C2C2C2"], ["C2C2C2"]], [0,1.333,2.667,4,6,8,10]),
+  makePattern("68-trip-2", "6/8", "triplet", "triplet second group", [["C2C2C2"], ["(3C2C2C2C2"]], [0,2,4,6,7.333,8.667,10])
 ];
 
-function p(id, meter, group, label, abcBody, hits) {
-  return { id, meter, group, label, abcBody, hits };
+function makePattern(id, meter, group, label, beamGroups, hits) {
+  return { id, meter, group, label, beamGroups, hits };
 }
 
 let currentQuestion = null;
@@ -184,11 +174,6 @@ function newQuestion() {
   const distractors = chooseSimilarDistractors(correct, sameMeterPool, 2);
   const choices = shuffle([correct, ...distractors]);
 
-  if (!choices.every((choice) => choice.meter === correct.meter)) {
-    setStatus("内部エラー：拍子が混在しました。もう一度NEWを押してください。", "incorrect");
-    return;
-  }
-
   currentQuestion = {
     number: totalCount + 1,
     correct,
@@ -208,16 +193,13 @@ function newQuestion() {
   choiceMeterHeader.textContent = `ALL CHOICES: ${correct.meter}`;
 
   renderChoices();
-  setStatus(`${correct.meter} の1小節です。16分音符は16分音符として表記されます。`);
+  setStatus(`${correct.meter}。符尾は拍単位でまとまるように表示しています。`);
   playCurrentQuestion();
 }
 
 function chooseSimilarDistractors(correct, candidates, count) {
   const ranked = candidates
-    .map((candidate) => ({
-      candidate,
-      score: rhythmSimilarityScore(correct, candidate)
-    }))
+    .map((candidate) => ({ candidate, score: rhythmSimilarityScore(correct, candidate) }))
     .sort((a, b) => a.score - b.score);
 
   const closeGroup = ranked.slice(0, Math.min(8, ranked.length)).map((item) => item.candidate);
@@ -226,7 +208,6 @@ function chooseSimilarDistractors(correct, candidates, count) {
 
 function rhythmSimilarityScore(a, b) {
   let score = 0;
-
   if (a.group !== b.group) score += 3;
   score += Math.abs(a.hits.length - b.hits.length) * 2.8;
 
@@ -248,25 +229,23 @@ function rhythmSimilarityScore(a, b) {
     if (aHas !== bHas) score += 2.4;
   });
 
-  // Similar notational density and dotted/sixteenth profile.
-  score += Math.abs(a.abcBody.length - b.abcBody.length) * 0.03;
-  score += Math.abs(countTrueSixteenths(a.abcBody) - countTrueSixteenths(b.abcBody)) * 1.4;
-  score += Math.abs(countDottedDurations(a.abcBody) - countDottedDurations(b.abcBody)) * 1.8;
+  score += Math.abs(flatBody(a).length - flatBody(b).length) * 0.03;
+  score += Math.abs(countBodyToken(flatBody(a), "C3") - countBodyToken(flatBody(b), "C3")) * 1.8;
+  score += Math.abs(countBodyToken(flatBody(a), "C") - countBodyToken(flatBody(b), "C")) * 1.2;
 
   return score;
 }
 
-function countTrueSixteenths(abc) {
-  return (abc.match(/(^|\\s|\\()C(\\s|$|\\)|-)/g) || []).length;
+function flatBody(pattern) {
+  return pattern.beamGroups.map((group) => group.join("")).join(" ");
 }
 
-function countDottedDurations(abc) {
-  return (abc.match(/C3|C6/g) || []).length;
+function countBodyToken(text, token) {
+  return text.split(token).length - 1;
 }
 
 function renderChoices() {
   choiceList.innerHTML = "";
-
   if (!currentQuestion) return;
 
   currentQuestion.choices.forEach((choice, index) => {
@@ -275,17 +254,17 @@ function renderChoices() {
     card.className = "choice-card";
     card.dataset.id = choice.id;
     card.innerHTML = `
-      <span class="choice-label">${String.fromCharCode(65 + index)}</span>
-      <span class="choice-body">
+      <span class="choice-top">
+        <span class="choice-label">${String.fromCharCode(65 + index)}</span>
         <span class="choice-meter">METER ${choice.meter}</span>
-        <span class="choice-notation" id="choice-notation-${index}"></span>
       </span>
+      <span class="choice-notation" id="choice-notation-${index}"></span>
     `;
     card.addEventListener("click", () => answer(choice.id));
     choiceList.appendChild(card);
 
     requestAnimationFrame(() => {
-      renderAbc(`choice-notation-${index}`, buildAbc(choice), 260);
+      renderAbc(`choice-notation-${index}`, buildAbc(choice), 270);
     });
   });
 }
@@ -401,12 +380,8 @@ function answer(choiceId) {
 
   document.querySelectorAll(".choice-card").forEach((card) => {
     card.classList.remove("selected-correct", "selected-incorrect");
-    if (card.dataset.id === currentQuestion.correct.id) {
-      card.classList.add("selected-correct");
-    }
-    if (!isCorrect && card.dataset.id === choiceId) {
-      card.classList.add("selected-incorrect");
-    }
+    if (card.dataset.id === currentQuestion.correct.id) card.classList.add("selected-correct");
+    if (!isCorrect && card.dataset.id === choiceId) card.classList.add("selected-incorrect");
   });
 
   const selected = currentQuestion.choices.find((item) => item.id === choiceId);
@@ -439,8 +414,10 @@ function showAnswer() {
   }
 
   answerText.textContent = `正解：${currentQuestion.correct.meter} / ${currentQuestion.correct.label}`;
-  analysisText.textContent = `すべて ${currentQuestion.correct.meter}。L:1/16で表示しているため、16分音符は16分音符として表記されます。`;
-  renderAbc("notation", buildAbc(currentQuestion.correct), 520);
+  analysisText.textContent = currentQuestion.correct.meter === "6/8"
+    ? "6/8は8分音符3つ分で符尾をまとめています。"
+    : "3/4・4/4は4分音符単位で符尾をまとめています。";
+  renderAbc("notation", buildAbc(currentQuestion.correct), 540);
 }
 
 function buildAbc(pattern) {
@@ -448,72 +425,11 @@ function buildAbc(pattern) {
 M:${pattern.meter}
 L:1/16
 K:C clef=perc
-${formatBeamedAbcBody(pattern)} |`;
+${buildBeamedBody(pattern)} |`;
 }
 
-function formatBeamedAbcBody(pattern) {
-  // ABC beams are broken mainly by spaces.
-  // 4/4 and 3/4: one beaming group = quarter note = 4 sixteenth units.
-  // 6/8: one beaming group = dotted quarter = 3 eighths = 6 sixteenth units.
-  const groupUnits = pattern.meter === "6/8" ? 6 : 4;
-  const tokens = tokenizeAbcBody(pattern.abcBody);
-  const groups = [];
-  let current = "";
-  let used = 0;
-
-  tokens.forEach((token) => {
-    const units = abcTokenUnits(token);
-
-    if (used > 0 && used + units > groupUnits) {
-      groups.push(current);
-      current = "";
-      used = 0;
-    }
-
-    current += token;
-    used += units;
-
-    if (used >= groupUnits) {
-      groups.push(current);
-      current = "";
-      used = 0;
-    }
-  });
-
-  if (current) groups.push(current);
-  return groups.join(" ");
-}
-
-function tokenizeAbcBody(body) {
-  // Keep tuplets and tied groups together where possible.
-  const raw = body.trim().split(/\s+/).filter(Boolean);
-  const tokens = [];
-
-  raw.forEach((part) => {
-    if (part.includes("-")) {
-      tokens.push(part);
-      return;
-    }
-    tokens.push(part);
-  });
-
-  return tokens;
-}
-
-function abcTokenUnits(token) {
-  // Tuplet notation in this app uses (3C2C2C2 for a quarter-note triplet group.
-  if (token.startsWith("(3")) {
-    return 4;
-  }
-
-  let total = 0;
-  const re = /[Cz](\d*)/g;
-  let match;
-  while ((match = re.exec(token)) !== null) {
-    total += match[1] ? Number(match[1]) : 1;
-  }
-
-  return total || 1;
+function buildBeamedBody(pattern) {
+  return pattern.beamGroups.map((group) => group.join("")).join(" ");
 }
 
 function renderAbc(targetId, abc, width) {
@@ -650,14 +566,7 @@ async function exportResultsPdf() {
         doc.text("Correct notation", 16, y);
         const correctNotation = await abcToPngDataUrl(item.correctAbc, 620);
         const correctSize = fitImageSize(correctNotation, 174, 24);
-        doc.addImage(
-          correctNotation.dataUrl,
-          "PNG",
-          18 + (174 - correctSize.width) / 2,
-          y + 2,
-          correctSize.width,
-          correctSize.height
-        );
+        doc.addImage(correctNotation.dataUrl, "PNG", 18 + (174 - correctSize.width) / 2, y + 2, correctSize.width, correctSize.height);
         y += correctSize.height + 8;
       }
 
@@ -671,14 +580,7 @@ async function exportResultsPdf() {
         doc.text("Selected notation", 16, y);
         const selectedNotation = await abcToPngDataUrl(item.selectedAbc, 620);
         const selectedSize = fitImageSize(selectedNotation, 174, 24);
-        doc.addImage(
-          selectedNotation.dataUrl,
-          "PNG",
-          18 + (174 - selectedSize.width) / 2,
-          y + 2,
-          selectedSize.width,
-          selectedSize.height
-        );
+        doc.addImage(selectedNotation.dataUrl, "PNG", 18 + (174 - selectedSize.width) / 2, y + 2, selectedSize.width, selectedSize.height);
         y += selectedSize.height + 10;
       } else {
         y += 8;
@@ -704,9 +606,7 @@ function fitImageSize(notation, maxWidth, maxHeight) {
 }
 
 async function abcToPngDataUrl(abc, staffwidth = 620) {
-  if (!window.ABCJS) {
-    throw new Error("ABCJS is not available.");
-  }
+  if (!window.ABCJS) throw new Error("ABCJS is not available.");
 
   const holder = document.createElement("div");
   holder.style.position = "fixed";
@@ -729,9 +629,7 @@ async function abcToPngDataUrl(abc, staffwidth = 620) {
     });
 
     const svg = holder.querySelector("svg");
-    if (!svg) {
-      throw new Error("No SVG generated.");
-    }
+    if (!svg) throw new Error("No SVG generated.");
 
     svg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
     svg.style.background = "#ffffff";

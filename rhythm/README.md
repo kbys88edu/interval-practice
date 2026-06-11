@@ -1,19 +1,13 @@
 # Rhythm Dictation
 
-Rebuilt again on a strict 16th-note notation grid.
+Final clean rebuild.
 
 Rules:
-- ABC notation uses `L:1/16` for all meters
-- A true 16th note is written as `C`
-- An 8th note is written as `C2`
-- A quarter note is written as `C4`
-- Dotted rhythms have been expanded
-- All answer choices always use the same meter
-- Distractors are selected by rhythmic similarity
-- 6/8 count-in uses six eighth-note clicks, accents on 1 and 4
-- No metronome during the performed rhythm
-
-- PC rhythm choices use a stable three-column layout to prevent notation from becoming too large or too small
-
-- ABC notation now beams 3/4 and 4/4 by quarter-note groups, and 6/8 by dotted-quarter groups
-- PDF export includes both correct notation and selected notation for each answer
+- 4/4 and 3/4 beaming is grouped by quarter-note beats.
+- 6/8 beaming is grouped by dotted-quarter beats, i.e. three eighth notes.
+- ABC uses L:1/16 for all patterns, so true 16th notes remain true 16th notes.
+- Dotted rhythms are expanded.
+- Choices always share the same meter.
+- Distractors are chosen by rhythmic similarity.
+- Count-in plays, then the rhythm plays without metronome.
+- PDF export includes both correct notation and selected notation.
