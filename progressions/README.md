@@ -13,3 +13,6 @@ Features:
 - voice-leading scoring: common tones, small motion, and parallel perfect interval avoidance
 
 - Final clean PC CSS override added; mobile layout preserved
+
+- audio and notation octave mapping fixed: MIDI 60 maps to ABC middle C, matching playback octave
+- notation is generated from the exact same voiced MIDI arrays used for playback

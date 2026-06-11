@@ -155,12 +155,14 @@ function newQuestion() {
 
 function buildChoice(progression, tonicMidi) {
   const voiced = voiceLeadProgression(progression, tonicMidi);
-  return {
+  const choice = {
     ...progression,
     tonicMidi,
-    voiced,
-    abc: buildGrandStaffAbc(progression, voiced)
+    voiced
   };
+  choice.abc = buildGrandStaffAbc(choice, voiced);
+  choice.midiSummary = voiced.map(chord => chord.join("-")).join(" | ");
+  return choice;
 }
 
 function chooseTonic(tonality) {
@@ -537,10 +539,31 @@ function showAnswer() {
   }
 
   answerText.textContent = `正解：${currentQuestion.correct.roman.join(" - ")} / ${currentQuestion.correct.tonality === "major" ? "長調" : "短調"} / 主音 ${midiToNoteName(currentQuestion.tonicMidi)}`;
-  analysisText.textContent = "低音 + 上3声。共通音保持、近い声部進行、平行5度・8度回避を優先。";
+  analysisText.textContent = `演奏と楽譜は同一MIDI配列から生成：${currentQuestion.correct.midiSummary}`;
   renderAbc("notation", currentQuestion.correct.abc, 420);
 }
 
+
+function abcKeyFromTonicMidi(tonality, tonicMidi) {
+  const pc = mod12(tonicMidi);
+  const majorKeys = {
+    0: "C", 1: "Db", 2: "D", 3: "Eb", 4: "E", 5: "F",
+    6: "F#", 7: "G", 8: "Ab", 9: "A", 10: "Bb", 11: "B"
+  };
+  const minorKeys = {
+    0: "Cm", 1: "C#m", 2: "Dm", 3: "Ebm", 4: "Em", 5: "Fm",
+    6: "F#m", 7: "Gm", 8: "Abm", 9: "Am", 10: "Bbm", 11: "Bm"
+  };
+  return tonality === "minor" ? minorKeys[pc] : majorKeys[pc];
+}
+
+function abcKeyLine(progression) {
+  if (!Number.isFinite(progression.tonicMidi)) return "K:C";
+  return `K:${abcKeyFromTonicMidi(progression.tonality, progression.tonicMidi)}`;
+}
+
+// buildGrandStaffAbc uses the exact same voiced MIDI arrays used for playback.
+// Do not recompute pitches here; this keeps sound and notation identical.
 function buildGrandStaffAbc(progression, voiced) {
   const durations = getBeatDurations(voiced.length);
   const treble = [];
@@ -548,6 +571,7 @@ function buildGrandStaffAbc(progression, voiced) {
 
   voiced.forEach((notes, index) => {
     const dur = durations[index];
+    // notes = [bass, tenor, alto, soprano]
     treble.push(`[${notes.slice(1).map(midiToAbc).join("")}]${durToAbc(dur)}`);
     bass.push(`${midiToAbc(notes[0])}${durToAbc(dur)}`);
   });
@@ -556,7 +580,7 @@ function buildGrandStaffAbc(progression, voiced) {
     "X:1",
     "M:4/4",
     "L:1/4",
-    "K:C",
+    abcKeyLine(progression),
     "%%staves {1 2}",
     "V:1 clef=treble",
     "V:2 clef=bass",
@@ -647,18 +671,21 @@ function midiToNoteName(midi) {
 }
 
 function midiToAbc(midi) {
+  // ABC octave mapping:
+  // MIDI 60 = C4 = middle C = C
+  // MIDI 72 = C5 = c
+  // MIDI 48 = C3 = C,
   const names = ["C", "^C", "D", "^D", "E", "F", "^F", "G", "^G", "A", "^A", "B"];
   const pc = mod12(midi);
   const octave = Math.floor(midi / 12) - 1;
   let name = names[pc];
 
-  if (octave > 4) {
+  if (octave >= 5) {
     name = name.toLowerCase() + "'".repeat(octave - 5);
-  } else if (octave === 4) {
-    name = name.toLowerCase();
-  } else {
-    name = name + ",".repeat(Math.max(0, 3 - octave));
+  } else if (octave <= 3) {
+    name = name + ",".repeat(4 - octave);
   }
+
   return name;
 }
 
