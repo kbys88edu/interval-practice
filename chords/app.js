@@ -1,98 +1,89 @@
-
 function t(text) {
   return window.EarTrainingLang?.translateText(text) || text;
 }
 
-const chords = [
-  { id: "maj", name: "長三和音", symbol: "maj", intervals: [0, 4, 7], inversionHint: "root + major 3rd + perfect 5th" },
-  { id: "min", name: "短三和音", symbol: "min", intervals: [0, 3, 7], inversionHint: "root + minor 3rd + perfect 5th" },
-  { id: "dim", name: "減三和音", symbol: "dim", intervals: [0, 3, 6], inversionHint: "minor 3rd + tritone" },
-  { id: "aug", name: "増三和音", symbol: "aug", intervals: [0, 4, 8], inversionHint: "major 3rd + augmented 5th" },
+/*
+  Chords — rebuilt from zero.
 
-  { id: "maj7", name: "長七の和音", symbol: "maj7", intervals: [0, 4, 7, 11], inversionHint: "major triad + major 7th" },
-  { id: "7", name: "属七の和音", symbol: "7", intervals: [0, 4, 7, 10], inversionHint: "major triad + minor 7th" },
-  { id: "min7", name: "短七の和音", symbol: "min7", intervals: [0, 3, 7, 10], inversionHint: "minor triad + minor 7th" },
-  { id: "mMaj7", name: "短三長七", symbol: "mMaj7", intervals: [0, 3, 7, 11], inversionHint: "minor triad + major 7th" },
-  { id: "m7b5", name: "半減七", symbol: "m7♭5", intervals: [0, 3, 6, 10], inversionHint: "diminished triad + minor 7th" },
-  { id: "dim7", name: "減七の和音", symbol: "dim7", intervals: [0, 3, 6, 9], inversionHint: "stacked minor thirds" },
+  Core rule:
+  Do not derive notation from sharp-only MIDI names.
+  Every chord tone is spelled from:
+  - root spelling
+  - chord quality
+  - chord-tone degree: 1, 3, 5, 7, 9
+  - key-signature context
 
-  { id: "sus4", name: "sus4", symbol: "sus4", intervals: [0, 5, 7], inversionHint: "4th instead of 3rd" },
-  { id: "sus2", name: "sus2", symbol: "sus2", intervals: [0, 2, 7], inversionHint: "2nd instead of 3rd" },
-  { id: "add9", name: "add9", symbol: "add9", intervals: [0, 4, 7, 14], inversionHint: "major triad + 9th" },
-  { id: "minAdd9", name: "m(add9)", symbol: "m(add9)", intervals: [0, 3, 7, 14], inversionHint: "minor triad + 9th" }
+  Dominant seventh example:
+  Db7 = Db - F - Ab - Cb, not Db - F - Ab - B
+  E7  = E - G# - B - D, not E - G# - B - C##
+*/
+
+const chordTypes = [
+  { id: "maj", label: "Major triad", symbol: "", tones: [{step:0, semis:0}, {step:2, semis:4}, {step:4, semis:7}] },
+  { id: "min", label: "Minor triad", symbol: "m", tones: [{step:0, semis:0}, {step:2, semis:3}, {step:4, semis:7}] },
+  { id: "dim", label: "Diminished triad", symbol: "dim", tones: [{step:0, semis:0}, {step:2, semis:3}, {step:4, semis:6}] },
+  { id: "aug", label: "Augmented triad", symbol: "aug", tones: [{step:0, semis:0}, {step:2, semis:4}, {step:4, semis:8}] },
+
+  { id: "maj7", label: "Major seventh", symbol: "maj7", tones: [{step:0, semis:0}, {step:2, semis:4}, {step:4, semis:7}, {step:6, semis:11}] },
+  { id: "dom7", label: "Dominant seventh", symbol: "7", tones: [{step:0, semis:0}, {step:2, semis:4}, {step:4, semis:7}, {step:6, semis:10}] },
+  { id: "min7", label: "Minor seventh", symbol: "m7", tones: [{step:0, semis:0}, {step:2, semis:3}, {step:4, semis:7}, {step:6, semis:10}] },
+  { id: "mMaj7", label: "Minor major seventh", symbol: "mMaj7", tones: [{step:0, semis:0}, {step:2, semis:3}, {step:4, semis:7}, {step:6, semis:11}] },
+  { id: "m7b5", label: "Half-diminished seventh", symbol: "ø7", tones: [{step:0, semis:0}, {step:2, semis:3}, {step:4, semis:6}, {step:6, semis:10}] },
+  { id: "dim7", label: "Diminished seventh", symbol: "dim7", tones: [{step:0, semis:0}, {step:2, semis:3}, {step:4, semis:6}, {step:6, semis:9}] },
+
+  { id: "sus4", label: "Suspended fourth", symbol: "sus4", tones: [{step:0, semis:0}, {step:3, semis:5}, {step:4, semis:7}] },
+  { id: "sus2", label: "Suspended second", symbol: "sus2", tones: [{step:0, semis:0}, {step:1, semis:2}, {step:4, semis:7}] },
+  { id: "add9", label: "Add ninth", symbol: "add9", tones: [{step:0, semis:0}, {step:2, semis:4}, {step:4, semis:7}, {step:1, semis:14}] },
+  { id: "minAdd9", label: "Minor add ninth", symbol: "m(add9)", tones: [{step:0, semis:0}, {step:2, semis:3}, {step:4, semis:7}, {step:1, semis:14}] }
 ];
 
-const presets = {
-  triads: ["maj", "min", "dim", "aug"],
-  sevenths: ["maj7", "7", "min7", "m7b5", "dim7"],
-  advanced: chords.map((chord) => chord.id)
-};
+const rootPool = [
+  { name:"C",  midi:48, letter:"C", alt:0,  majorKey:"C",  minorKey:"Cm" },
+  { name:"Db", midi:49, letter:"D", alt:-1, majorKey:"Db", minorKey:"Bbm" },
+  { name:"D",  midi:50, letter:"D", alt:0,  majorKey:"D",  minorKey:"Dm" },
+  { name:"Eb", midi:51, letter:"E", alt:-1, majorKey:"Eb", minorKey:"Ebm" },
+  { name:"E",  midi:52, letter:"E", alt:0,  majorKey:"E",  minorKey:"Em" },
+  { name:"F",  midi:53, letter:"F", alt:0,  majorKey:"F",  minorKey:"Fm" },
+  { name:"Gb", midi:54, letter:"G", alt:-1, majorKey:"Gb", minorKey:"Ebm" },
+  { name:"F#", midi:54, letter:"F", alt:1,  majorKey:"F#", minorKey:"F#m" },
+  { name:"G",  midi:55, letter:"G", alt:0,  majorKey:"G",  minorKey:"Gm" },
+  { name:"Ab", midi:56, letter:"A", alt:-1, majorKey:"Ab", minorKey:"Fm" },
+  { name:"A",  midi:57, letter:"A", alt:0,  majorKey:"A",  minorKey:"Am" },
+  { name:"Bb", midi:58, letter:"B", alt:-1, majorKey:"Bb", minorKey:"Bbm" },
+  { name:"B",  midi:59, letter:"B", alt:0,  majorKey:"B",  minorKey:"Bm" },
 
-// 転回形を含む和音の最高音がA5を超えない範囲で出題します。
-const MAX_TREBLE_MIDI = 81; // A5
-
-// Root spelling is no longer derived from MIDI alone.
-// The same sounding pitch can be C# or Db depending on musical spelling.
-// Each root candidate carries its spelling and a matching key signature context.
-const rootCandidates = [
-  { midi: 48, root: "C",  majorKeySig: "C",  minorKeySig: "Cm",  letter: "C", alt: 0 },
-  { midi: 49, root: "Db", majorKeySig: "Db", minorKeySig: "Dbm", letter: "D", alt: -1 },
-  { midi: 49, root: "C#", majorKeySig: "C#", minorKeySig: "C#m", letter: "C", alt: 1 },
-  { midi: 50, root: "D",  majorKeySig: "D",  minorKeySig: "Dm",  letter: "D", alt: 0 },
-  { midi: 51, root: "Eb", majorKeySig: "Eb", minorKeySig: "Ebm", letter: "E", alt: -1 },
-  { midi: 52, root: "E",  majorKeySig: "E",  minorKeySig: "Em",  letter: "E", alt: 0 },
-  { midi: 53, root: "F",  majorKeySig: "F",  minorKeySig: "Fm",  letter: "F", alt: 0 },
-  { midi: 54, root: "Gb", majorKeySig: "Gb", minorKeySig: "Gbm", letter: "G", alt: -1 },
-  { midi: 54, root: "F#", majorKeySig: "F#", minorKeySig: "F#m", letter: "F", alt: 1 },
-  { midi: 55, root: "G",  majorKeySig: "G",  minorKeySig: "Gm",  letter: "G", alt: 0 },
-  { midi: 56, root: "Ab", majorKeySig: "Ab", minorKeySig: "Abm", letter: "A", alt: -1 },
-  { midi: 57, root: "A",  majorKeySig: "A",  minorKeySig: "Am",  letter: "A", alt: 0 },
-  { midi: 58, root: "Bb", majorKeySig: "Bb", minorKeySig: "Bbm", letter: "B", alt: -1 },
-  { midi: 59, root: "B",  majorKeySig: "B",  minorKeySig: "Bm",  letter: "B", alt: 0 },
-
-  { midi: 60, root: "C",  majorKeySig: "C",  minorKeySig: "Cm",  letter: "C", alt: 0 },
-  { midi: 61, root: "Db", majorKeySig: "Db", minorKeySig: "Dbm", letter: "D", alt: -1 },
-  { midi: 61, root: "C#", majorKeySig: "C#", minorKeySig: "C#m", letter: "C", alt: 1 },
-  { midi: 62, root: "D",  majorKeySig: "D",  minorKeySig: "Dm",  letter: "D", alt: 0 },
-  { midi: 63, root: "Eb", majorKeySig: "Eb", minorKeySig: "Ebm", letter: "E", alt: -1 },
-  { midi: 64, root: "E",  majorKeySig: "E",  minorKeySig: "Em",  letter: "E", alt: 0 },
-  { midi: 65, root: "F",  majorKeySig: "F",  minorKeySig: "Fm",  letter: "F", alt: 0 },
-  { midi: 66, root: "Gb", majorKeySig: "Gb", minorKeySig: "Gbm", letter: "G", alt: -1 },
-  { midi: 66, root: "F#", majorKeySig: "F#", minorKeySig: "F#m", letter: "F", alt: 1 },
-  { midi: 67, root: "G",  majorKeySig: "G",  minorKeySig: "Gm",  letter: "G", alt: 0 },
-  { midi: 68, root: "Ab", majorKeySig: "Ab", minorKeySig: "Abm", letter: "A", alt: -1 },
-  { midi: 69, root: "A",  majorKeySig: "A",  minorKeySig: "Am",  letter: "A", alt: 0 }
+  { name:"C",  midi:60, letter:"C", alt:0,  majorKey:"C",  minorKey:"Cm" },
+  { name:"Db", midi:61, letter:"D", alt:-1, majorKey:"Db", minorKey:"Bbm" },
+  { name:"D",  midi:62, letter:"D", alt:0,  majorKey:"D",  minorKey:"Dm" },
+  { name:"Eb", midi:63, letter:"E", alt:-1, majorKey:"Eb", minorKey:"Ebm" },
+  { name:"E",  midi:64, letter:"E", alt:0,  majorKey:"E",  minorKey:"Em" },
+  { name:"F",  midi:65, letter:"F", alt:0,  majorKey:"F",  minorKey:"Fm" },
+  { name:"Gb", midi:66, letter:"G", alt:-1, majorKey:"Gb", minorKey:"Ebm" },
+  { name:"F#", midi:66, letter:"F", alt:1,  majorKey:"F#", minorKey:"F#m" },
+  { name:"G",  midi:67, letter:"G", alt:0,  majorKey:"G",  minorKey:"Gm" },
+  { name:"Ab", midi:68, letter:"A", alt:-1, majorKey:"Ab", minorKey:"Fm" },
+  { name:"A",  midi:69, letter:"A", alt:0,  majorKey:"A", minorKey:"Am" }
 ];
 
-const inversionLabels = {
-  0: "根音位置",
-  1: "第1転回",
-  2: "第2転回",
-  3: "第3転回"
-};
-
-const inversionPdfLabels = {
-  0: "root position",
-  1: "first inversion",
-  2: "second inversion",
-  3: "third inversion"
-};
+const MAX_TREBLE_MIDI = 81;
+const naturalPitchClasses = { C:0, D:2, E:4, F:5, G:7, A:9, B:11 };
+const letterOrder = ["C", "D", "E", "F", "G", "A", "B"];
 
 let currentQuestion = null;
 let hasAnsweredCurrentQuestion = false;
 let totalCount = 0;
 let correctCount = 0;
-let currentInstrument = null;
-let currentInstrumentName = null;
-let instrumentLoadPromise = null;
 let resultLog = [];
 let questionStartTime = null;
 let latestResponseTimeSec = null;
+let synth = null;
+let clickSynth = null;
 
-const chordOptions = document.querySelector("#chord-options");
-const answerButtons = document.querySelector("#answer-buttons");
+const choiceList = document.querySelector("#choice-list");
 const statusEl = document.querySelector("#status");
+const questionDisplay = document.querySelector("#question-display");
 const answerText = document.querySelector("#answer-text");
+const analysisText = document.querySelector("#analysis-text");
 const notationEl = document.querySelector("#notation");
 const totalCountEl = document.querySelector("#total-count");
 const correctCountEl = document.querySelector("#correct-count");
@@ -100,309 +91,247 @@ const scorePercentEl = document.querySelector("#score-percent");
 const currentTimeEl = document.querySelector("#current-time");
 const progressCountEl = document.querySelector("#progress-count");
 const historyList = document.querySelector("#history-list");
-const instrumentSelect = document.querySelector("#instrument-select");
-const selectAllChordsButton = document.querySelector("#select-all-chords");
-const clearAllChordsButton = document.querySelector("#clear-all-chords");
 
 document.querySelector("#new-question").addEventListener("click", newQuestion);
 document.querySelector("#play-question").addEventListener("click", playCurrentQuestion);
-document.querySelector("#show-answer").addEventListener("click", showAnswerAndNotation);
+document.querySelector("#show-answer").addEventListener("click", showAnswer);
 document.querySelector("#reset-score").addEventListener("click", resetScore);
 document.querySelector("#export-pdf").addEventListener("click", exportResultsPdf);
 
-selectAllChordsButton.addEventListener("click", () => setAllChordSelections(true));
-clearAllChordsButton.addEventListener("click", () => setAllChordSelections(false));
-
-instrumentSelect.addEventListener("change", () => {
-  disposeCurrentInstrument();
-  currentInstrumentName = null;
-  instrumentLoadPromise = null;
-  setStatus(`音色：${instrumentSelect.options[instrumentSelect.selectedIndex].text}`);
-});
-
-document.querySelectorAll("[data-preset]").forEach((button) => {
-  button.addEventListener("click", () => applyPreset(button.dataset.preset));
-});
-
 function init() {
-  renderChordOptions();
-  renderAnswerButtons();
-  applyPreset("triads");
   updateScore();
+  setStatus("NEW を押して、演奏された和音を3つの選択肢から選んでください。");
 }
 
-function renderChordOptions() {
-  chordOptions.innerHTML = "";
-  chords.forEach((chord) => {
-    const label = document.createElement("label");
-    label.className = "choice-check";
-    label.innerHTML = `<input type="checkbox" value="${chord.id}" /><span>${chord.name}</span>`;
-    chordOptions.appendChild(label);
-  });
+function selectedModes() {
+  return Array.from(document.querySelectorAll('input[name="mode"]:checked')).map((input) => input.value);
 }
 
-function renderAnswerButtons() {
-  answerButtons.innerHTML = "";
-  chords.forEach((chord) => {
-    const button = document.createElement("button");
-    button.type = "button";
-    button.dataset.answer = chord.id;
-    button.textContent = chord.name;
-    button.addEventListener("click", () => answer(chord.id));
-    answerButtons.appendChild(button);
-  });
+function selectedChordTypeIds() {
+  return Array.from(document.querySelectorAll('input[name="chordType"]:checked')).map((input) => input.value);
 }
 
-function setAllChordSelections(checked) {
-  document.querySelectorAll("#chord-options input").forEach((input) => {
-    input.checked = checked;
-  });
-  setStatus(checked ? "和音の種類をすべて選択しました。" : "和音の種類をすべて外しました。");
+function selectedInversions() {
+  return Array.from(document.querySelectorAll('input[name="inversion"]:checked')).map((input) => Number(input.value));
 }
 
-function getSelectedInversions() {
-  return Array.from(document.querySelectorAll("#inversion-options input:checked"))
-    .map((input) => Number(input.value))
-    .filter((value) => Number.isInteger(value));
-}
-
-function applyPreset(name) {
-  const selected = presets[name] || [];
-  document.querySelectorAll("#chord-options input").forEach((input) => {
-    input.checked = selected.includes(input.value);
-  });
-  setStatus(t("プリセットを選択しました。NEW を押してください。"));
-}
-
-function getSelectedChords() {
-  const selectedIds = Array.from(document.querySelectorAll("#chord-options input:checked"))
-    .map((input) => input.value);
-  return chords.filter((chord) => selectedIds.includes(chord.id));
-}
-
-function getMode() {
-  return document.querySelector('input[name="mode"]:checked').value;
+function getTempo() {
+  return Number(document.querySelector("#tempo-select")?.value) || 72;
 }
 
 function randomItem(array) {
   return array[Math.floor(Math.random() * array.length)];
 }
 
-function buildChordVoicing(rootMidi, intervals, inversion) {
-  const rootPosition = intervals.map((interval) => rootMidi + interval);
-  const lowerPart = rootPosition.slice(inversion).map((midi) => midi);
-  const raisedPart = rootPosition.slice(0, inversion).map((midi) => midi + 12);
-  return lowerPart.concat(raisedPart);
+function shuffle(array) {
+  return array.slice().sort(() => Math.random() - 0.5);
 }
-
-function buildChordToneIndices(intervals, inversion) {
-  const rootPosition = intervals.map((_, index) => index);
-  const lowerPart = rootPosition.slice(inversion);
-  const raisedPart = rootPosition.slice(0, inversion);
-  return lowerPart.concat(raisedPart);
-}
-
 
 function newQuestion() {
-  const selectedChords = getSelectedChords();
+  const modes = selectedModes();
+  const chordIds = selectedChordTypeIds();
+  const inversions = selectedInversions();
 
-  if (selectedChords.length === 0) {
-    setStatus(t("出題範囲を1つ以上選択してください。"), "incorrect");
+  if (modes.length === 0 || chordIds.length === 0 || inversions.length === 0) {
+    setStatus("モード・和音種別・転回形を1つ以上選んでください。", "incorrect");
     return;
   }
 
   clearFeedback();
 
-  const selectedInversions = getSelectedInversions();
+  const chordPool = chordTypes.filter((item) => chordIds.includes(item.id));
+  const mode = randomItem(modes);
+  const correctChord = randomItem(chordPool);
+  const candidates = buildPlayableCandidates(correctChord, inversions);
+  const correctBase = randomItem(candidates);
+  const correct = buildChoice(correctChord, correctBase.root, correctBase.inversion, mode);
 
-  if (selectedInversions.length === 0) {
-    setStatus(t("転回形を1つ以上選択してください。"), "incorrect");
-    return;
-  }
+  const distractors = buildDistractors(correct, chordPool, inversions, mode, 2);
+  const choices = shuffle([correct, ...distractors]);
 
-  const chord = randomItem(selectedChords);
-  const validInversions = selectedInversions.filter((inversion) => inversion < chord.intervals.length);
+  currentQuestion = {
+    number: totalCount + 1,
+    renderId: `chord-${Date.now()}-${Math.random().toString(16).slice(2)}`,
+    mode,
+    correct,
+    choices,
+    tempo: getTempo()
+  };
 
-  if (validInversions.length === 0) {
-    setStatus(t("選択された転回形が、この和音タイプに対応していません。"), "incorrect");
-    return;
-  }
+  hasAnsweredCurrentQuestion = false;
+  questionStartTime = null;
+  latestResponseTimeSec = null;
+  currentTimeEl.textContent = "--";
+  answerText.textContent = "";
+  analysisText.textContent = "";
+  notationEl.innerHTML = "";
+  questionDisplay.textContent = "LISTEN";
 
-  const playableVoicings = [];
-  rootCandidates.forEach((rootInfo) => {
-    validInversions.forEach((inversion) => {
-      const midiNotes = buildChordVoicing(rootInfo.midi, chord.intervals, inversion);
-      const toneIndices = buildChordToneIndices(chord.intervals, inversion);
+  renderChoices();
+  setStatus(`${modeLabel(mode)} / ${correct.root.name}${correct.chord.symbol} / ${inversionLabel(correct.inversion)}`);
+  playCurrentQuestion();
+}
+
+function buildPlayableCandidates(chord, inversions) {
+  const out = [];
+
+  rootPool.forEach((root) => {
+    inversions.forEach((inversion) => {
+      if (inversion >= chord.tones.length) return;
+      const midiNotes = buildMidiVoicing(root, chord, inversion);
       if (Math.max(...midiNotes) <= MAX_TREBLE_MIDI) {
-        playableVoicings.push({ rootInfo, rootMidi: rootInfo.midi, inversion, midiNotes, toneIndices });
+        out.push({ root, inversion, midiNotes });
       }
     });
   });
 
-  if (playableVoicings.length === 0) {
-    setStatus(t("この和音と転回形では、A5以内に収まる出題がありません。"), "incorrect");
-    return;
+  return out.length ? out : [{ root: rootPool[0], inversion: 0, midiNotes: buildMidiVoicing(rootPool[0], chord, 0) }];
+}
+
+function buildMidiVoicing(root, chord, inversion) {
+  const rootPosition = chord.tones.map((tone) => root.midi + tone.semis);
+  const raised = rootPosition.slice(0, inversion).map((midi) => midi + 12);
+  return rootPosition.slice(inversion).concat(raised);
+}
+
+function buildToneOrder(chord, inversion) {
+  const indices = chord.tones.map((_, index) => index);
+  return indices.slice(inversion).concat(indices.slice(0, inversion));
+}
+
+function buildChoice(chord, root, inversion, mode) {
+  const midiNotes = buildMidiVoicing(root, chord, inversion);
+  const toneOrder = buildToneOrder(chord, inversion);
+  const spelledTones = toneOrder.map((toneIndex) => spellChordTone(root, chord, toneIndex));
+  const keySig = keySigForChord(root, chord);
+  const abc = buildAbcNotation({ mode, chord, root, inversion, midiNotes, toneOrder, spelledTones, keySig });
+
+  return {
+    id: `${root.name}-${chord.id}-${inversion}-${Date.now()}-${Math.random().toString(16).slice(2)}`,
+    chord,
+    root,
+    inversion,
+    mode,
+    midiNotes,
+    toneOrder,
+    spelledTones,
+    keySig,
+    abc,
+    answerLabel: `${root.name}${chord.symbol}`,
+    detailLabel: `${root.name}${chord.symbol} / ${inversionLabel(inversion)}`
+  };
+}
+
+function buildDistractors(correct, chordPool, inversions, mode, count) {
+  const out = [];
+  const seen = new Set([`${correct.root.name}-${correct.chord.id}-${correct.inversion}`]);
+
+  let guard = 0;
+  while (out.length < count && guard < 200) {
+    guard += 1;
+
+    const chord = randomItem(chordPool);
+    const root = Math.random() < 0.55 ? correct.root : randomItem(rootPool);
+    const inversion = randomItem(inversions.filter((inv) => inv < chord.tones.length));
+
+    if (inversion === undefined) continue;
+
+    const key = `${root.name}-${chord.id}-${inversion}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+
+    const candidate = buildChoice(chord, root, inversion, mode);
+    out.push(candidate);
   }
 
-  const voicing = randomItem(playableVoicings);
-  const rootInfo = voicing.rootInfo;
-  const rootMidi = voicing.rootMidi;
-  const inversion = voicing.inversion;
-  const midiNotes = voicing.midiNotes;
-  const toneIndices = voicing.toneIndices;
+  return out;
+}
 
-  currentQuestion = {
-    number: totalCount + 1,
-    chord,
-    mode: getMode(),
-    rootInfo,
-    rootMidi,
-    inversion,
-    midiNotes,
-    toneIndices
+function spellChordTone(root, chord, toneIndex) {
+  const tone = chord.tones[toneIndex];
+  const letter = letterFrom(root.letter, tone.step);
+  const actualPc = mod12(root.midi + tone.semis);
+  const naturalPc = naturalPitchClasses[letter];
+  const alt = absoluteAccidentalFromNatural(actualPc, naturalPc);
+
+  return {
+    letter,
+    alt,
+    pc: actualPc,
+    label: `${letter}${displayAccidental(alt)}`
   };
+}
 
-  hasAnsweredCurrentQuestion = false;
-  answerText.textContent = "";
-  notationEl.innerHTML = "";
-  questionStartTime = null;
-  latestResponseTimeSec = null;
-  currentTimeEl.textContent = "--";
+function keySigForChord(root, chord) {
+  const minorContext = new Set(["min", "min7", "mMaj7", "m7b5", "dim", "dim7", "minAdd9"]);
+  return minorContext.has(chord.id) ? root.minorKey : root.majorKey;
+}
 
-  setStatus(t("問題を作成しました。再生します。"));
-  playCurrentQuestion();
+function renderChoices() {
+  choiceList.innerHTML = "";
+  if (!currentQuestion) return;
+
+  const renderId = currentQuestion.renderId;
+
+  currentQuestion.choices.forEach((choice, index) => {
+    const notationId = `choice-notation-${renderId}-${index}`;
+    const card = document.createElement("button");
+    card.type = "button";
+    card.className = "choice-card";
+    card.dataset.id = choice.id;
+
+    card.innerHTML = `
+      <span class="choice-top">
+        <span class="choice-label">${String.fromCharCode(65 + index)}</span>
+        <span class="choice-name">${choice.answerLabel}</span>
+      </span>
+      <span class="choice-info">${choice.keySig} / ${choice.chord.label} / ${inversionLabel(choice.inversion)}</span>
+      <span class="choice-notation" id="${notationId}"></span>
+    `;
+
+    card.addEventListener("click", () => answer(choice.id));
+    choiceList.appendChild(card);
+
+    requestAnimationFrame(() => {
+      if (!currentQuestion || currentQuestion.renderId !== renderId) return;
+      renderAbc(notationId, choice.abc, 250);
+    });
+  });
 }
 
 async function ensureAudio() {
-  if (Tone.context.state !== "running") {
-    await Tone.start();
-  }
+  if (Tone.context.state !== "running") await Tone.start();
 
-  const selectedInstrumentName = instrumentSelect.value;
-
-  if (currentInstrument && currentInstrumentName === selectedInstrumentName) {
-    return currentInstrument;
-  }
-
-  if (!instrumentLoadPromise || currentInstrumentName !== selectedInstrumentName) {
-    currentInstrumentName = selectedInstrumentName;
-    instrumentLoadPromise = createInstrument(selectedInstrumentName);
-  }
-
-  currentInstrument = await instrumentLoadPromise;
-  return currentInstrument;
-}
-
-async function createInstrument(name) {
-  disposeCurrentInstrument();
-
-  if (name === "realPiano") {
-    setStatus(t("リアルピアノを読み込み中です。初回のみ時間がかかります。"));
-
-    const sampler = new Tone.Sampler({
-      urls: {
-        "A0": "A0.mp3", "C1": "C1.mp3", "D#1": "Ds1.mp3", "F#1": "Fs1.mp3",
-        "A1": "A1.mp3", "C2": "C2.mp3", "D#2": "Ds2.mp3", "F#2": "Fs2.mp3",
-        "A2": "A2.mp3", "C3": "C3.mp3", "D#3": "Ds3.mp3", "F#3": "Fs3.mp3",
-        "A3": "A3.mp3", "C4": "C4.mp3", "D#4": "Ds4.mp3", "F#4": "Fs4.mp3",
-        "A4": "A4.mp3", "C5": "C5.mp3", "D#5": "Ds5.mp3", "F#5": "Fs5.mp3",
-        "A5": "A5.mp3", "C6": "C6.mp3", "D#6": "Ds6.mp3", "F#6": "Fs6.mp3",
-        "A6": "A6.mp3", "C7": "C7.mp3", "D#7": "Ds7.mp3", "F#7": "Fs7.mp3",
-        "A7": "A7.mp3", "C8": "C8.mp3"
-      },
-      release: 1.4,
-      baseUrl: "https://tonejs.github.io/audio/salamander/"
-    }).toDestination();
-
-    sampler.volume.value = -7;
-    await Tone.loaded();
-    setStatus(t("リアルピアノの読み込みが完了しました。"));
-    return sampler;
-  }
-
-  if (name === "softPiano") {
-    const synth = new Tone.PolySynth(Tone.Synth, {
+  if (!synth) {
+    synth = new Tone.PolySynth(Tone.Synth, {
       oscillator: { type: "triangle" },
-      envelope: { attack: 0.015, decay: 0.18, sustain: 0.22, release: 0.9 }
+      envelope: { attack: 0.01, decay: 0.10, sustain: 0.42, release: 0.45 }
     }).toDestination();
     synth.volume.value = -12;
-    return synth;
   }
 
-  if (name === "clearSine") {
-    const synth = new Tone.PolySynth(Tone.Synth, {
-      oscillator: { type: "sine" },
-      envelope: { attack: 0.01, decay: 0.08, sustain: 0.5, release: 0.45 }
-    }).toDestination();
-    synth.volume.value = -10;
-    return synth;
-  }
-
-  if (name === "warmSynth") {
-    const synth = new Tone.PolySynth(Tone.Synth, {
-      oscillator: { type: "sawtooth" },
-      envelope: { attack: 0.04, decay: 0.18, sustain: 0.35, release: 0.7 }
-    });
-    const filter = new Tone.Filter(1200, "lowpass");
-    synth.connect(filter);
-    filter.toDestination();
-    synth.volume.value = -20;
-    return synth;
-  }
-
-  if (name === "organ") {
-    const synth = new Tone.PolySynth(Tone.Synth, {
+  if (!clickSynth) {
+    clickSynth = new Tone.Synth({
       oscillator: { type: "square" },
-      envelope: { attack: 0.01, decay: 0.02, sustain: 0.85, release: 0.25 }
-    });
-    const filter = new Tone.Filter(1800, "lowpass");
-    synth.connect(filter);
-    filter.toDestination();
-    synth.volume.value = -22;
-    return synth;
-  }
-
-  if (name === "pluck") {
-    const synth = new Tone.PolySynth(Tone.Synth, {
-      oscillator: { type: "triangle" },
-      envelope: { attack: 0.005, decay: 0.12, sustain: 0.05, release: 0.35 }
+      envelope: { attack: 0.001, decay: 0.035, sustain: 0, release: 0.01 }
     }).toDestination();
-    synth.volume.value = -11;
-    return synth;
+    clickSynth.volume.value = -20;
   }
 
-  return createInstrument("softPiano");
-}
-
-function disposeCurrentInstrument() {
-  if (currentInstrument) {
-    try {
-      currentInstrument.releaseAll?.();
-      currentInstrument.dispose?.();
-    } catch (error) {
-      console.warn(error);
-    }
-  }
-  currentInstrument = null;
+  return { synth, clickSynth };
 }
 
 async function playCurrentQuestion() {
   if (!currentQuestion) {
-    setStatus(t("先に NEW を押してください。"), "incorrect");
+    setStatus("先に NEW を押してください。", "incorrect");
     return;
   }
 
-  let instrument;
-  try {
-    instrument = await ensureAudio();
-  } catch (error) {
-    console.error(error);
-    setStatus(t("リアルピアノの読み込みに失敗しました。内蔵音色を選んでください。"), "incorrect");
-    return;
-  }
-
-  const notes = currentQuestion.midiNotes.map(midiToToneNote);
-  const now = Tone.now();
+  const { synth, clickSynth } = await ensureAudio();
+  const now = Tone.now() + 0.12;
+  const beatSec = 60 / currentQuestion.tempo;
+  const start = now + beatSec;
+  const choice = currentQuestion.correct;
 
   if (!hasAnsweredCurrentQuestion) {
     questionStartTime = performance.now();
@@ -410,105 +339,226 @@ async function playCurrentQuestion() {
     currentTimeEl.textContent = "0.0s";
   }
 
+  clickSynth.triggerAttackRelease("C5", "32n", now);
+
   if (currentQuestion.mode === "block") {
-    instrument.triggerAttackRelease(notes, "2n", now);
-  }
-
-  if (currentQuestion.mode === "arpUp") {
-    notes.forEach((note, index) => {
-      instrument.triggerAttackRelease(note, "4n", now + index * 0.36);
+    synth.triggerAttackRelease(choice.midiNotes.map(midiToToneNote), "2n", start);
+  } else if (currentQuestion.mode === "arpUp") {
+    choice.midiNotes.forEach((midi, index) => {
+      synth.triggerAttackRelease(midiToToneNote(midi), "8n", start + index * 0.18);
+    });
+  } else if (currentQuestion.mode === "arpDown") {
+    choice.midiNotes.slice().reverse().forEach((midi, index) => {
+      synth.triggerAttackRelease(midiToToneNote(midi), "8n", start + index * 0.18);
     });
   }
 
-  if (currentQuestion.mode === "arpDown") {
-    notes.slice().reverse().forEach((note, index) => {
-      instrument.triggerAttackRelease(note, "4n", now + index * 0.36);
-    });
-  }
-
-  setStatus(t("再生しました。答えを選んでください。"));
+  setStatus(`${modeLabel(currentQuestion.mode)} / ${choice.detailLabel}`);
 }
 
-function answer(chordId) {
+function answer(choiceId) {
   if (!currentQuestion) {
-    setStatus(t("先に NEW を押してください。"), "incorrect");
+    setStatus("先に NEW を押してください。", "incorrect");
     return;
   }
 
   if (hasAnsweredCurrentQuestion) {
-    setStatus(t("この問題は回答済みです。NEW を押してください。"));
+    setStatus("この問題は回答済みです。NEW を押してください。");
     return;
   }
 
-  latestResponseTimeSec = questionStartTime
-    ? Math.max(0, (performance.now() - questionStartTime) / 1000)
-    : null;
-
+  latestResponseTimeSec = questionStartTime ? Math.max(0, (performance.now() - questionStartTime) / 1000) : null;
   hasAnsweredCurrentQuestion = true;
   totalCount += 1;
 
-  const isCorrect = chordId === currentQuestion.chord.id;
-  const selectedChord = chords.find((chord) => chord.id === chordId);
-  const timeText = latestResponseTimeSec !== null ? ` / ${latestResponseTimeSec.toFixed(1)}秒` : "";
+  const selected = currentQuestion.choices.find((choice) => choice.id === choiceId);
+  const isCorrect = choiceId === currentQuestion.correct.id;
+  if (isCorrect) correctCount += 1;
 
-  const inversionText = ` / ${inversionLabels[currentQuestion.inversion]}`;
+  currentTimeEl.textContent = formatResponseTime(latestResponseTimeSec);
 
-  if (isCorrect) {
-    correctCount += 1;
-    setStatus(`正解：${currentQuestion.chord.name}${inversionText}${timeText}`, "correct");
-  } else {
-    setStatus(`不正解：選択 ${selectedChord?.name || ""} / 正解 ${currentQuestion.chord.name}${inversionText}${timeText}`, "incorrect");
-  }
+  document.querySelectorAll(".choice-card").forEach((card) => {
+    card.classList.remove("selected-correct", "selected-incorrect");
+    if (card.dataset.id === currentQuestion.correct.id) card.classList.add("selected-correct");
+    if (!isCorrect && card.dataset.id === choiceId) card.classList.add("selected-incorrect");
+  });
 
-  currentTimeEl.textContent = latestResponseTimeSec !== null ? `${latestResponseTimeSec.toFixed(1)}s` : "--";
+  setStatus(
+    `${isCorrect ? "正解" : "不正解"} / 正解：${currentQuestion.correct.detailLabel} / 選択：${selected?.detailLabel || "-"} / ${formatResponseTime(latestResponseTimeSec)}`,
+    isCorrect ? "correct" : "incorrect"
+  );
 
   resultLog.push({
     number: totalCount,
-    mode: currentQuestion.mode,
-    modeLabel: getModeLabel(currentQuestion.mode),
-    rootMidi: currentQuestion.rootMidi,
-    rootInfo: currentQuestion.rootInfo,
-    inversion: currentQuestion.inversion,
-    inversionLabel: inversionLabels[currentQuestion.inversion],
-    midiNotes: currentQuestion.midiNotes,
-    toneIndices: currentQuestion.toneIndices,
-    chordId: currentQuestion.chord.id,
-    chordName: currentQuestion.chord.name,
-    chordSymbol: currentQuestion.chord.symbol,
-    selectedName: selectedChord?.name || "",
-    selectedSymbol: selectedChord?.symbol || "",
-    inversionHint: currentQuestion.chord.inversionHint,
+    correctLabel: currentQuestion.correct.detailLabel,
+    selectedLabel: selected?.detailLabel || "",
+    keySig: currentQuestion.correct.keySig,
+    spelledTones: currentQuestion.correct.spelledTones.map((tone) => tone.label).join(" - "),
+    selectedSpelledTones: selected ? selected.spelledTones.map((tone) => tone.label).join(" - ") : "",
+    abc: currentQuestion.correct.abc,
+    selectedAbc: selected?.abc || "",
     isCorrect,
-    responseTimeSec: latestResponseTimeSec,
-    rootNote: currentQuestion.rootInfo.root,
-    notes: currentQuestion.midiNotes.map((midi, index) =>
-      spelledDisplayName(midi, currentQuestion.rootInfo, currentQuestion.chord.id, currentQuestion.toneIndices[index])
-    )
+    responseTimeSec: latestResponseTimeSec
   });
 
-  markAnswerButtons(chordId, isCorrect);
   updateScore();
   renderHistory();
+  showAnswer();
 }
 
-function markAnswerButtons(selectedId, isCorrect) {
-  document.querySelectorAll("#answer-buttons button").forEach((button) => {
-    button.classList.remove("selected-correct", "selected-incorrect");
+function showAnswer() {
+  if (!currentQuestion) {
+    setStatus("先に NEW を押してください。", "incorrect");
+    return;
+  }
 
-    if (button.dataset.answer === currentQuestion.chord.id) {
-      button.classList.add("selected-correct");
-    }
+  const correct = currentQuestion.correct;
+  answerText.textContent = `正解：${correct.detailLabel} / 調号 ${correct.keySig}`;
+  analysisText.textContent = `構成音：${correct.spelledTones.map((tone) => tone.label).join(" - ")}。属7の第7音は短7度として理論的に綴ります。`;
+  renderAbc("notation", correct.abc, 460);
+}
 
-    if (!isCorrect && button.dataset.answer === selectedId) {
-      button.classList.add("selected-incorrect");
-    }
+function buildAbcNotation(choice) {
+  const notes = choice.spelledTones.map((tone, index) => {
+    const midi = choice.midiNotes[index];
+    return spelledToneToAbc(tone, midi, choice.keySig);
+  });
+
+  const clef = clefForNotes(choice.midiNotes);
+  let body = "";
+
+  if (choice.mode === "block") body = `[${notes.join("")}]2 |`;
+  if (choice.mode === "arpUp") body = `${notes.join(" ")} |`;
+  if (choice.mode === "arpDown") body = `${notes.slice().reverse().join(" ")} |`;
+
+  return `X:1
+M:4/4
+L:1/4
+K:${choice.keySig} clef=${clef}
+${body}`;
+}
+
+function spelledToneToAbc(tone, midi, keySig) {
+  const octave = Math.floor(midi / 12) - 1;
+  const keyAlt = keySignatureAlteration(keySig, tone.letter);
+  const prefix = keyAlt === tone.alt ? "" : abcAccidentalPrefix(tone.alt);
+  return `${prefix}${abcLetterWithOctave(tone.letter, octave)}`;
+}
+
+function clefForNotes(notes) {
+  const avg = notes.reduce((sum, note) => sum + note, 0) / notes.length;
+  return avg < 55 ? "bass" : "treble";
+}
+
+function letterFrom(rootLetter, step) {
+  const rootIndex = letterOrder.indexOf(rootLetter);
+  return letterOrder[(rootIndex + step) % 7];
+}
+
+function absoluteAccidentalFromNatural(actualPc, naturalPc) {
+  const candidates = [-2, -1, 0, 1, 2];
+  const match = candidates.find((alt) => mod12(naturalPc + alt) === actualPc);
+  return match ?? 0;
+}
+
+function keySignatureAlteration(keySig, letter) {
+  const count = keySignatureAccidentalCount(keySig);
+  const sharps = ["F", "C", "G", "D", "A", "E", "B"];
+  const flats = ["B", "E", "A", "D", "G", "C", "F"];
+
+  if (count > 0) return sharps.slice(0, count).includes(letter) ? 1 : 0;
+  if (count < 0) return flats.slice(0, Math.abs(count)).includes(letter) ? -1 : 0;
+  return 0;
+}
+
+function keySignatureAccidentalCount(keySig) {
+  const map = {
+    C:0, Am:0,
+    G:1, Em:1,
+    D:2, Bm:2,
+    A:3, "F#m":3,
+    E:4, "C#m":4,
+    B:5, "G#m":5,
+    "F#":6, "D#m":6,
+    "C#":7, "A#m":7,
+    F:-1, Dm:-1,
+    Bb:-2, Gm:-2,
+    Eb:-3, Cm:-3,
+    Ab:-4, Fm:-4,
+    Db:-5, Bbm:-5,
+    Gb:-6, Ebm:-6,
+    Cb:-7, Abm:-7
+  };
+  return map[keySig] ?? 0;
+}
+
+function abcAccidentalPrefix(alt) {
+  if (alt === 0) return "=";
+  if (alt === 1) return "^";
+  if (alt === 2) return "^^";
+  if (alt === -1) return "_";
+  if (alt === -2) return "__";
+  return "";
+}
+
+function displayAccidental(alt) {
+  if (alt === 1) return "♯";
+  if (alt === 2) return "𝄪";
+  if (alt === -1) return "♭";
+  if (alt === -2) return "𝄫";
+  return "";
+}
+
+function abcLetterWithOctave(letter, octave) {
+  if (octave >= 5) return letter.toLowerCase() + "'".repeat(octave - 5);
+  if (octave <= 3) return letter + ",".repeat(4 - octave);
+  return letter;
+}
+
+function midiToToneNote(midi) {
+  const names = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
+  const pc = mod12(midi);
+  const octave = Math.floor(midi / 12) - 1;
+  return `${names[pc]}${octave}`;
+}
+
+function mod12(value) {
+  return ((value % 12) + 12) % 12;
+}
+
+function modeLabel(mode) {
+  return {
+    block: "同時",
+    arpUp: "上行アルペジオ",
+    arpDown: "下行アルペジオ"
+  }[mode] || mode;
+}
+
+function inversionLabel(inversion) {
+  if (inversion === 0) return "基本形";
+  if (inversion === 1) return "第1転回形";
+  if (inversion === 2) return "第2転回形";
+  if (inversion === 3) return "第3転回形";
+  return `${inversion}転回形`;
+}
+
+function renderAbc(targetId, abc, staffwidth) {
+  if (!window.ABCJS) return;
+  ABCJS.renderAbc(targetId, abc, {
+    responsive: "resize",
+    staffwidth,
+    paddingtop: 0,
+    paddingbottom: 0,
+    paddingleft: 0,
+    paddingright: 0,
+    add_classes: true
   });
 }
 
 function clearFeedback() {
   statusEl.className = "status";
-  document.querySelectorAll("#answer-buttons button").forEach((button) => {
-    button.classList.remove("selected-correct", "selected-incorrect");
+  document.querySelectorAll(".choice-card").forEach((card) => {
+    card.classList.remove("selected-correct", "selected-incorrect");
   });
 }
 
@@ -534,55 +584,7 @@ function resetScore() {
   currentTimeEl.textContent = "--";
   updateScore();
   renderHistory();
-  setStatus(t("スコアと履歴をリセットしました。"));
-}
-
-
-function spelledDisplayName(midi, rootMidi, chordId, toneIndex) {
-  const rootLetter = rootLetterFromMidi(rootMidi);
-  const plan = chordSpellingPlans[chordId]?.[toneIndex];
-
-  if (!plan) {
-    return midiToToneNote(midi);
-  }
-
-  const rootLetterIndex = letterOrder.indexOf(rootLetter);
-  const letter = letterOrder[(rootLetterIndex + plan.step) % 7];
-  const naturalPc = naturalPitchClasses[letter];
-  const expectedPc = mod12(naturalPc + plan.alt);
-
-  if (expectedPc !== mod12(midi)) {
-    return midiToToneNote(midi);
-  }
-
-  const accidental = plan.alt === 2 ? "𝄪" : plan.alt === 1 ? "♯" : plan.alt === -1 ? "♭" : plan.alt === -2 ? "𝄫" : "";
-  const octave = Math.floor(midi / 12) - 1;
-  return `${letter}${accidental}${octave}`;
-}
-
-function showAnswerAndNotation() {
-  if (!currentQuestion) {
-    setStatus(t("先に NEW を押してください。"), "incorrect");
-    return;
-  }
-
-  const modeLabel = getModeLabel(currentQuestion.mode);
-  const rootName = currentQuestion.rootInfo.root;
-  const noteNames = currentQuestion.midiNotes
-    .map((midi, index) => spelledDisplayName(midi, currentQuestion.rootMidi, currentQuestion.chord.id, currentQuestion.toneIndices[index]))
-    .join(" - ");
-
-  answerText.textContent = `正解：${rootName}${currentQuestion.chord.symbol} / ${currentQuestion.chord.name} / ${inversionLabels[currentQuestion.inversion]} / ${modeLabel} / ${noteNames}`;
-
-  const abc = buildAbcNotation(currentQuestion);
-  ABCJS.renderAbc("notation", abc, {
-    responsive: "resize",
-    staffwidth: 520,
-    paddingtop: 0,
-    paddingbottom: 0,
-    paddingleft: 0,
-    paddingright: 0
-  });
+  setStatus("スコアと履歴をリセットしました。");
 }
 
 function renderHistory() {
@@ -597,7 +599,7 @@ function renderHistory() {
     row.className = "history-item";
     row.innerHTML = `
       <span>${String(item.number).padStart(2, "0")}</span>
-      <span>${item.modeLabel} / ${item.chordName} / ${item.inversionLabel} / ${formatResponseTime(item.responseTimeSec)}</span>
+      <span>${item.correctLabel} / ${item.spelledTones} / ${formatResponseTime(item.responseTimeSec)}</span>
       <span class="${item.isCorrect ? "ok" : "ng"}">${item.isCorrect ? "OK" : "NG"}</span>
     `;
     historyList.appendChild(row);
@@ -608,271 +610,19 @@ function formatResponseTime(value) {
   return typeof value === "number" && Number.isFinite(value) ? `${value.toFixed(1)}s` : "-";
 }
 
-function buildAbcNotation(question) {
-  const rootInfo = question.rootInfo || rootInfoFromMidi(question.rootMidi);
-  const notes = question.midiNotes.map((midi, index) => {
-    return midiToAbcChordTone(
-      midi,
-      rootInfo,
-      question.chord?.id || question.chordId,
-      question.toneIndices?.[index] ?? index
-    );
-  });
-
-  const clef = getClefForQuestion(question);
-  let body = "";
-
-  if (question.mode === "block") {
-    body = `[${notes.join("")}]2 |`;
-  }
-
-  if (question.mode === "arpUp") {
-    body = `${notes.join(" ")} |`;
-  }
-
-  if (question.mode === "arpDown") {
-    body = `${notes.slice().reverse().join(" ")} |`;
-  }
-
-  return `X:1
-M:4/4
-L:1/4
-K:${keySigForChord(rootInfo, question.chord?.id || question.chordId)} clef=${clef}
-${body}`;
-}
-
-function getClefForQuestion(question) {
-  // 低い和音はヘ音記号に残します。
-  // 最高音がE4以下、または平均音高がC4以下の場合は bass。
-  const maxMidi = Math.max(...question.midiNotes);
-  const avgMidi = question.midiNotes.reduce((sum, midi) => sum + midi, 0) / question.midiNotes.length;
-  return maxMidi <= 64 || avgMidi <= 60 ? "bass" : "treble";
-}
-
-function getModeLabel(mode) {
-  return {
-    block: "同時",
-    arpUp: "上行分散",
-    arpDown: "下行分散"
-  }[mode];
-}
-
-function midiToToneNote(midi) {
-  const names = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
-  const pc = ((midi % 12) + 12) % 12;
-  const octave = Math.floor(midi / 12) - 1;
-  return `${names[pc]}${octave}`;
-}
-
-const naturalPitchClasses = {
-  C: 0,
-  D: 2,
-  E: 4,
-  F: 5,
-  G: 7,
-  A: 9,
-  B: 11
-};
-
-const letterOrder = ["C", "D", "E", "F", "G", "A", "B"];
-
-const chordSpellingPlans = {
-  maj:    [{ step: 0, alt: 0 }, { step: 2, alt: 0 }, { step: 4, alt: 0 }],
-  min:    [{ step: 0, alt: 0 }, { step: 2, alt: -1 }, { step: 4, alt: 0 }],
-  dim:    [{ step: 0, alt: 0 }, { step: 2, alt: -1 }, { step: 4, alt: -1 }],
-  aug:    [{ step: 0, alt: 0 }, { step: 2, alt: 0 }, { step: 4, alt: 1 }],
-
-  maj7:   [{ step: 0, alt: 0 }, { step: 2, alt: 0 }, { step: 4, alt: 0 }, { step: 6, alt: 0 }],
-  "7":    [{ step: 0, alt: 0 }, { step: 2, alt: 0 }, { step: 4, alt: 0 }, { step: 6, alt: -1 }],
-  min7:   [{ step: 0, alt: 0 }, { step: 2, alt: -1 }, { step: 4, alt: 0 }, { step: 6, alt: -1 }],
-  mMaj7:  [{ step: 0, alt: 0 }, { step: 2, alt: -1 }, { step: 4, alt: 0 }, { step: 6, alt: 0 }],
-  m7b5:   [{ step: 0, alt: 0 }, { step: 2, alt: -1 }, { step: 4, alt: -1 }, { step: 6, alt: -1 }],
-  dim7:   [{ step: 0, alt: 0 }, { step: 2, alt: -1 }, { step: 4, alt: -1 }, { step: 6, alt: -2 }],
-
-  sus4:   [{ step: 0, alt: 0 }, { step: 3, alt: 0 }, { step: 4, alt: 0 }],
-  sus2:   [{ step: 0, alt: 0 }, { step: 1, alt: 0 }, { step: 4, alt: 0 }],
-  add9:   [{ step: 0, alt: 0 }, { step: 2, alt: 0 }, { step: 4, alt: 0 }, { step: 1, alt: 0 }],
-  minAdd9:[{ step: 0, alt: 0 }, { step: 2, alt: -1 }, { step: 4, alt: 0 }, { step: 1, alt: 0 }]
-};
-
-function rootInfoFromMidi(rootMidi) {
-  return rootCandidates.find((candidate) => candidate.midi === rootMidi) || {
-    midi: rootMidi,
-    root: midiToToneNote(rootMidi).replace(/[0-9-]/g, ""),
-    majorKeySig: "C",
-    minorKeySig: "Cm",
-    letter: "C",
-    alt: 0
-  };
-}
-
-function keySigForChord(rootInfo, chordId) {
-  const minorContextIds = new Set(["min", "min7", "mMaj7", "m7b5", "dim", "dim7", "minAdd9"]);
-  return minorContextIds.has(chordId)
-    ? rootInfo.minorKeySig
-    : rootInfo.majorKeySig;
-}
-
-function midiToAbcChordTone(midi, rootInfo, chordId, toneIndex) {
-  const plan = chordSpellingPlans[chordId]?.[toneIndex];
-
-  if (!plan) {
-    return midiToAbcAbsolute(midi);
-  }
-
-  const rootLetterIndex = letterOrder.indexOf(rootInfo.letter);
-  const letter = letterOrder[(rootLetterIndex + plan.step) % 7];
-  const octave = Math.floor(midi / 12) - 1;
-  const naturalPc = naturalPitchClasses[letter];
-  const absoluteAlt = rootInfo.alt + plan.alt;
-  const expectedPc = mod12(naturalPc + absoluteAlt);
-  const actualPc = mod12(midi);
-
-  if (expectedPc !== actualPc) {
-    return midiToAbcAbsolute(midi);
-  }
-
-  const keySigAlt = keySignatureAlteration(keySigForChord(rootInfo, chordId), letter);
-  if (keySigAlt === absoluteAlt) {
-    return abcLetterWithOctave(letter, octave);
-  }
-
-  return `${abcAccidentalPrefix(absoluteAlt)}${abcLetterWithOctave(letter, octave)}`;
-}
-
-function spelledDisplayName(midi, rootInfo, chordId, toneIndex) {
-  const plan = chordSpellingPlans[chordId]?.[toneIndex];
-
-  if (!plan) {
-    return midiToToneNote(midi);
-  }
-
-  const rootLetterIndex = letterOrder.indexOf(rootInfo.letter);
-  const letter = letterOrder[(rootLetterIndex + plan.step) % 7];
-  const naturalPc = naturalPitchClasses[letter];
-  const absoluteAlt = rootInfo.alt + plan.alt;
-
-  if (mod12(naturalPc + absoluteAlt) !== mod12(midi)) {
-    return midiToToneNote(midi);
-  }
-
-  const accidental = absoluteAlt === 2 ? "𝄪" : absoluteAlt === 1 ? "♯" : absoluteAlt === -1 ? "♭" : absoluteAlt === -2 ? "𝄫" : "";
-  const octave = Math.floor(midi / 12) - 1;
-  return `${letter}${accidental}${octave}`;
-}
-
-function keySignatureAlteration(keySig, letter) {
-  const accidentalCount = keySignatureAccidentalCount(keySig);
-  const sharps = ["F", "C", "G", "D", "A", "E", "B"];
-  const flats = ["B", "E", "A", "D", "G", "C", "F"];
-
-  if (accidentalCount > 0) {
-    const fullCycles = Math.floor(accidentalCount / 7);
-    const remainder = accidentalCount % 7;
-    return fullCycles + (sharps.slice(0, remainder).includes(letter) ? 1 : 0);
-  }
-
-  if (accidentalCount < 0) {
-    const count = Math.abs(accidentalCount);
-    const fullCycles = Math.floor(count / 7);
-    const remainder = count % 7;
-    return -(fullCycles + (flats.slice(0, remainder).includes(letter) ? 1 : 0));
-  }
-
-  return 0;
-}
-
-function keySignatureAccidentalCount(keySig) {
-  const map = {
-    C: 0, Am: 0,
-    G: 1, Em: 1,
-    D: 2, Bm: 2,
-    A: 3, "F#m": 3,
-    E: 4, "C#m": 4,
-    B: 5, "G#m": 5,
-    "F#": 6, "D#m": 6,
-    "C#": 7, "A#m": 7,
-
-    F: -1, Dm: -1,
-    Bb: -2, Gm: -2,
-    Eb: -3, Cm: -3,
-    Ab: -4, Fm: -4,
-    Db: -5, Bbm: -5,
-    Gb: -6, Ebm: -6,
-    Cb: -7, Abm: -7,
-
-    Dbm: -8,
-    Gbm: -9
-  };
-  return map[keySig] ?? 0;
-}
-
-function abcAccidentalPrefix(absoluteAlt) {
-  if (absoluteAlt === 0) return "=";
-  if (absoluteAlt === 1) return "^";
-  if (absoluteAlt === 2) return "^^";
-  if (absoluteAlt === -1) return "_";
-  if (absoluteAlt === -2) return "__";
-  return "";
-}
-
-function abcLetterWithOctave(letter, octave) {
-  // ABC octave mapping:
-  // MIDI 60 = C4 = middle C = C
-  // MIDI 72 = C5 = c
-  // MIDI 48 = C3 = C,
-  if (octave >= 5) {
-    return letter.toLowerCase() + "'".repeat(octave - 5);
-  }
-
-  if (octave <= 3) {
-    return letter + ",".repeat(4 - octave);
-  }
-
-  return letter;
-}
-
-function midiToAbcAbsolute(midi) {
-  const names = ["C", "^C", "D", "^D", "E", "F", "^F", "G", "^G", "A", "^A", "B"];
-  const pc = ((midi % 12) + 12) % 12;
-  return abcWithRawNameAndOctave(midi, names[pc]);
-}
-
-function abcWithRawNameAndOctave(midi, rawName) {
-  const octave = Math.floor(midi / 12) - 1;
-  let name = rawName;
-
-  if (octave >= 5) {
-    name = rawName.toLowerCase() + "'".repeat(octave - 5);
-  } else if (octave <= 3) {
-    name = rawName + ",".repeat(4 - octave);
-  }
-
-  return name;
-}
-
-function mod12(value) {
-  return ((value % 12) + 12) % 12;
-}
-
-function midiToAbc(midi) {
-  return midiToAbcAbsolute(midi);
-}
-
 async function exportResultsPdf() {
   if (!window.jspdf || !window.jspdf.jsPDF) {
-    setStatus(t("PDFライブラリを読み込めませんでした。インターネット接続を確認してください。"), "incorrect");
+    setStatus("PDFライブラリを読み込めませんでした。インターネット接続を確認してください。", "incorrect");
     return;
   }
 
   if (resultLog.length === 0) {
-    setStatus(t("PDFに出力する解答履歴がありません。"), "incorrect");
+    setStatus("PDFに出力する解答履歴がありません。", "incorrect");
     return;
   }
 
   const exportButton = document.querySelector("#export-pdf");
   exportButton.disabled = true;
-  setStatus(t("PDFを作成中です。楽譜画像を生成しています。"));
 
   try {
     const { jsPDF } = window.jspdf;
@@ -880,14 +630,14 @@ async function exportResultsPdf() {
 
     const rate = totalCount === 0 ? 0 : Math.round((correctCount / totalCount) * 100);
     const date = new Date().toLocaleString();
-    const answeredWithTime = resultLog.filter(item => item.responseTimeSec !== null);
+    const answeredWithTime = resultLog.filter((item) => item.responseTimeSec !== null);
     const avgTime = answeredWithTime.length
       ? answeredWithTime.reduce((sum, item) => sum + item.responseTimeSec, 0) / answeredWithTime.length
       : null;
 
     doc.setFont("helvetica", "bold");
     doc.setFontSize(22);
-    doc.text("Chord Practice Result", 16, 18);
+    doc.text("Chord Result", 16, 18);
 
     doc.setDrawColor(40);
     doc.setLineWidth(1.4);
@@ -904,162 +654,134 @@ async function exportResultsPdf() {
     let y = 52;
 
     for (const item of resultLog) {
-      if (y > 248) {
+      if (y > 220) {
         doc.addPage();
         y = 18;
       }
 
       doc.setFont("helvetica", "bold");
       doc.setFontSize(10);
-      doc.text(
-        `${String(item.number).padStart(2, "0")}  ${modeToPdfLabel(item.mode)}  ${inversionToPdfLabel(item.inversion)}  Root: ${item.rootNote}  ${item.chordSymbol}`,
-        16,
-        y
-      );
+      doc.text(`${String(item.number).padStart(2, "0")}  ${item.correctLabel}  ${item.isCorrect ? "OK" : "NG"}`, 16, y);
 
       doc.setFont("helvetica", "normal");
       doc.setFontSize(9);
-      doc.text(
-        `Correct chord: ${chordToPdfLabel(item.chordName)} / Your answer: ${chordToPdfLabel(item.selectedName)} / ${item.isCorrect ? "OK" : "NG"} / Time: ${formatResponseTime(item.responseTimeSec)}`,
-        16,
-        y + 6
-      );
+      doc.text(`Correct tones: ${item.spelledTones}`, 16, y + 6);
+      doc.text(`Selected: ${item.selectedLabel || "-"} / ${item.selectedSpelledTones || "-"} / Time: ${formatResponseTime(item.responseTimeSec)}`, 16, y + 12);
 
-      doc.text(`Hint: ${item.inversionHint}`, 16, y + 12);
+      y += 18;
 
-      const abc = buildAbcNotation({
-        mode: item.mode,
-        midiNotes: item.midiNotes,
-        toneIndices: item.toneIndices,
-        rootMidi: item.rootMidi,
-        rootInfo: item.rootInfo,
-        chordId: item.chordId
-      });
-
-      const notationImage = await renderAbcToPngDataUrl(abc);
-      const imageWidthMm = 92;
-      const imageHeightMm = imageWidthMm * (notationImage.height / notationImage.width);
-
-      if (y + 20 + imageHeightMm > 282) {
-        doc.addPage();
-        y = 18;
+      if (item.abc) {
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(8);
+        doc.text("Correct notation", 16, y);
+        const notation = await abcToPngDataUrl(item.abc, 760);
+        const size = fitImageSize(notation, 174, 32);
+        doc.addImage(notation.dataUrl, "PNG", 18 + (174 - size.width) / 2, y + 2, size.width, size.height);
+        y += size.height + 8;
       }
 
-      doc.addImage(notationImage.dataUrl, "PNG", 16, y + 16, imageWidthMm, imageHeightMm);
-      y += 26 + imageHeightMm;
+      if (item.selectedAbc) {
+        if (y > 250) {
+          doc.addPage();
+          y = 18;
+        }
+
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(8);
+        doc.text("Selected notation", 16, y);
+        const notation = await abcToPngDataUrl(item.selectedAbc, 760);
+        const size = fitImageSize(notation, 174, 32);
+        doc.addImage(notation.dataUrl, "PNG", 18 + (174 - size.width) / 2, y + 2, size.width, size.height);
+        y += size.height + 10;
+      }
     }
 
-    doc.save("chord-practice-result.pdf");
-    setStatus(t("結果PDFを出力しました。"), "correct");
+    doc.save("chord-result.pdf");
+    setStatus("正解譜例と選択譜例を含むPDFを出力しました。", "correct");
   } catch (error) {
     console.error(error);
-    setStatus(t("PDF作成中にエラーが発生しました。"), "incorrect");
+    setStatus("PDF作成中にエラーが発生しました。", "incorrect");
   } finally {
     exportButton.disabled = false;
   }
 }
 
-function modeToPdfLabel(mode) {
+function fitImageSize(notation, maxWidth, maxHeight) {
+  const scale = Math.min(maxWidth / notation.widthMm, maxHeight / notation.heightMm);
   return {
-    block: "Block chord",
-    arpUp: "Arpeggio up",
-    arpDown: "Arpeggio down"
-  }[mode] || mode;
-}
-
-function inversionToPdfLabel(inversion) {
-  return inversionPdfLabels[inversion] || "-";
-}
-
-function chordToPdfLabel(name) {
-  const map = {
-    "長三和音": "major triad",
-    "短三和音": "minor triad",
-    "減三和音": "diminished triad",
-    "増三和音": "augmented triad",
-    "長七の和音": "major seventh",
-    "属七の和音": "dominant seventh",
-    "短七の和音": "minor seventh",
-    "短三長七": "minor major seventh",
-    "半減七": "half-diminished seventh",
-    "減七の和音": "diminished seventh",
-    "sus4": "sus4",
-    "sus2": "sus2",
-    "add9": "add9",
-    "m(add9)": "minor add9"
+    width: notation.widthMm * scale,
+    height: notation.heightMm * scale
   };
-  return map[name] || name || "-";
 }
 
-async function renderAbcToPngDataUrl(abc) {
-  const host = document.createElement("div");
-  host.style.position = "fixed";
-  host.style.left = "-10000px";
-  host.style.top = "0";
-  host.style.width = "720px";
-  host.style.background = "white";
-  document.body.appendChild(host);
+async function abcToPngDataUrl(abc, staffwidth = 620) {
+  if (!window.ABCJS) throw new Error("ABCJS is not available.");
 
-  ABCJS.renderAbc(host, abc, {
-    responsive: "resize",
-    staffwidth: 620,
-    paddingtop: 0,
-    paddingbottom: 0,
-    paddingleft: 0,
-    paddingright: 0
-  });
+  const holder = document.createElement("div");
+  holder.style.position = "fixed";
+  holder.style.left = "-10000px";
+  holder.style.top = "0";
+  holder.style.width = `${staffwidth}px`;
+  holder.style.background = "#ffffff";
+  holder.style.color = "#000000";
+  document.body.appendChild(holder);
 
-  const svg = host.querySelector("svg");
-  if (!svg) {
-    document.body.removeChild(host);
-    throw new Error("abcjs SVG was not generated.");
-  }
+  try {
+    ABCJS.renderAbc(holder, abc, {
+      responsive: "resize",
+      staffwidth,
+      paddingtop: 0,
+      paddingbottom: 0,
+      paddingleft: 0,
+      paddingright: 0,
+      add_classes: true
+    });
 
-  svg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+    const svg = holder.querySelector("svg");
+    if (!svg) throw new Error("No SVG generated.");
 
-  const svgText = new XMLSerializer().serializeToString(svg);
-  const pngImage = await svgTextToPngDataUrl(svgText, 2.2);
+    svg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+    svg.style.background = "#ffffff";
 
-  document.body.removeChild(host);
-  return pngImage;
-}
+    const bbox = svg.getBBox();
+    const width = Math.max(1, Math.ceil(bbox.width + 12));
+    const height = Math.max(1, Math.ceil(bbox.height + 12));
+    svg.setAttribute("width", String(width));
+    svg.setAttribute("height", String(height));
+    svg.setAttribute("viewBox", `${bbox.x - 6} ${bbox.y - 6} ${width} ${height}`);
 
-function svgTextToPngDataUrl(svgText, scale = 2) {
-  return new Promise((resolve, reject) => {
+    const svgText = new XMLSerializer().serializeToString(svg);
     const svgBlob = new Blob([svgText], { type: "image/svg+xml;charset=utf-8" });
     const url = URL.createObjectURL(svgBlob);
-    const image = new Image();
 
-    image.onload = () => {
-      try {
-        const canvas = document.createElement("canvas");
-        canvas.width = Math.ceil(image.width * scale);
-        canvas.height = Math.ceil(image.height * scale);
+    const img = await loadImage(url);
+    URL.revokeObjectURL(url);
 
-        const context = canvas.getContext("2d");
-        context.fillStyle = "#ffffff";
-        context.fillRect(0, 0, canvas.width, canvas.height);
-        context.setTransform(scale, 0, 0, scale, 0, 0);
-        context.drawImage(image, 0, 0);
+    const scale = 2;
+    const canvas = document.createElement("canvas");
+    canvas.width = Math.ceil(width * scale);
+    canvas.height = Math.ceil(height * scale);
+    const ctx = canvas.getContext("2d");
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 
-        URL.revokeObjectURL(url);
-        resolve({
-          dataUrl: canvas.toDataURL("image/png"),
-          width: canvas.width,
-          height: canvas.height
-        });
-      } catch (error) {
-        URL.revokeObjectURL(url);
-        reject(error);
-      }
+    return {
+      dataUrl: canvas.toDataURL("image/png"),
+      widthMm: width * 0.264583,
+      heightMm: height * 0.264583
     };
+  } finally {
+    holder.remove();
+  }
+}
 
-    image.onerror = () => {
-      URL.revokeObjectURL(url);
-      reject(new Error("SVG to PNG conversion failed."));
-    };
-
-    image.src = url;
+function loadImage(url) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => resolve(img);
+    img.onerror = reject;
+    img.src = url;
   });
 }
 

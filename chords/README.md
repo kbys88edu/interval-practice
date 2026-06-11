@@ -1,19 +1,18 @@
-# Chord Ear Trainer
+# Chords
 
-Published inside the same GitHub Pages repository as the interval trainer.
-
-URL example:
-
-`https://kbys88edu.github.io/interval-ear-trainer/chords/`
+Rebuilt from zero.
 
 Features:
-- Chord type selection
-- Select all / clear all chord type buttons
-- Inversion selection: root position, first inversion, second inversion, third inversion
-- Low chords rendered in bass clef
-
-- theory-aware enharmonic spelling added for chord notation: dominant sevenths, diminished sevenths, augmented chords, and altered fifth/seventh tones
-
-- key-signature-aware chord spelling added: root spelling and key signature context determine chord notation; enharmonic roots such as C#/Db and F#/Gb are handled separately
-
-- minor-quality chords now use minor key signatures, e.g. F minor uses K:Fm so Ab is handled by the key signature
+- Three-choice chord ear training
+- Block, ascending arpeggio, descending arpeggio
+- Triads, sevenths, suspended chords, add9 chords
+- Root spelling is explicit, not guessed from MIDI
+- Chord notation is generated from root spelling + chord quality + chord-tone degree
+- Dominant seventh spelling is theory-correct:
+  - E7 = E G# B D
+  - B7 = B D# F# A
+  - Db7 = Db F Ab Cb
+  - F7 = F A C Eb
+- Key signatures are shown in notation
+- Diatonic notes covered by the key signature do not receive redundant accidentals
+- PDF export includes correct and selected notation
