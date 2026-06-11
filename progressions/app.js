@@ -71,7 +71,7 @@ const keyContexts = {
 const whiteMajorKeys = ["C", "D", "F", "G", "A"];
 const whiteMinorKeys = ["Am", "Cm", "Dm", "Fm", "Gm"];
 const allMajorKeys = ["C", "Db", "D", "Eb", "E", "F", "Gb", "G", "Ab", "A", "Bb", "B"];
-const allMinorKeys = ["Cm", "Csm", "Dm", "Ebm", "Em", "Fm", "Fsm", "Gm", "Abm", "Am", "Bbm", "Bm"];
+const allMinorKeys = ["Cm", "Dm", "Ebm", "Em", "Fm", "Gm", "Abm", "Am", "Bbm", "Bm"];
 
 let keyRange = "white";
 let currentQuestion = null;
@@ -617,7 +617,7 @@ function showAnswer() {
   }
 
   answerText.textContent = `正解：${currentQuestion.correct.roman.join(" - ")} / ${currentQuestion.keyContext.keySig} / ${currentQuestion.correct.tonality === "major" ? "長調" : "短調"}`;
-  analysisText.textContent = "調号・和音度数・構成音の綴りから譜例を生成しています。再生と譜例は同じ4声配列です。";
+  analysisText.textContent = `調号：${currentQuestion.keyContext.keySig}。調号・和音度数・構成音の綴りから譜例を生成しています。再生と譜例は同じ4声配列です。`;
   renderAbc("notation", currentQuestion.correct.abc, 460);
 }
 
@@ -625,6 +625,7 @@ function buildGrandStaffAbc(choice) {
   const durations = getBeatDurations(choice.voiced.length);
   const treble = [];
   const bass = [];
+  const keySig = choice.keyContext.keySig;
 
   choice.voiced.forEach((notes, index) => {
     const dur = durations[index];
@@ -633,17 +634,20 @@ function buildGrandStaffAbc(choice) {
     bass.push(`${midiToAbcProgressionTone(notes[0], info, choice.keyContext)}${durToAbc(dur)}`);
   });
 
+  // Key signature is written globally and again per voice.
+  // This is intentionally redundant: it prevents ABCJS from rendering a neutral C key
+  // in compact multi-voice snippets.
   return [
     "X:1",
     "M:4/4",
     "L:1/4",
-    `K:${choice.keyContext.keySig}`,
+    `K:${keySig}`,
     "%%staves {1 2}",
-    "V:1 clef=treble",
-    "V:2 clef=bass",
-    `[V:1] ${treble.join(" ")} |`,
-    `[V:2] ${bass.join(" ")} |`
-  ].join("\n");
+    `V:1 clef=treble`,
+    `V:2 clef=bass`,
+    `[V:1] K:${keySig} ${treble.join(" ")} |`,
+    `[V:2] K:${keySig} ${bass.join(" ")} |`
+  ].join("\\n");
 }
 
 function durToAbc(dur) {
@@ -654,7 +658,7 @@ function midiToAbcProgressionTone(midi, chordInfo, keyContext) {
   const toneIndex = chordToneIndexForMidi(midi, chordInfo);
   const spelling = chordInfo.toneSpellings[toneIndex];
 
-  if (!spelling) return midiToAbcAbsolute(midi);
+  if (!spelling) return midiToAbcAbsolute(midi, keySignatureAccidentalCount(keyContext.keySig) < 0);
 
   const octave = Math.floor(midi / 12) - 1;
   const keySigAlt = keySignatureAlteration(keyContext.keySig, spelling.letter);
@@ -685,8 +689,19 @@ function keySignatureAlteration(keySig, letter) {
   const sharps = ["F", "C", "G", "D", "A", "E", "B"];
   const flats = ["B", "E", "A", "D", "G", "C", "F"];
 
-  if (count > 0) return sharps.slice(0, count).includes(letter) ? 1 : 0;
-  if (count < 0) return flats.slice(0, Math.abs(count)).includes(letter) ? -1 : 0;
+  if (count > 0) {
+    const fullCycles = Math.floor(count / 7);
+    const remainder = count % 7;
+    return fullCycles + (sharps.slice(0, remainder).includes(letter) ? 1 : 0);
+  }
+
+  if (count < 0) {
+    const n = Math.abs(count);
+    const fullCycles = Math.floor(n / 7);
+    const remainder = n % 7;
+    return -(fullCycles + (flats.slice(0, remainder).includes(letter) ? 1 : 0));
+  }
+
   return 0;
 }
 
@@ -732,8 +747,10 @@ function abcLetterWithOctave(letter, octave) {
   return letter;
 }
 
-function midiToAbcAbsolute(midi) {
-  const names = ["C", "^C", "D", "^D", "E", "F", "^F", "G", "^G", "A", "^A", "B"];
+function midiToAbcAbsolute(midi, preferFlats = false) {
+  const sharpNames = ["C", "^C", "D", "^D", "E", "F", "^F", "G", "^G", "A", "^A", "B"];
+  const flatNames = ["C", "_D", "D", "_E", "E", "F", "_G", "G", "_A", "A", "_B", "B"];
+  const names = preferFlats ? flatNames : sharpNames;
   const pc = mod12(midi);
   const octave = Math.floor(midi / 12) - 1;
   let name = names[pc];

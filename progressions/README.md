@@ -13,3 +13,5 @@ Features:
 - Theory spelling based on key, scale degree, chord quality, and chord tone
 - Flat keys stay flat; sharp-only MIDI spelling is not used for notation
 - PDF export includes correct and selected notation
+
+- explicit per-voice key signatures added for ABCJS multi-staff rendering; all-key mode now avoids sharp enharmonic minor keys and prefers flat spellings in flat contexts
