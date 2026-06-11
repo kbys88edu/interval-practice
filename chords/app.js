@@ -28,9 +28,46 @@ const presets = {
   advanced: chords.map((chord) => chord.id)
 };
 
-// C3からA4までを候補にし、転回形を含む和音の最高音がA5を超えない範囲で出題します。
+// 転回形を含む和音の最高音がA5を超えない範囲で出題します。
 const MAX_TREBLE_MIDI = 81; // A5
-const rootMidiNotes = [48, 50, 52, 53, 55, 57, 59, 60, 62, 64, 65, 67, 69];
+
+// Root spelling is no longer derived from MIDI alone.
+// The same sounding pitch can be C# or Db depending on musical spelling.
+// Each root candidate carries its spelling and a matching key signature context.
+const rootCandidates = [
+  { midi: 48, root: "C",  keySig: "C",  letter: "C", alt: 0 },
+  { midi: 49, root: "Db", keySig: "Db", letter: "D", alt: -1 },
+  { midi: 49, root: "C#", keySig: "C#", letter: "C", alt: 1 },
+  { midi: 50, root: "D",  keySig: "D",  letter: "D", alt: 0 },
+  { midi: 51, root: "Eb", keySig: "Eb", letter: "E", alt: -1 },
+  { midi: 51, root: "D#", keySig: "D#", letter: "D", alt: 1 },
+  { midi: 52, root: "E",  keySig: "E",  letter: "E", alt: 0 },
+  { midi: 53, root: "F",  keySig: "F",  letter: "F", alt: 0 },
+  { midi: 54, root: "Gb", keySig: "Gb", letter: "G", alt: -1 },
+  { midi: 54, root: "F#", keySig: "F#", letter: "F", alt: 1 },
+  { midi: 55, root: "G",  keySig: "G",  letter: "G", alt: 0 },
+  { midi: 56, root: "Ab", keySig: "Ab", letter: "A", alt: -1 },
+  { midi: 56, root: "G#", keySig: "G#", letter: "G", alt: 1 },
+  { midi: 57, root: "A",  keySig: "A",  letter: "A", alt: 0 },
+  { midi: 58, root: "Bb", keySig: "Bb", letter: "B", alt: -1 },
+  { midi: 58, root: "A#", keySig: "A#", letter: "A", alt: 1 },
+  { midi: 59, root: "B",  keySig: "B",  letter: "B", alt: 0 },
+
+  { midi: 60, root: "C",  keySig: "C",  letter: "C", alt: 0 },
+  { midi: 61, root: "Db", keySig: "Db", letter: "D", alt: -1 },
+  { midi: 61, root: "C#", keySig: "C#", letter: "C", alt: 1 },
+  { midi: 62, root: "D",  keySig: "D",  letter: "D", alt: 0 },
+  { midi: 63, root: "Eb", keySig: "Eb", letter: "E", alt: -1 },
+  { midi: 63, root: "D#", keySig: "D#", letter: "D", alt: 1 },
+  { midi: 64, root: "E",  keySig: "E",  letter: "E", alt: 0 },
+  { midi: 65, root: "F",  keySig: "F",  letter: "F", alt: 0 },
+  { midi: 66, root: "Gb", keySig: "Gb", letter: "G", alt: -1 },
+  { midi: 66, root: "F#", keySig: "F#", letter: "F", alt: 1 },
+  { midi: 67, root: "G",  keySig: "G",  letter: "G", alt: 0 },
+  { midi: 68, root: "Ab", keySig: "Ab", letter: "A", alt: -1 },
+  { midi: 68, root: "G#", keySig: "G#", letter: "G", alt: 1 },
+  { midi: 69, root: "A",  keySig: "A",  letter: "A", alt: 0 }
+];
 
 const inversionLabels = {
   0: "根音位置",
@@ -197,12 +234,12 @@ function newQuestion() {
   }
 
   const playableVoicings = [];
-  rootMidiNotes.forEach((rootMidi) => {
+  rootCandidates.forEach((rootInfo) => {
     validInversions.forEach((inversion) => {
-      const midiNotes = buildChordVoicing(rootMidi, chord.intervals, inversion);
+      const midiNotes = buildChordVoicing(rootInfo.midi, chord.intervals, inversion);
       const toneIndices = buildChordToneIndices(chord.intervals, inversion);
       if (Math.max(...midiNotes) <= MAX_TREBLE_MIDI) {
-        playableVoicings.push({ rootMidi, inversion, midiNotes, toneIndices });
+        playableVoicings.push({ rootInfo, rootMidi: rootInfo.midi, inversion, midiNotes, toneIndices });
       }
     });
   });
@@ -213,6 +250,7 @@ function newQuestion() {
   }
 
   const voicing = randomItem(playableVoicings);
+  const rootInfo = voicing.rootInfo;
   const rootMidi = voicing.rootMidi;
   const inversion = voicing.inversion;
   const midiNotes = voicing.midiNotes;
@@ -222,6 +260,7 @@ function newQuestion() {
     number: totalCount + 1,
     chord,
     mode: getMode(),
+    rootInfo,
     rootMidi,
     inversion,
     midiNotes,
@@ -433,6 +472,7 @@ function answer(chordId) {
     mode: currentQuestion.mode,
     modeLabel: getModeLabel(currentQuestion.mode),
     rootMidi: currentQuestion.rootMidi,
+    rootInfo: currentQuestion.rootInfo,
     inversion: currentQuestion.inversion,
     inversionLabel: inversionLabels[currentQuestion.inversion],
     midiNotes: currentQuestion.midiNotes,
@@ -445,8 +485,10 @@ function answer(chordId) {
     inversionHint: currentQuestion.chord.inversionHint,
     isCorrect,
     responseTimeSec: latestResponseTimeSec,
-    rootNote: midiToToneNote(currentQuestion.rootMidi),
-    notes: currentQuestion.midiNotes.map(midiToToneNote)
+    rootNote: currentQuestion.rootInfo.root,
+    notes: currentQuestion.midiNotes.map((midi, index) =>
+      spelledDisplayName(midi, currentQuestion.rootInfo, currentQuestion.chord.id, currentQuestion.toneIndices[index])
+    )
   });
 
   markAnswerButtons(chordId, isCorrect);
@@ -530,7 +572,7 @@ function showAnswerAndNotation() {
   }
 
   const modeLabel = getModeLabel(currentQuestion.mode);
-  const rootName = midiToToneNote(currentQuestion.rootMidi);
+  const rootName = currentQuestion.rootInfo.root;
   const noteNames = currentQuestion.midiNotes
     .map((midi, index) => spelledDisplayName(midi, currentQuestion.rootMidi, currentQuestion.chord.id, currentQuestion.toneIndices[index]))
     .join(" - ");
@@ -572,10 +614,11 @@ function formatResponseTime(value) {
 }
 
 function buildAbcNotation(question) {
+  const rootInfo = question.rootInfo || rootInfoFromMidi(question.rootMidi);
   const notes = question.midiNotes.map((midi, index) => {
     return midiToAbcChordTone(
       midi,
-      question.rootMidi,
+      rootInfo,
       question.chord?.id || question.chordId,
       question.toneIndices?.[index] ?? index
     );
@@ -599,7 +642,7 @@ function buildAbcNotation(question) {
   return `X:1
 M:4/4
 L:1/4
-K:C clef=${clef}
+K:${rootInfo.keySig} clef=${clef}
 ${body}`;
 }
 
@@ -657,70 +700,118 @@ const chordSpellingPlans = {
   minAdd9:[{ step: 0, alt: 0 }, { step: 2, alt: -1 }, { step: 4, alt: 0 }, { step: 1, alt: 0 }]
 };
 
-function midiToAbcChordTone(midi, rootMidi, chordId, toneIndex) {
-  // Theory-aware chord spelling.
-  // Example: E7 is E-G#-B-D, not E-Ab-B-D.
-  // Example: B7 is B-D#-F#-A, not B-Eb-Gb-A.
-  // Example: Cdim7 is C-Eb-Gb-Bbb, not C-Eb-F#-A.
-  const rootLetter = rootLetterFromMidi(rootMidi);
+function rootInfoFromMidi(rootMidi) {
+  return rootCandidates.find((candidate) => candidate.midi === rootMidi) || {
+    midi: rootMidi,
+    root: midiToToneNote(rootMidi).replace(/[0-9-]/g, ""),
+    keySig: "C",
+    letter: "C",
+    alt: 0
+  };
+}
+
+function midiToAbcChordTone(midi, rootInfo, chordId, toneIndex) {
   const plan = chordSpellingPlans[chordId]?.[toneIndex];
 
   if (!plan) {
     return midiToAbcAbsolute(midi);
   }
 
-  const rootLetterIndex = letterOrder.indexOf(rootLetter);
+  const rootLetterIndex = letterOrder.indexOf(rootInfo.letter);
   const letter = letterOrder[(rootLetterIndex + plan.step) % 7];
+  const octave = Math.floor(midi / 12) - 1;
   const naturalPc = naturalPitchClasses[letter];
-  const expectedPc = mod12(naturalPc + plan.alt);
+  const absoluteAlt = rootInfo.alt + plan.alt;
+  const expectedPc = mod12(naturalPc + absoluteAlt);
   const actualPc = mod12(midi);
 
-  // If the expected spelling does not match the sounded pitch because of an unexpected
-  // voicing or future chord type, fall back to absolute pitch instead of showing a false note.
   if (expectedPc !== actualPc) {
     return midiToAbcAbsolute(midi);
   }
 
-  return abcWithLetterAndAccidental(midi, letter, plan.alt);
+  const keySigAlt = keySignatureAlteration(rootInfo.keySig, letter);
+  if (keySigAlt === absoluteAlt) {
+    return abcLetterWithOctave(letter, octave);
+  }
+
+  return `${abcAccidentalPrefix(absoluteAlt)}${abcLetterWithOctave(letter, octave)}`;
 }
 
-function rootLetterFromMidi(rootMidi) {
+function spelledDisplayName(midi, rootInfo, chordId, toneIndex) {
+  const plan = chordSpellingPlans[chordId]?.[toneIndex];
+
+  if (!plan) {
+    return midiToToneNote(midi);
+  }
+
+  const rootLetterIndex = letterOrder.indexOf(rootInfo.letter);
+  const letter = letterOrder[(rootLetterIndex + plan.step) % 7];
+  const naturalPc = naturalPitchClasses[letter];
+  const absoluteAlt = rootInfo.alt + plan.alt;
+
+  if (mod12(naturalPc + absoluteAlt) !== mod12(midi)) {
+    return midiToToneNote(midi);
+  }
+
+  const accidental = absoluteAlt === 2 ? "𝄪" : absoluteAlt === 1 ? "♯" : absoluteAlt === -1 ? "♭" : absoluteAlt === -2 ? "𝄫" : "";
+  const octave = Math.floor(midi / 12) - 1;
+  return `${letter}${accidental}${octave}`;
+}
+
+function keySignatureAlteration(keySig, letter) {
+  const accidentalCount = keySignatureAccidentalCount(keySig);
+  const sharps = ["F", "C", "G", "D", "A", "E", "B"];
+  const flats = ["B", "E", "A", "D", "G", "C", "F"];
+
+  if (accidentalCount > 0 && sharps.slice(0, accidentalCount).includes(letter)) return 1;
+  if (accidentalCount < 0 && flats.slice(0, Math.abs(accidentalCount)).includes(letter)) return -1;
+  return 0;
+}
+
+function keySignatureAccidentalCount(keySig) {
   const map = {
-    0: "C",
-    2: "D",
-    4: "E",
-    5: "F",
-    7: "G",
-    9: "A",
-    11: "B"
+    C: 0, Am: 0,
+    G: 1, Em: 1,
+    D: 2, Bm: 2,
+    A: 3, "F#m": 3,
+    E: 4, "C#m": 4,
+    B: 5, "G#m": 5,
+    "F#": 6, "D#m": 6,
+    "C#": 7, "A#m": 7,
+    F: -1, Dm: -1,
+    Bb: -2, Gm: -2,
+    Eb: -3, Cm: -3,
+    Ab: -4, Fm: -4,
+    Db: -5, Bbm: -5,
+    Gb: -6, Ebm: -6,
+    Cb: -7, Abm: -7
   };
-  return map[mod12(rootMidi)] || "C";
+  return map[keySig] ?? 0;
 }
 
-function abcWithLetterAndAccidental(midi, letter, accidental) {
-  let prefix = "";
-  if (accidental === 1) prefix = "^";
-  if (accidental === 2) prefix = "^^";
-  if (accidental === -1) prefix = "_";
-  if (accidental === -2) prefix = "__";
-  return `${prefix}${abcLetterWithOctave(midi, letter)}`;
+function abcAccidentalPrefix(absoluteAlt) {
+  if (absoluteAlt === 0) return "=";
+  if (absoluteAlt === 1) return "^";
+  if (absoluteAlt === 2) return "^^";
+  if (absoluteAlt === -1) return "_";
+  if (absoluteAlt === -2) return "__";
+  return "";
 }
 
-function abcLetterWithOctave(midi, letter) {
+function abcLetterWithOctave(letter, octave) {
   // ABC octave mapping:
   // MIDI 60 = C4 = middle C = C
   // MIDI 72 = C5 = c
   // MIDI 48 = C3 = C,
-  const octave = Math.floor(midi / 12) - 1;
-  let name = letter;
-
   if (octave >= 5) {
-    name = letter.toLowerCase() + "'".repeat(octave - 5);
-  } else if (octave <= 3) {
-    name = letter + ",".repeat(4 - octave);
+    return letter.toLowerCase() + "'".repeat(octave - 5);
   }
 
-  return name;
+  if (octave <= 3) {
+    return letter + ",".repeat(4 - octave);
+  }
+
+  return letter;
 }
 
 function midiToAbcAbsolute(midi) {
@@ -740,6 +831,10 @@ function abcWithRawNameAndOctave(midi, rawName) {
   }
 
   return name;
+}
+
+function mod12(value) {
+  return ((value % 12) + 12) % 12;
 }
 
 function midiToAbc(midi) {
@@ -819,6 +914,7 @@ async function exportResultsPdf() {
         midiNotes: item.midiNotes,
         toneIndices: item.toneIndices,
         rootMidi: item.rootMidi,
+        rootInfo: item.rootInfo,
         chordId: item.chordId
       });
 

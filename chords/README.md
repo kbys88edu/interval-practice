@@ -13,3 +13,5 @@ Features:
 - Low chords rendered in bass clef
 
 - theory-aware enharmonic spelling added for chord notation: dominant sevenths, diminished sevenths, augmented chords, and altered fifth/seventh tones
+
+- key-signature-aware chord spelling added: root spelling and key signature context determine chord notation; enharmonic roots such as C#/Db and F#/Gb are handled separately
