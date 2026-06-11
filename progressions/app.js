@@ -189,7 +189,7 @@ function renderChoices() {
     choiceList.appendChild(card);
 
     requestAnimationFrame(() => {
-      renderAbc(`choice-notation-${index}`, choice.abc, 255);
+      renderAbc(`choice-notation-${index}`, choice.abc, 230);
     });
   });
 }
@@ -538,7 +538,7 @@ function showAnswer() {
 
   answerText.textContent = `正解：${currentQuestion.correct.roman.join(" - ")} / ${currentQuestion.correct.tonality === "major" ? "長調" : "短調"} / 主音 ${midiToNoteName(currentQuestion.tonicMidi)}`;
   analysisText.textContent = "低音 + 上3声。共通音保持、近い声部進行、平行5度・8度回避を優先。";
-  renderAbc("notation", currentQuestion.correct.abc, 450);
+  renderAbc("notation", currentQuestion.correct.abc, 420);
 }
 
 function buildGrandStaffAbc(progression, voiced) {

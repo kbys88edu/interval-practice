@@ -11,3 +11,5 @@ Features:
 - triads and seventh chords
 - four-part-style voicing
 - voice-leading scoring: common tones, small motion, and parallel perfect interval avoidance
+
+- Final clean PC CSS override added; mobile layout preserved

@@ -756,3 +756,459 @@ select {
     font-size: 0.68rem;
   }
 }
+
+
+/* FINAL CLEAN PC LAYOUT — progression page only.
+   Mobile layout below 760px is intentionally preserved. */
+@media (min-width: 761px) {
+  html,
+  body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+  }
+
+  .screen {
+    width: min(1180px, 100%);
+    height: 100vh;
+    min-height: 100vh;
+    margin: 0 auto;
+    padding: 10px 16px;
+    display: grid;
+    grid-template-rows: 28px 44px minmax(0, 1fr);
+    gap: 6px;
+    overflow: hidden;
+  }
+
+  .topbar {
+    display: grid;
+    grid-template-columns: 100px minmax(0, 1fr) minmax(470px, 610px);
+    align-items: start;
+    gap: 8px;
+    font-size: 0.62rem;
+    line-height: 1.1;
+    min-width: 0;
+  }
+
+  .top-copy {
+    display: grid;
+    min-width: 0;
+  }
+
+  .top-copy span {
+    min-width: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .top-count {
+    display: flex;
+    justify-content: flex-end;
+    align-items: flex-start;
+    gap: 3px;
+    flex-wrap: wrap;
+    min-width: 0;
+    text-align: right;
+  }
+
+  .tool-link {
+    padding: 2px 4px;
+    font-size: 0.50rem;
+    line-height: 1;
+  }
+
+  .language-toggle {
+    margin-right: 2px;
+  }
+
+  .lang-btn {
+    padding: 2px 4px;
+    font-size: 0.50rem;
+    line-height: 1;
+  }
+
+  .label,
+  .panel-title,
+  .field-label {
+    font-size: 0.56rem;
+    line-height: 1;
+  }
+
+  .brand-zone {
+    width: min(420px, 42vw);
+    align-self: start;
+    justify-self: center;
+    display: grid;
+    gap: 3px;
+  }
+
+  .big-mark {
+    font-size: 34px;
+    line-height: 0.72;
+  }
+
+  .brand-line {
+    height: 5px;
+  }
+
+  .brand-sub {
+    font-size: 0.48rem;
+    line-height: 1;
+  }
+
+  .workbench {
+    display: grid;
+    grid-template-columns: 158px minmax(0, 1fr);
+    gap: 8px;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  .config-panel {
+    padding: 7px;
+    display: grid;
+    align-content: start;
+    gap: 7px;
+    min-width: 0;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  .field {
+    gap: 3px;
+  }
+
+  .mode-stack {
+    gap: 3px;
+    font-size: 0.60rem;
+    line-height: 1.05;
+  }
+
+  .mode-stack label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    min-width: 0;
+  }
+
+  select {
+    padding: 0.30rem;
+    font-size: 0.64rem;
+  }
+
+  .preset-row {
+    gap: 4px;
+  }
+
+  button.mini {
+    padding: 0.28rem 0.34rem;
+    font-size: 0.52rem;
+    line-height: 1;
+  }
+
+  .main-panel {
+    padding: 7px;
+    display: grid;
+    grid-template-rows: 82px minmax(0, 1fr) 104px;
+    gap: 7px;
+    min-width: 0;
+    min-height: 0;
+    overflow: hidden;
+    background: var(--panel);
+    border: 1px solid var(--soft-line);
+  }
+
+  .question-strip {
+    display: grid;
+    grid-template-columns: minmax(240px, 0.78fr) minmax(360px, 1.22fr);
+    gap: 7px;
+    min-width: 0;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  .display-card {
+    min-width: 0;
+    min-height: 0;
+    padding: 7px;
+    display: grid;
+    align-content: center;
+    justify-items: center;
+    text-align: center;
+    overflow: hidden;
+  }
+
+  .display-label {
+    font-size: 0.52rem;
+    line-height: 1;
+  }
+
+  .question-display {
+    margin-top: 4px;
+    font-size: 32px;
+    line-height: 0.92;
+  }
+
+  .status {
+    margin-top: 4px;
+    min-height: 18px;
+    max-height: 30px;
+    overflow: hidden;
+    font-size: 0.56rem;
+    line-height: 1.2;
+    max-width: 100%;
+  }
+
+  .control-zone {
+    display: grid;
+    grid-template-rows: 34px 38px;
+    gap: 5px;
+    min-width: 0;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  .button-row {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 4px;
+    min-width: 0;
+  }
+
+  .button-row button {
+    min-width: 0;
+    height: 34px;
+    padding: 0 2px;
+    font-size: 0.56rem;
+    line-height: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .score-strip {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 4px;
+    min-width: 0;
+  }
+
+  .score-strip div,
+  .score-strip button {
+    min-width: 0;
+    height: 38px;
+    min-height: 0;
+    padding: 4px 3px;
+    overflow: hidden;
+  }
+
+  .score-strip span {
+    font-size: 0.40rem;
+    line-height: 1;
+    margin: 0 0 2px;
+    white-space: nowrap;
+  }
+
+  .score-strip strong {
+    font-size: 0.72rem;
+    line-height: 1;
+  }
+
+  #reset-score {
+    font-size: 0.50rem;
+    line-height: 1;
+  }
+
+  .choices-zone {
+    display: grid;
+    grid-template-rows: 14px minmax(0, 1fr);
+    gap: 5px;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  .choice-list {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-rows: minmax(0, 1fr);
+    gap: 7px;
+    min-width: 0;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  .choice-card {
+    width: 100%;
+    height: 100%;
+    min-width: 0;
+    min-height: 0;
+    padding: 5px;
+    display: grid;
+    grid-template-rows: 20px 16px minmax(0, 1fr);
+    gap: 4px;
+    overflow: hidden;
+  }
+
+  .choice-top {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    min-width: 0;
+    overflow: hidden;
+  }
+
+  .choice-label {
+    flex: 0 0 auto;
+    width: 16px;
+    font-size: 0.88rem;
+    line-height: 1;
+    text-align: left;
+  }
+
+  .choice-roman {
+    min-width: 0;
+    font-size: 0.90rem;
+    line-height: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .choice-meta {
+    min-width: 0;
+    font-size: 0.50rem;
+    line-height: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .choice-notation {
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    max-height: none;
+    overflow: hidden;
+    background: #fff;
+    border: 1px solid rgba(47,47,47,0.18);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .choice-notation svg {
+    display: block;
+    width: auto !important;
+    max-width: 100% !important;
+    height: auto !important;
+    max-height: 88px !important;
+    margin: auto !important;
+    transform: none !important;
+  }
+
+  .answer-zone {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 0.9fr);
+    gap: 8px;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  .notation-card,
+  .history-card {
+    min-width: 0;
+    min-height: 0;
+    padding: 5px 7px;
+    overflow: hidden;
+  }
+
+  .answer-text,
+  .analysis-text {
+    min-height: 0;
+    margin: 2px 0 0;
+    font-size: 0.53rem;
+    line-height: 1.15;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .notation {
+    height: 58px;
+    min-height: 0;
+    overflow: hidden;
+    background: #fff;
+    border: 1px solid rgba(47,47,47,0.18);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .notation svg {
+    display: block;
+    width: auto !important;
+    max-width: 100% !important;
+    height: auto !important;
+    max-height: 58px !important;
+    margin: auto !important;
+    transform: none !important;
+  }
+
+  .history-list {
+    margin-top: 5px;
+    height: 62px;
+    display: grid;
+    gap: 3px;
+    overflow: auto;
+    font-size: 0.52rem;
+    line-height: 1.15;
+  }
+
+  .history-item {
+    display: grid;
+    grid-template-columns: 22px minmax(0, 1fr) 30px;
+    gap: 4px;
+    min-width: 0;
+    padding-bottom: 3px;
+  }
+
+  .history-item span {
+    min-width: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
+@media (min-width: 761px) and (max-width: 1040px) {
+  .screen {
+    width: 100%;
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
+  .topbar {
+    grid-template-columns: 90px minmax(0, 1fr) minmax(410px, 520px);
+  }
+
+  .workbench {
+    grid-template-columns: 148px minmax(0, 1fr);
+  }
+
+  .main-panel {
+    grid-template-rows: 80px minmax(0, 1fr) 100px;
+  }
+
+  .question-strip {
+    grid-template-columns: minmax(210px, 0.7fr) minmax(320px, 1.3fr);
+  }
+
+  .choice-roman {
+    font-size: 0.78rem;
+  }
+
+  .choice-notation svg {
+    max-height: 78px !important;
+  }
+}
