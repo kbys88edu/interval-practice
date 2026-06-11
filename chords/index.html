@@ -31,14 +31,14 @@
       <div class="brand-sub">LISTEN / ANSWER / NOTATE / EXPORT</div>
     </section>
 
-    <section class="workbench">
+    <section class="workbench chord-workbench">
       <aside class="panel config-panel">
         <div class="panel-title">SETTINGS</div>
 
         <div class="field">
           <div class="field-label">MODE</div>
           <div class="mode-stack">
-            <label><input type="radio" name="mode" value="block" checked> 同時</label>
+            <label><input type="radio" name="mode" value="block" checked> Harmonic</label>
             <label><input type="radio" name="mode" value="arpUp"> 上行分散</label>
             <label><input type="radio" name="mode" value="arpDown"> 下行分散</label>
           </div>
@@ -47,22 +47,22 @@
         <div class="field">
           <div class="field-label">INVERSION</div>
           <div id="inversion-options" class="inversion-grid">
-            <label><input type="checkbox" value="0" checked> 根音</label>
-            <label><input type="checkbox" value="1" checked> 第1</label>
-            <label><input type="checkbox" value="2" checked> 第2</label>
-            <label><input type="checkbox" value="3"> 第3</label>
+            <label><input type="checkbox" value="0" checked> Root</label>
+            <label><input type="checkbox" value="1" checked> 1st</label>
+            <label><input type="checkbox" value="2" checked> 2nd</label>
+            <label><input type="checkbox" value="3"> 3rd</label>
           </div>
         </div>
 
         <div class="field">
           <label class="field-label" for="instrument-select">SOUND</label>
           <select id="instrument-select">
-            <option value="realPiano">リアルピアノ</option>
-            <option value="softPiano">ソフトピアノ</option>
-            <option value="clearSine">サイン波</option>
-            <option value="warmSynth">ウォームシンセ</option>
-            <option value="organ">オルガン</option>
-            <option value="pluck">プラック</option>
+            <option value="realPiano">Real piano</option>
+            <option value="softPiano">Soft piano</option>
+            <option value="clearSine">Sine</option>
+            <option value="warmSynth">Warm synth</option>
+            <option value="organ">Organ</option>
+            <option value="pluck">Pluck</option>
           </select>
         </div>
 
@@ -74,52 +74,48 @@
             <button class="mini" data-preset="advanced" type="button">応用</button>
           </div>
         </div>
+
+        <div class="field chord-range-field">
+          <div class="panel-title row-title">
+            <span>CHORD TYPES</span>
+            <span class="range-tools">
+              <button id="select-all-chords" class="micro" type="button">ALL</button>
+              <button id="clear-all-chords" class="micro" type="button">NONE</button>
+            </span>
+          </div>
+          <div id="chord-options" class="choice-grid chord-type-grid"></div>
+        </div>
       </aside>
 
       <section class="panel main-panel">
-        <div class="main-grid">
-          <div class="quiz-left">
-            <div class="panel-title row-title">
-              <span>RANGE</span>
-              <span class="range-tools">
-                <button id="select-all-chords" class="micro" type="button">ALL</button>
-                <button id="clear-all-chords" class="micro" type="button">NONE</button>
-              </span>
-            </div>
-            <div id="chord-options" class="choice-grid"></div>
-          </div>
-
-          <div class="quiz-center">
-            <div class="display-card">
-              <div class="display-label">CURRENT QUESTION</div>
-              <div id="question-display" class="question-display">LISTEN</div>
-              <div id="status" class="status" aria-live="polite">
-                出題範囲を選び、NEW を押してください。
-              </div>
-            </div>
-
-            <div class="button-row">
-              <button id="new-question" type="button">NEW</button>
-              <button id="play-question" type="button">PLAY</button>
-              <button id="show-answer" type="button">SHOW</button>
-              <button id="export-pdf" type="button">PDF</button>
-            </div>
-
-            <div class="score-strip">
-              <div><span>QUESTIONS</span><strong id="total-count">0</strong></div>
-              <div><span>CORRECT</span><strong id="correct-count">0</strong></div>
-              <div><span>RATE</span><strong id="score-percent">0%</strong></div>
-              <div><span>TIME</span><strong id="current-time">--</strong></div>
-              <button id="reset-score" type="button" class="mini">RESET</button>
-            </div>
-          </div>
-
-          <div class="quiz-right">
-            <div class="panel-title">ANSWER</div>
-            <div id="answer-buttons" class="answer-grid"></div>
+        <div class="display-card">
+          <div class="display-label">CURRENT QUESTION</div>
+          <div id="question-display" class="question-display">LISTEN</div>
+          <div id="status" class="status" aria-live="polite">
+            NEW を押して、演奏された和音を3つの選択肢から選んでください。
           </div>
         </div>
+
+        <div class="button-row">
+          <button id="new-question" type="button">NEW</button>
+          <button id="play-question" type="button">PLAY</button>
+          <button id="show-answer" type="button">SHOW</button>
+          <button id="export-pdf" type="button">PDF</button>
+        </div>
+
+        <div class="score-strip">
+          <div><span>QUESTIONS</span><strong id="total-count">0</strong></div>
+          <div><span>CORRECT</span><strong id="correct-count">0</strong></div>
+          <div><span>RATE</span><strong id="score-percent">0%</strong></div>
+          <div><span>TIME</span><strong id="current-time">--</strong></div>
+          <button id="reset-score" type="button" class="mini">RESET</button>
+        </div>
       </section>
+
+      <aside class="panel answer-panel">
+        <div class="panel-title">ANSWER</div>
+        <div id="answer-buttons" class="answer-grid"></div>
+      </aside>
     </section>
 
     <section class="bottom-area">

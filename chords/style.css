@@ -1124,3 +1124,118 @@ button.micro:hover {
   display: grid;
   gap: 8px;
 }
+
+
+/* Chord page fixed layout */
+.chord-workbench {
+  display: grid;
+  grid-template-columns: minmax(260px, 340px) minmax(420px, 1fr) minmax(300px, 420px);
+  gap: 14px;
+  align-items: stretch;
+}
+
+.chord-workbench .config-panel,
+.chord-workbench .main-panel,
+.chord-workbench .answer-panel {
+  min-width: 0;
+}
+
+.chord-workbench .main-panel {
+  display: grid;
+  align-content: center;
+  gap: 14px;
+}
+
+.chord-range-field {
+  margin-top: 18px;
+}
+
+.chord-type-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 7px;
+  max-height: 430px;
+  overflow: auto;
+  padding-right: 2px;
+}
+
+.option-tile {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 3px 8px;
+  align-items: center;
+  border: 1px solid var(--soft-line, rgba(0,0,0,0.22));
+  padding: 7px;
+  min-height: 44px;
+}
+
+.option-tile small {
+  grid-column: 2;
+  opacity: 0.68;
+  font-size: 10px;
+  line-height: 1.15;
+}
+
+.answer-panel .answer-grid {
+  display: grid;
+  gap: 10px;
+}
+
+.chord-choice-card {
+  width: 100%;
+  display: grid;
+  gap: 6px;
+  text-align: left;
+  padding: 10px;
+  border: 1px solid var(--soft-line, rgba(0,0,0,0.22));
+  background: var(--panel-bg, rgba(255,255,255,0.03));
+  cursor: pointer;
+}
+
+.chord-choice-card .choice-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  align-items: baseline;
+}
+
+.chord-choice-card .choice-label {
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+.chord-choice-card .choice-name {
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.chord-choice-card .choice-info,
+.chord-choice-card .choice-tones {
+  font-size: 11px;
+  opacity: 0.75;
+}
+
+.chord-choice-card .choice-notation {
+  display: block;
+  overflow: hidden;
+  background: rgba(255,255,255,0.02);
+}
+
+.chord-choice-card.selected-correct {
+  outline: 2px solid rgba(20, 120, 60, 0.7);
+}
+
+.chord-choice-card.selected-incorrect {
+  outline: 2px solid rgba(170, 45, 45, 0.75);
+}
+
+@media (max-width: 980px) {
+  .chord-workbench {
+    grid-template-columns: 1fr;
+  }
+
+  .chord-type-grid {
+    grid-template-columns: 1fr;
+    max-height: none;
+  }
+}

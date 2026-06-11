@@ -147,9 +147,9 @@ function renderChordOptions() {
 }
 
 function renderAnswerButtons() {
-  // The existing HTML uses #answer-buttons as the 3-choice answer area.
-  // Do not overwrite it with static chord-type buttons.
+  // #answer-buttons is used for the three actual answer choices.
 }
+
 
 function applyPreset(preset) {
   const groups = {
@@ -226,7 +226,7 @@ function newQuestion() {
   latestResponseTimeSec = null;
   currentTimeEl.textContent = "--";
   answerText.textContent = "";
-  if (analysisText) analysisText.textContent = "";
+  if (analysisText) if (analysisText) analysisText.textContent = "";
   notationEl.innerHTML = "";
   questionDisplay.textContent = "LISTEN";
 
@@ -478,7 +478,7 @@ function showAnswer() {
 
   const correct = currentQuestion.correct;
   answerText.textContent = `正解：${correct.detailLabel} / 調号 ${correct.keySig}`;
-  if (analysisText) analysisText.textContent = `構成音：${correct.spelledTones.map((tone) => tone.label).join(" - ")}。属7の第7音は短7度として理論的に綴ります。`;
+  if (analysisText) if (analysisText) analysisText.textContent = `構成音：${correct.spelledTones.map((tone) => tone.label).join(" - ")}。属7の第7音は短7度として理論的に綴ります。`;
   renderAbc("notation", correct.abc, 460);
 }
 
