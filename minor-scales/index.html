@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Chord Practice | コードの聞き分け</title>
+  <title>Minor Scale Practice | 短音階の聞き分け</title>
   <link rel="stylesheet" href="style.css" />
   <script src="https://unpkg.com/tone@14.8.49/build/Tone.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/abcjs@6.4.4/dist/abcjs-basic-min.js"></script>
@@ -13,19 +13,21 @@
   <main class="screen">
     <header class="topbar">
       <div class="top-item">
-        <span class="label">CHORD</span>
+        <span class="label">MINOR SCALE</span>
       </div>
       <div class="top-copy">
-        <span>Ear training for triads, seventh chords, and extended colors</span>
-        <span>Block / Arpeggio up / Arpeggio down</span>
+        <span>Ear training for natural, harmonic, and melodic minor scales</span>
+        <span>Ascending / Descending / Up and down</span>
       </div>
       <div class="top-count">
-        <a class="tool-link" href="../">INTERVALS</a><a class="tool-link" href="../minor-scales/">MINOR</a><span id="progress-count">00 / 00</span>
+        <a class="tool-link" href="../">INTERVALS</a>
+        <a class="tool-link" href="../chords/">CHORDS</a>
+        <span id="progress-count">00 / 00</span>
       </div>
     </header>
 
     <section class="brand-zone">
-      <div class="big-mark">C</div>
+      <div class="big-mark">m</div>
       <div class="brand-line"></div>
       <div class="brand-sub">LISTEN / ANSWER / NOTATE / EXPORT</div>
     </section>
@@ -37,19 +39,9 @@
         <div class="field">
           <div class="field-label">MODE</div>
           <div class="mode-stack">
-            <label><input type="radio" name="mode" value="block" checked> 同時</label>
-            <label><input type="radio" name="mode" value="arpUp"> 上行分散</label>
-            <label><input type="radio" name="mode" value="arpDown"> 下行分散</label>
-          </div>
-        </div>
-
-        <div class="field">
-          <div class="field-label">INVERSION</div>
-          <div id="inversion-options" class="inversion-grid">
-            <label><input type="checkbox" value="0" checked> 根音</label>
-            <label><input type="checkbox" value="1" checked> 第1</label>
-            <label><input type="checkbox" value="2" checked> 第2</label>
-            <label><input type="checkbox" value="3"> 第3</label>
+            <label><input type="radio" name="mode" value="ascending" checked> 上行</label>
+            <label><input type="radio" name="mode" value="descending"> 下行</label>
+            <label><input type="radio" name="mode" value="upDown"> 往復</label>
           </div>
         </div>
 
@@ -66,11 +58,10 @@
         </div>
 
         <div class="field">
-          <div class="field-label">PRESET</div>
+          <div class="field-label">TONIC RANGE</div>
           <div class="preset-row">
-            <button class="mini" data-preset="triads" type="button">三和音</button>
-            <button class="mini" data-preset="sevenths" type="button">七和音</button>
-            <button class="mini" data-preset="advanced" type="button">応用</button>
+            <button class="mini" data-tonics="white" type="button">白鍵</button>
+            <button class="mini" data-tonics="all" type="button">全調</button>
           </div>
         </div>
       </aside>
@@ -81,11 +72,11 @@
             <div class="panel-title row-title">
               <span>RANGE</span>
               <span class="range-tools">
-                <button id="select-all-chords" class="micro" type="button">ALL</button>
-                <button id="clear-all-chords" class="micro" type="button">NONE</button>
+                <button id="select-all-scales" class="micro" type="button">ALL</button>
+                <button id="clear-all-scales" class="micro" type="button">NONE</button>
               </span>
             </div>
-            <div id="chord-options" class="choice-grid"></div>
+            <div id="scale-options" class="choice-grid"></div>
           </div>
 
           <div class="quiz-center">

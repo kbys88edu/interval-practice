@@ -894,3 +894,71 @@ button.micro:hover {
     grid-template-columns: repeat(2, 1fr);
   }
 }
+
+
+/* Multi-tool nav */
+.top-count {
+  display: flex;
+  justify-content: flex-end;
+  align-items: flex-start;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+
+/* Mobile order patch: keep quiz and answers above range/settings controls. */
+@media (max-width: 760px) {
+  .workbench {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .main-panel {
+    order: 1;
+  }
+
+  .config-panel {
+    order: 2;
+  }
+
+  .main-grid {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .quiz-center {
+    order: 1;
+  }
+
+  .quiz-right {
+    order: 2;
+  }
+
+  .quiz-left {
+    order: 3;
+  }
+
+  .bottom-area {
+    order: 4;
+  }
+
+  .quiz-left {
+    margin-top: 4px;
+  }
+
+  .quiz-right {
+    margin-top: 2px;
+  }
+
+  .answer-grid {
+    margin-top: 8px;
+  }
+
+  .choice-grid {
+    margin-top: 8px;
+  }
+
+  .config-panel {
+    margin-top: 0;
+  }
+}

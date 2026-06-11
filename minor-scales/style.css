@@ -9,7 +9,6 @@
   --line: #2f2f2f;
   --soft-line: rgba(47, 47, 47, 0.28);
   --panel: rgba(235, 235, 235, 0.72);
-  --light: rgba(255, 255, 255, 0.42);
   --success: #205a38;
   --error: #8a2020;
 }
@@ -46,6 +45,11 @@ button {
 button:hover {
   background: transparent;
   color: var(--ink);
+}
+
+button:disabled {
+  opacity: 0.4;
+  cursor: wait;
 }
 
 button.mini {
@@ -114,27 +118,27 @@ select {
 .brand-zone {
   width: min(640px, 58vw);
   justify-self: center;
-  align-self: center;
+  align-self: start;
   display: grid;
-  gap: 12px;
+  gap: 10px;
 }
 
 .big-mark {
-  font-size: clamp(64px, 10vw, 116px);
+  font-size: clamp(52px, 7vw, 82px);
   font-weight: 900;
   line-height: 0.72;
   letter-spacing: -0.08em;
 }
 
 .brand-line {
-  height: 18px;
+  height: 13px;
   background: var(--ink);
   width: 100%;
 }
 
 .brand-sub {
   justify-self: end;
-  max-width: 210px;
+  max-width: 220px;
   text-align: right;
   font-size: 0.62rem;
   font-weight: 800;
@@ -156,7 +160,7 @@ select {
 }
 
 .config-panel {
-  padding: 18px;
+  padding: 14px;
   display: grid;
   align-content: start;
   gap: 20px;
@@ -187,7 +191,7 @@ select {
 }
 
 .main-panel {
-  padding: 18px;
+  padding: 14px;
   min-width: 0;
   min-height: 0;
 }
@@ -195,7 +199,7 @@ select {
 .main-grid {
   height: 100%;
   display: grid;
-  grid-template-columns: 1.12fr 1.15fr 1fr;
+  grid-template-columns: 1.14fr 1.1fr 1fr;
   gap: 18px;
   min-height: 0;
 }
@@ -207,21 +211,21 @@ select {
   overflow: hidden;
 }
 
-.interval-grid,
+.choice-grid,
 .answer-grid {
   margin-top: 10px;
   display: grid;
   gap: 6px;
 }
 
-.interval-grid {
+.choice-grid {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
-.interval-check {
+.choice-check {
   border: 1px dashed var(--soft-line);
   padding: 8px;
-  min-height: 36px;
+  min-height: 35px;
   display: flex;
   gap: 6px;
   align-items: center;
@@ -235,7 +239,7 @@ select {
 }
 
 .answer-grid button {
-  min-height: 36px;
+  min-height: 35px;
   background: transparent;
   color: var(--ink);
   border-style: dashed;
@@ -268,7 +272,7 @@ select {
 .display-card {
   border: 1px solid var(--soft-line);
   background: rgba(255,255,255,0.24);
-  padding: 18px;
+  padding: 14px;
   display: grid;
   align-content: center;
   justify-items: center;
@@ -284,7 +288,7 @@ select {
 
 .question-display {
   margin-top: 8px;
-  font-size: clamp(38px, 5.8vw, 78px);
+  font-size: clamp(34px, 5vw, 64px);
   font-weight: 900;
   line-height: 0.95;
   letter-spacing: -0.08em;
@@ -315,7 +319,7 @@ select {
 
 .score-strip {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: repeat(4, minmax(72px, 1fr)) 86px;
   gap: 8px;
   align-items: stretch;
 }
@@ -323,7 +327,8 @@ select {
 .score-strip div,
 .score-strip button {
   border: 1px solid var(--soft-line);
-  padding: 8px;
+  padding: 7px 8px;
+  min-height: 44px;
   background: rgba(255,255,255,0.2);
 }
 
@@ -332,11 +337,19 @@ select {
   font-size: 0.58rem;
   font-weight: 800;
   color: var(--muted);
-  margin-bottom: 4px;
+  margin-bottom: 3px;
 }
 
 .score-strip strong {
-  font-size: 1.2rem;
+  font-size: 1.05rem;
+  line-height: 1;
+}
+
+#reset-score {
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .bottom-area {
@@ -348,7 +361,7 @@ select {
 
 .notation-card,
 .history-card {
-  padding: 14px 16px;
+  padding: 10px 12px;
   min-width: 0;
   overflow: hidden;
 }
@@ -362,7 +375,7 @@ select {
 }
 
 .notation {
-  height: 105px;
+  height: 90px;
   overflow: hidden;
 }
 
@@ -372,7 +385,7 @@ select {
 
 .history-list {
   margin-top: 8px;
-  height: 118px;
+  height: 92px;
   overflow: auto;
   display: grid;
   gap: 4px;
@@ -416,7 +429,7 @@ select {
     width: 100%;
   }
 
-  .interval-grid,
+  .choice-grid,
   .answer-grid {
     grid-template-columns: repeat(2, 1fr);
   }
@@ -427,105 +440,12 @@ select {
   }
 }
 
-
-/* Layout safety patch: prevents the reset button / score strip from being clipped. */
-.screen {
-  min-height: 100vh;
-  height: auto;
-  overflow-x: hidden;
-  overflow-y: auto;
-}
-
-.brand-zone {
-  align-self: start;
-}
-
-.score-strip {
-  grid-template-columns: repeat(4, minmax(72px, 1fr)) 86px;
-}
-
-.score-strip div,
-.score-strip button {
-  min-height: 44px;
-  padding: 7px 8px;
-}
-
-.score-strip strong {
-  font-size: 1.05rem;
-  line-height: 1;
-}
-
-.score-strip span {
-  margin-bottom: 3px;
-}
-
-#reset-score {
-  white-space: nowrap;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-@media (min-width: 1001px) and (max-height: 760px) {
-  .screen {
-    padding-top: 20px;
-    padding-bottom: 20px;
-    grid-template-rows: 34px 100px minmax(260px, auto) minmax(110px, auto);
-    gap: 10px;
-  }
-
-  .big-mark {
-    font-size: clamp(52px, 7vw, 82px);
-  }
-
-  .brand-line {
-    height: 13px;
-  }
-
-  .main-panel,
-  .config-panel {
-    padding: 14px;
-  }
-
-  .display-card {
-    padding: 14px;
-  }
-
-  .question-display {
-    font-size: clamp(34px, 5vw, 64px);
-  }
-
-  .interval-check,
-  .answer-grid button {
-    min-height: 30px;
-    padding: 6px 8px;
-  }
-
-  .notation-card,
-  .history-card {
-    padding: 10px 12px;
-  }
-
-  .history-list {
-    height: 92px;
-  }
-
-  .notation {
-    height: 90px;
-  }
-}
-
-
 /* Mobile responsive patch */
 @media (max-width: 760px) {
   html,
   body {
     width: 100%;
     overflow-x: hidden;
-  }
-
-  body {
-    min-height: 100vh;
   }
 
   .screen {
@@ -583,12 +503,6 @@ select {
     gap: 12px;
   }
 
-  .panel,
-  .notation-card,
-  .history-card {
-    width: 100%;
-  }
-
   .config-panel,
   .main-panel,
   .notation-card,
@@ -614,17 +528,9 @@ select {
     background: rgba(255, 255, 255, 0.18);
   }
 
-  .preset-row {
-    grid-template-columns: repeat(3, 1fr);
-  }
-
   select {
     min-height: 42px;
     font-size: 0.86rem;
-  }
-
-  .main-grid {
-    height: auto;
   }
 
   .quiz-center {
@@ -680,13 +586,13 @@ select {
     min-height: 44px;
   }
 
-  .interval-grid,
+  .choice-grid,
   .answer-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 7px;
   }
 
-  .interval-check {
+  .choice-check {
     min-height: 42px;
     padding: 8px;
     font-size: 0.74rem;
@@ -730,17 +636,9 @@ select {
     grid-template-columns: 1fr;
   }
 
-  .interval-grid,
+  .choice-grid,
   .answer-grid {
     grid-template-columns: 1fr;
-  }
-
-  .button-row {
-    grid-template-columns: 1fr 1fr;
-  }
-
-  .score-strip {
-    grid-template-columns: 1fr 1fr;
   }
 
   .topbar {
@@ -752,28 +650,8 @@ select {
   }
 }
 
-/* Touch-device usability */
-@media (hover: none) and (pointer: coarse) {
-  button,
-  .interval-check,
-  .mode-stack label {
-    -webkit-tap-highlight-color: transparent;
-  }
 
-  button:hover,
-  button.mini:hover,
-  .answer-grid button:hover {
-    background: var(--ink);
-    color: var(--bg);
-  }
-
-  button.mini:hover,
-  .answer-grid button:not(.selected-correct):not(.selected-incorrect):hover {
-    background: transparent;
-    color: var(--ink);
-  }
-}
-
+/* Fix for large chord answer lists and same-repository navigation */
 .tool-link {
   display: inline-block;
   margin-right: 12px;
@@ -789,6 +667,66 @@ select {
 .tool-link:hover {
   background: var(--ink);
   color: var(--bg);
+}
+
+.quiz-left,
+.quiz-right {
+  overflow-y: auto;
+  padding-right: 3px;
+}
+
+.answer-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  padding-bottom: 4px;
+}
+
+.answer-grid button {
+  min-height: 32px;
+  line-height: 1.1;
+  padding: 6px 5px;
+}
+
+.choice-check {
+  min-height: 32px;
+  line-height: 1.1;
+}
+
+.notation {
+  height: 112px;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+@media (min-width: 1001px) {
+  .main-grid {
+    grid-template-columns: 1.05fr 1.05fr 1.18fr;
+  }
+}
+
+@media (min-width: 1001px) and (max-height: 760px) {
+  .answer-grid button,
+  .choice-check {
+    min-height: 28px;
+    font-size: 0.66rem;
+    padding: 5px;
+  }
+
+  .choice-grid,
+  .answer-grid {
+    gap: 4px;
+  }
+}
+
+@media (max-width: 760px) {
+  .quiz-left,
+  .quiz-right {
+    overflow: visible;
+    padding-right: 0;
+  }
+
+  .tool-link {
+    margin-right: 8px;
+  }
 }
 
 
@@ -889,13 +827,109 @@ select {
 }
 
 
-/* Multi-tool nav */
+/* Chord app: give the control column enough room for PDF button. */
+@media (min-width: 1181px) {
+  .main-grid {
+    grid-template-columns: 0.95fr 1.18fr 1.12fr;
+  }
+}
+
+
+/* Inversion and range utility buttons */
+.inversion-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 6px;
+}
+
+.inversion-grid label {
+  border: 1px solid var(--soft-line);
+  padding: 7px 6px;
+  font-size: 0.72rem;
+  font-weight: 800;
+  background: rgba(255, 255, 255, 0.18);
+  display: flex;
+  gap: 5px;
+  align-items: center;
+}
+
+.row-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+
+.range-tools {
+  display: inline-flex;
+  gap: 4px;
+}
+
+button.micro {
+  padding: 0.22rem 0.38rem;
+  font-size: 0.56rem;
+  line-height: 1;
+  background: transparent;
+  color: var(--ink);
+}
+
+button.micro:hover {
+  background: var(--ink);
+  color: var(--bg);
+}
+
+@media (max-width: 760px) {
+  .inversion-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .inversion-grid label {
+    justify-content: center;
+    font-size: 0.68rem;
+  }
+}
+
+@media (max-width: 420px) {
+  .inversion-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+
+/* Minor scale page tuning */
 .top-count {
   display: flex;
   justify-content: flex-end;
   align-items: flex-start;
   gap: 6px;
   flex-wrap: wrap;
+}
+
+.choice-grid,
+.answer-grid {
+  grid-template-columns: 1fr;
+}
+
+.answer-grid button,
+.choice-check {
+  min-height: 42px;
+}
+
+@media (min-width: 1001px) {
+  .main-grid {
+    grid-template-columns: 0.9fr 1.25fr 0.9fr;
+  }
+}
+
+@media (max-width: 760px) {
+  .top-count {
+    justify-content: flex-end;
+  }
+
+  .choice-grid,
+  .answer-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 

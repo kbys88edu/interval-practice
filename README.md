@@ -43,3 +43,25 @@ Recommended settings:
 ## License
 
 All rights reserved unless you choose another license.
+
+
+## Additional tool
+
+Chord ear trainer is included in:
+
+`/chords/`
+
+Published URL example:
+
+`https://kbys88edu.github.io/interval-ear-trainer/chords/`
+
+
+## Additional tool
+
+Minor scale trainer is included in:
+
+`/minor-scales/`
+
+Published URL example:
+
+`https://kbys88edu.github.io/interval-ear-trainer/minor-scales/`
