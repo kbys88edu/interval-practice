@@ -740,3 +740,27 @@ input[type="text"] {
     order: 5;
   }
 }
+
+
+/* Related key detail display and blue check button */
+#check-answer {
+  background: #1f5fbf;
+  border-color: #1f5fbf;
+  color: #ffffff;
+}
+
+#check-answer:hover {
+  background: transparent;
+  color: #1f5fbf;
+}
+
+.answer-map {
+  max-height: 150px;
+  line-height: 1.8;
+}
+
+@media (max-width: 760px) {
+  .answer-map {
+    max-height: 280px;
+  }
+}

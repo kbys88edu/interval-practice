@@ -13,3 +13,6 @@ Practice:
   - Subdominant key / 下属調
   - Dominant key / 属調
   - Relative key / 平行調
+
+- Answers display key signature and diatonic scale for each related key
+- CHECK button is styled blue

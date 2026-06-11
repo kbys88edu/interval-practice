@@ -1,16 +1,16 @@
 const keyNames = [
-  { pc: 0, majorJa: "ハ長調", minorJa: "ハ短調", majorRoman: "C dur", minorRoman: "c moll" },
-  { pc: 1, majorJa: "変ニ長調", minorJa: "嬰ハ短調", majorRoman: "Db dur", minorRoman: "c# moll" },
-  { pc: 2, majorJa: "ニ長調", minorJa: "ニ短調", majorRoman: "D dur", minorRoman: "d moll" },
-  { pc: 3, majorJa: "変ホ長調", minorJa: "変ホ短調", majorRoman: "Eb dur", minorRoman: "eb moll" },
-  { pc: 4, majorJa: "ホ長調", minorJa: "ホ短調", majorRoman: "E dur", minorRoman: "e moll" },
-  { pc: 5, majorJa: "ヘ長調", minorJa: "ヘ短調", majorRoman: "F dur", minorRoman: "f moll" },
-  { pc: 6, majorJa: "嬰ヘ長調", minorJa: "嬰ヘ短調", majorRoman: "F# dur", minorRoman: "f# moll" },
-  { pc: 7, majorJa: "ト長調", minorJa: "ト短調", majorRoman: "G dur", minorRoman: "g moll" },
-  { pc: 8, majorJa: "変イ長調", minorJa: "嬰ト短調", majorRoman: "Ab dur", minorRoman: "g# moll" },
-  { pc: 9, majorJa: "イ長調", minorJa: "イ短調", majorRoman: "A dur", minorRoman: "a moll" },
-  { pc: 10, majorJa: "変ロ長調", minorJa: "変ロ短調", majorRoman: "Bb dur", minorRoman: "bb moll" },
-  { pc: 11, majorJa: "ロ長調", minorJa: "ロ短調", majorRoman: "B dur", minorRoman: "b moll" }
+  { pc: 0, majorJa: "ハ長調", minorJa: "ハ短調", majorRoman: "C dur", minorRoman: "c moll", majorSig: "調号なし", minorSig: "♭3", majorScale: ["C","D","E","F","G","A","B"], minorScale: ["C","D","Eb","F","G","Ab","Bb"] },
+  { pc: 1, majorJa: "変ニ長調", minorJa: "嬰ハ短調", majorRoman: "Db dur", minorRoman: "c# moll", majorSig: "♭5", minorSig: "♯4", majorScale: ["Db","Eb","F","Gb","Ab","Bb","C"], minorScale: ["C#","D#","E","F#","G#","A","B"] },
+  { pc: 2, majorJa: "ニ長調", minorJa: "ニ短調", majorRoman: "D dur", minorRoman: "d moll", majorSig: "♯2", minorSig: "♭1", majorScale: ["D","E","F#","G","A","B","C#"], minorScale: ["D","E","F","G","A","Bb","C"] },
+  { pc: 3, majorJa: "変ホ長調", minorJa: "変ホ短調", majorRoman: "Eb dur", minorRoman: "eb moll", majorSig: "♭3", minorSig: "♭6", majorScale: ["Eb","F","G","Ab","Bb","C","D"], minorScale: ["Eb","F","Gb","Ab","Bb","Cb","Db"] },
+  { pc: 4, majorJa: "ホ長調", minorJa: "ホ短調", majorRoman: "E dur", minorRoman: "e moll", majorSig: "♯4", minorSig: "♯1", majorScale: ["E","F#","G#","A","B","C#","D#"], minorScale: ["E","F#","G","A","B","C","D"] },
+  { pc: 5, majorJa: "ヘ長調", minorJa: "ヘ短調", majorRoman: "F dur", minorRoman: "f moll", majorSig: "♭1", minorSig: "♭4", majorScale: ["F","G","A","Bb","C","D","E"], minorScale: ["F","G","Ab","Bb","C","Db","Eb"] },
+  { pc: 6, majorJa: "嬰ヘ長調", minorJa: "嬰ヘ短調", majorRoman: "F# dur", minorRoman: "f# moll", majorSig: "♯6", minorSig: "♯3", majorScale: ["F#","G#","A#","B","C#","D#","E#"], minorScale: ["F#","G#","A","B","C#","D","E"] },
+  { pc: 7, majorJa: "ト長調", minorJa: "ト短調", majorRoman: "G dur", minorRoman: "g moll", majorSig: "♯1", minorSig: "♭2", majorScale: ["G","A","B","C","D","E","F#"], minorScale: ["G","A","Bb","C","D","Eb","F"] },
+  { pc: 8, majorJa: "変イ長調", minorJa: "嬰ト短調", majorRoman: "Ab dur", minorRoman: "g# moll", majorSig: "♭4", minorSig: "♯5", majorScale: ["Ab","Bb","C","Db","Eb","F","G"], minorScale: ["G#","A#","B","C#","D#","E","F#"] },
+  { pc: 9, majorJa: "イ長調", minorJa: "イ短調", majorRoman: "A dur", minorRoman: "a moll", majorSig: "♯3", minorSig: "調号なし", majorScale: ["A","B","C#","D","E","F#","G#"], minorScale: ["A","B","C","D","E","F","G"] },
+  { pc: 10, majorJa: "変ロ長調", minorJa: "変ロ短調", majorRoman: "Bb dur", minorRoman: "bb moll", majorSig: "♭2", minorSig: "♭5", majorScale: ["Bb","C","D","Eb","F","G","A"], minorScale: ["Bb","C","Db","Eb","F","Gb","Ab"] },
+  { pc: 11, majorJa: "ロ長調", minorJa: "ロ短調", majorRoman: "B dur", minorRoman: "b moll", majorSig: "♯5", minorSig: "♯2", majorScale: ["B","C#","D#","E","F#","G#","A#"], minorScale: ["B","C#","D","E","F#","G","A"] }
 ];
 
 const basicKeys = [
@@ -210,7 +210,7 @@ function checkAnswer() {
   if (currentQuestion.questionMode === "single") {
     const correctKey = currentQuestion.map[currentQuestion.targetRelation];
     isCorrect = normalizeKeyAnswer(answerInput.value) === canonicalKey(correctKey);
-    detail = `${getRelationLabel(currentQuestion.targetRelation)}：${formatKey(correctKey)} / 回答：${answerInput.value || "-"}`;
+    detail = `${getRelationLabel(currentQuestion.targetRelation)}：${formatKeyDetail(correctKey)} / 回答：${answerInput.value || "-"}`;
   } else {
     const results = [];
     let correctCountForDiagram = 0;
@@ -263,10 +263,11 @@ function showAnswer() {
   updateDiagramForQuestion(true);
 
   const rows = relations.map((relation) => {
-    return `${relation.label}：${formatKey(currentQuestion.map[relation.id])}`;
+    const key = currentQuestion.map[relation.id];
+    return `${relation.label}：${formatKeyDetail(key)}`;
   });
 
-  answerText.textContent = `主調：${formatKey(currentQuestion.tonic)}`;
+  answerText.textContent = `主調：${formatKeyDetail(currentQuestion.tonic)}`;
   answerMap.innerHTML = rows.map((row) => `<div>${row}</div>`).join("");
 }
 
@@ -341,6 +342,21 @@ function formatKey(key) {
 function formatKeyRoman(key) {
   const item = keyNames.find((entry) => entry.pc === key.pc);
   return key.mode === "major" ? item.majorRoman : item.minorRoman;
+}
+
+function formatKeySignature(key) {
+  const item = keyNames.find((entry) => entry.pc === key.pc);
+  return key.mode === "major" ? item.majorSig : item.minorSig;
+}
+
+function formatDiatonicScale(key) {
+  const item = keyNames.find((entry) => entry.pc === key.pc);
+  const scale = key.mode === "major" ? item.majorScale : item.minorScale;
+  return scale.join(" - ");
+}
+
+function formatKeyDetail(key) {
+  return `${formatKey(key)} / 調号：${formatKeySignature(key)} / 音階：${formatDiatonicScale(key)}`;
 }
 
 function canonicalKey(key) {
@@ -487,7 +503,8 @@ async function exportResultsPdf() {
       doc.text(`${item.isCorrect ? "OK" : "NG"} / Time: ${formatResponseTime(item.responseTimeSec)} / ${item.detail}`, 16, y + 6);
 
       const lines = relations.map((relation) => {
-        return `${relation.label}: ${formatKeyRoman(item.map[relation.id])}`;
+        const key = item.map[relation.id];
+        return `${relation.label}: ${formatKeyRoman(key)} / Signature: ${formatKeySignature(key)} / Scale: ${formatDiatonicScale(key)}`;
       });
 
       lines.forEach((line, index) => {
