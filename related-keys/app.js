@@ -29,11 +29,7 @@ const relations = [
   { id: "parallel", label: "同主調" },
   { id: "subdominant", label: "下属調" },
   { id: "dominant", label: "属調" },
-  { id: "relative", label: "平行調" },
-  { id: "relativeParallel", label: "左上" },
-  { id: "dominantParallel", label: "右上" },
-  { id: "subdominantRelative", label: "左下" },
-  { id: "dominantRelative", label: "右下" }
+  { id: "relative", label: "平行調" }
 ];
 
 let currentQuestion = null;
@@ -162,7 +158,7 @@ function newQuestion() {
     const label = relations.find((relation) => relation.id === targetRelation)?.label || "";
     setStatus(`主調：${formatKey(tonic)}。${label}を答えてください。`);
   } else {
-    setStatus(`主調：${formatKey(tonic)}。図全体を埋めてください。`);
+    setStatus(`主調：${formatKey(tonic)}。同主調・下属調・属調・平行調を埋めてください。`);
   }
 }
 
@@ -176,11 +172,7 @@ function buildRelatedKeyMap(tonic) {
       parallel: { pc, mode: "minor" },
       subdominant: { pc: mod12(pc - 5), mode: "major" },
       dominant: { pc: mod12(pc + 7), mode: "major" },
-      relative: { pc: mod12(pc - 3), mode: "minor" },
-      relativeParallel: { pc: mod12(pc - 3), mode: "major" },
-      dominantParallel: { pc: mod12(pc + 7), mode: "minor" },
-      subdominantRelative: { pc: mod12(pc - 5 - 3), mode: "minor" },
-      dominantRelative: { pc: mod12(pc + 7 - 3), mode: "minor" }
+      relative: { pc: mod12(pc - 3), mode: "minor" }
     };
   }
 
@@ -189,11 +181,7 @@ function buildRelatedKeyMap(tonic) {
     parallel: { pc, mode: "major" },
     subdominant: { pc: mod12(pc - 5), mode: "minor" },
     dominant: { pc: mod12(pc + 7), mode: "minor" },
-    relative: { pc: mod12(pc + 3), mode: "major" },
-    relativeParallel: { pc: mod12(pc + 3), mode: "minor" },
-    dominantParallel: { pc: mod12(pc + 7), mode: "major" },
-    subdominantRelative: { pc: mod12(pc - 5 + 3), mode: "major" },
-    dominantRelative: { pc: mod12(pc + 7 + 3), mode: "major" }
+    relative: { pc: mod12(pc + 3), mode: "major" }
   };
 }
 

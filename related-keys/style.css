@@ -703,3 +703,40 @@ input[type="text"] {
   gap: 6px;
   flex-wrap: wrap;
 }
+
+
+/* Core four related keys only */
+.box.blank {
+  border-color: transparent;
+  background: transparent;
+}
+
+@media (max-width: 760px) {
+  .box.blank {
+    display: none;
+  }
+
+  .key-diagram {
+    grid-template-columns: 1fr;
+  }
+
+  .box.main {
+    order: 1;
+  }
+
+  .box.tonic {
+    order: 2;
+  }
+
+  [data-slot="subdominant"] {
+    order: 3;
+  }
+
+  [data-slot="dominant"] {
+    order: 4;
+  }
+
+  [data-slot="relative"] {
+    order: 5;
+  }
+}
