@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Related Key Practice | 近親調トレーナー</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+</head>
+<body>
+  <main class="screen">
+    <header class="topbar">
+      <div class="top-item">
+        <span class="label">RELATED KEYS</span>
+      </div>
+      <div class="top-copy">
+        <span>Identify closely related keys from a given tonic key</span>
+        <span>Parallel / relative / dominant / subdominant relations</span>
+      </div>
+      <div class="top-count">
+        <a class="tool-link" href="../">INTERVALS</a>
+        <a class="tool-link" href="../chords/">CHORDS</a>
+        <a class="tool-link" href="../minor-scales/">MINOR</a>
+        <span id="progress-count">00 / 00</span>
+      </div>
+    </header>
+
+    <section class="brand-zone">
+      <div class="big-mark">K</div>
+      <div class="brand-line"></div>
+      <div class="brand-sub">KEY / RELATION / ANSWER / EXPORT</div>
+    </section>
+
+    <section class="workbench">
+      <aside class="panel config-panel">
+        <div class="panel-title">SETTINGS</div>
+
+        <div class="field">
+          <div class="field-label">KEY POOL</div>
+          <div class="mode-stack">
+            <label><input type="radio" name="keyPool" value="basic" checked> 基本調</label>
+            <label><input type="radio" name="keyPool" value="all"> 全調</label>
+          </div>
+        </div>
+
+        <div class="field">
+          <div class="field-label">QUESTION</div>
+          <div class="mode-stack">
+            <label><input type="radio" name="questionMode" value="single" checked> 1か所</label>
+            <label><input type="radio" name="questionMode" value="diagram"> 図全体</label>
+          </div>
+        </div>
+
+        <div class="field">
+          <div class="field-label">RELATIONS</div>
+          <div id="relation-options" class="relation-grid"></div>
+          <div class="preset-row">
+            <button class="mini" id="select-all-relations" type="button">ALL</button>
+            <button class="mini" id="clear-all-relations" type="button">NONE</button>
+          </div>
+        </div>
+      </aside>
+
+      <section class="panel main-panel">
+        <div class="main-grid">
+          <div class="quiz-left">
+            <div class="panel-title">DIAGRAM</div>
+            <div class="key-diagram">
+              <div class="box dashed" data-slot="relativeParallel">?</div>
+              <div class="box main" data-slot="parallel">同主調</div>
+              <div class="box dashed" data-slot="dominantParallel">?</div>
+
+              <div class="box" data-slot="subdominant">下属調</div>
+              <div class="box tonic" data-slot="tonic">主調</div>
+              <div class="box" data-slot="dominant">属調</div>
+
+              <div class="box dashed" data-slot="subdominantRelative">?</div>
+              <div class="box" data-slot="relative">平行調</div>
+              <div class="box dashed" data-slot="dominantRelative">?</div>
+            </div>
+          </div>
+
+          <div class="quiz-center">
+            <div class="display-card">
+              <div class="display-label">CURRENT QUESTION</div>
+              <div id="question-display" class="question-display">KEY</div>
+              <div id="status" class="status" aria-live="polite">
+                NEW を押してください。
+              </div>
+            </div>
+
+            <div class="button-row">
+              <button id="new-question" type="button">NEW</button>
+              <button id="check-answer" type="button">CHECK</button>
+              <button id="show-answer" type="button">SHOW</button>
+              <button id="export-pdf" type="button">PDF</button>
+            </div>
+
+            <div class="score-strip">
+              <div><span>QUESTIONS</span><strong id="total-count">0</strong></div>
+              <div><span>CORRECT</span><strong id="correct-count">0</strong></div>
+              <div><span>RATE</span><strong id="score-percent">0%</strong></div>
+              <div><span>TIME</span><strong id="current-time">--</strong></div>
+              <button id="reset-score" type="button" class="mini">RESET</button>
+            </div>
+          </div>
+
+          <div class="quiz-right">
+            <div class="panel-title">ANSWER</div>
+            <div id="single-answer-area" class="answer-area">
+              <label class="answer-label" for="answer-input">調名を入力</label>
+              <input id="answer-input" class="answer-input" type="text" autocomplete="off" placeholder="例：G dur / ト長調 / e moll" />
+              <div class="quick-buttons" id="quick-buttons"></div>
+            </div>
+
+            <div id="diagram-answer-area" class="answer-area hidden">
+              <div class="diagram-inputs">
+                <label>同主調 <input data-answer-slot="parallel" type="text"></label>
+                <label>下属調 <input data-answer-slot="subdominant" type="text"></label>
+                <label>属調 <input data-answer-slot="dominant" type="text"></label>
+                <label>平行調 <input data-answer-slot="relative" type="text"></label>
+                <label>左上 <input data-answer-slot="relativeParallel" type="text"></label>
+                <label>右上 <input data-answer-slot="dominantParallel" type="text"></label>
+                <label>左下 <input data-answer-slot="subdominantRelative" type="text"></label>
+                <label>右下 <input data-answer-slot="dominantRelative" type="text"></label>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </section>
+
+    <section class="bottom-area">
+      <div class="notation-card">
+        <div class="panel-title">ANSWER MAP</div>
+        <div id="answer-text" class="answer-text"></div>
+        <div id="answer-map" class="answer-map"></div>
+      </div>
+
+      <div class="history-card">
+        <div class="panel-title">RESULT LOG</div>
+        <div id="history-list" class="history-list">まだ解答履歴がありません。</div>
+      </div>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
