@@ -337,3 +337,38 @@ h1 {
     gap: 12px;
   }
 }
+
+
+.beta-note {
+  max-width: 1120px;
+  margin: 18px auto 22px;
+  padding: 12px 14px;
+  border: 1px solid rgba(0, 0, 0, 0.22);
+  background: rgba(255, 255, 255, 0.38);
+  display: flex;
+  gap: 14px;
+  align-items: baseline;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.beta-note strong {
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+}
+
+.beta-note span {
+  opacity: 0.82;
+}
+
+@media (max-width: 720px) {
+  .beta-note {
+    margin: 14px 12px 18px;
+    display: block;
+  }
+
+  .beta-note strong {
+    display: block;
+    margin-bottom: 4px;
+  }
+}
