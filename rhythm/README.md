@@ -14,3 +14,5 @@ Practice:
 
 - All three answer choices use the same meter as the performed rhythm
 - Count-in uses a higher click on the strong beat
+
+- Rhythm answers are generated from the same meter only; playback includes high strong-beat clicks and lower weak-beat clicks

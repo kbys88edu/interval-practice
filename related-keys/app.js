@@ -1,3 +1,8 @@
+
+function t(text) {
+  return window.EarTrainingLang?.translateText(text) || text;
+}
+
 const keyNames = [
   { pc: 0, majorJa: "ハ長調", minorJa: "ハ短調", majorRoman: "C dur", minorRoman: "c moll", majorSig: "調号なし", minorSig: "♭3", majorScale: ["C","D","E","F","G","A","B"], minorScale: ["C","D","Eb","F","G","Ab","Bb"] },
   { pc: 1, majorJa: "変ニ長調", minorJa: "嬰ハ短調", majorRoman: "Db dur", minorRoman: "c# moll", majorSig: "♭5", minorSig: "♯4", majorScale: ["Db","Eb","F","Gb","Ab","Bb","C"], minorScale: ["C#","D#","E","F#","G#","A","B"] },
@@ -123,7 +128,7 @@ function newQuestion() {
   const selectedRelations = getSelectedRelations();
 
   if (getQuestionMode() === "single" && selectedRelations.length === 0) {
-    setStatus("関係を1つ以上選択してください。", "incorrect");
+    setStatus(t("関係を1つ以上選択してください。"), "incorrect");
     return;
   }
 
@@ -191,12 +196,12 @@ function mod12(value) {
 
 function checkAnswer() {
   if (!currentQuestion) {
-    setStatus("先に NEW を押してください。", "incorrect");
+    setStatus(t("先に NEW を押してください。"), "incorrect");
     return;
   }
 
   if (hasAnsweredCurrentQuestion) {
-    setStatus("この問題は回答済みです。NEW を押してください。");
+    setStatus(t("この問題は回答済みです。NEW を押してください。"));
     return;
   }
 
@@ -256,7 +261,7 @@ function checkAnswer() {
 
 function showAnswer() {
   if (!currentQuestion) {
-    setStatus("先に NEW を押してください。", "incorrect");
+    setStatus(t("先に NEW を押してください。"), "incorrect");
     return;
   }
 
@@ -419,12 +424,12 @@ function resetScore() {
   currentTimeEl.textContent = "--";
   updateScore();
   renderHistory();
-  setStatus("スコアと履歴をリセットしました。");
+  setStatus(t("スコアと履歴をリセットしました。"));
 }
 
 function renderHistory() {
   if (resultLog.length === 0) {
-    historyList.textContent = "まだ解答履歴がありません。";
+    historyList.textContent = t("まだ解答履歴がありません。");
     return;
   }
 
@@ -447,12 +452,12 @@ function formatResponseTime(value) {
 
 async function exportResultsPdf() {
   if (!window.jspdf || !window.jspdf.jsPDF) {
-    setStatus("PDFライブラリを読み込めませんでした。インターネット接続を確認してください。", "incorrect");
+    setStatus(t("PDFライブラリを読み込めませんでした。インターネット接続を確認してください。"), "incorrect");
     return;
   }
 
   if (resultLog.length === 0) {
-    setStatus("PDFに出力する解答履歴がありません。", "incorrect");
+    setStatus(t("PDFに出力する解答履歴がありません。"), "incorrect");
     return;
   }
 
@@ -515,10 +520,10 @@ async function exportResultsPdf() {
     });
 
     doc.save("related-key-practice-result.pdf");
-    setStatus("結果PDFを出力しました。", "correct");
+    setStatus(t("結果PDFを出力しました。"), "correct");
   } catch (error) {
     console.error(error);
-    setStatus("PDF作成中にエラーが発生しました。", "incorrect");
+    setStatus(t("PDF作成中にエラーが発生しました。"), "incorrect");
   } finally {
     exportButton.disabled = false;
   }

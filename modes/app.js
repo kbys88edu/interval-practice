@@ -1,3 +1,8 @@
+
+function t(text) {
+  return window.EarTrainingLang?.translateText(text) || text;
+}
+
 const modes = [
   {
     id: "ionian",
@@ -250,7 +255,7 @@ function applyPreset(name) {
   document.querySelectorAll("#mode-options input").forEach((input) => {
     input.checked = selected.includes(input.value);
   });
-  setStatus("プリセットを選択しました。NEW を押してください。");
+  setStatus(t("プリセットを選択しました。NEW を押してください。"));
 }
 
 function getSelectedModes() {
@@ -271,7 +276,7 @@ function newQuestion() {
   const selectedModes = getSelectedModes();
 
   if (selectedModes.length === 0) {
-    setStatus("出題範囲を1つ以上選択してください。", "incorrect");
+    setStatus(t("出題範囲を1つ以上選択してください。"), "incorrect");
     return;
   }
 
@@ -299,7 +304,7 @@ function newQuestion() {
   latestResponseTimeSec = null;
   currentTimeEl.textContent = "--";
 
-  setStatus("問題を作成しました。再生します。");
+  setStatus(t("問題を作成しました。再生します。"));
   playCurrentQuestion();
 }
 
@@ -352,7 +357,7 @@ async function createInstrument(name) {
   disposeCurrentInstrument();
 
   if (name === "realPiano") {
-    setStatus("リアルピアノを読み込み中です。初回のみ時間がかかります。");
+    setStatus(t("リアルピアノを読み込み中です。初回のみ時間がかかります。"));
 
     const sampler = new Tone.Sampler({
       urls: {
@@ -371,7 +376,7 @@ async function createInstrument(name) {
 
     sampler.volume.value = -8;
     await Tone.loaded();
-    setStatus("リアルピアノの読み込みが完了しました。");
+    setStatus(t("リアルピアノの読み込みが完了しました。"));
     return sampler;
   }
 
@@ -443,7 +448,7 @@ function disposeCurrentInstrument() {
 
 async function playCurrentQuestion() {
   if (!currentQuestion) {
-    setStatus("先に NEW を押してください。", "incorrect");
+    setStatus(t("先に NEW を押してください。"), "incorrect");
     return;
   }
 
@@ -452,7 +457,7 @@ async function playCurrentQuestion() {
     instrument = await ensureAudio();
   } catch (error) {
     console.error(error);
-    setStatus("リアルピアノの読み込みに失敗しました。内蔵音色を選んでください。", "incorrect");
+    setStatus(t("リアルピアノの読み込みに失敗しました。内蔵音色を選んでください。"), "incorrect");
     return;
   }
 
@@ -475,17 +480,17 @@ async function playCurrentQuestion() {
     instrument.triggerAttackRelease(note, duration, now + index * 0.28);
   });
 
-  setStatus("再生しました。答えを選んでください。");
+  setStatus(t("再生しました。答えを選んでください。"));
 }
 
 function answer(modeId) {
   if (!currentQuestion) {
-    setStatus("先に NEW を押してください。", "incorrect");
+    setStatus(t("先に NEW を押してください。"), "incorrect");
     return;
   }
 
   if (hasAnsweredCurrentQuestion) {
-    setStatus("この問題は回答済みです。NEW を押してください。");
+    setStatus(t("この問題は回答済みです。NEW を押してください。"));
     return;
   }
 
@@ -575,12 +580,12 @@ function resetScore() {
   currentTimeEl.textContent = "--";
   updateScore();
   renderHistory();
-  setStatus("スコアと履歴をリセットしました。");
+  setStatus(t("スコアと履歴をリセットしました。"));
 }
 
 function showAnswerAndNotation() {
   if (!currentQuestion) {
-    setStatus("先に NEW を押してください。", "incorrect");
+    setStatus(t("先に NEW を押してください。"), "incorrect");
     return;
   }
 
@@ -602,7 +607,7 @@ function showAnswerAndNotation() {
 
 function renderHistory() {
   if (resultLog.length === 0) {
-    historyList.textContent = "まだ解答履歴がありません。";
+    historyList.textContent = t("まだ解答履歴がありません。");
     return;
   }
 
@@ -663,18 +668,18 @@ function midiToAbc(midi) {
 
 async function exportResultsPdf() {
   if (!window.jspdf || !window.jspdf.jsPDF) {
-    setStatus("PDFライブラリを読み込めませんでした。インターネット接続を確認してください。", "incorrect");
+    setStatus(t("PDFライブラリを読み込めませんでした。インターネット接続を確認してください。"), "incorrect");
     return;
   }
 
   if (resultLog.length === 0) {
-    setStatus("PDFに出力する解答履歴がありません。", "incorrect");
+    setStatus(t("PDFに出力する解答履歴がありません。"), "incorrect");
     return;
   }
 
   const exportButton = document.querySelector("#export-pdf");
   exportButton.disabled = true;
-  setStatus("PDFを作成中です。楽譜画像を生成しています。");
+  setStatus(t("PDFを作成中です。楽譜画像を生成しています。"));
 
   try {
     const { jsPDF } = window.jspdf;
@@ -743,10 +748,10 @@ async function exportResultsPdf() {
     }
 
     doc.save("mode-practice-result.pdf");
-    setStatus("結果PDFを出力しました。", "correct");
+    setStatus(t("結果PDFを出力しました。"), "correct");
   } catch (error) {
     console.error(error);
-    setStatus("PDF作成中にエラーが発生しました。", "incorrect");
+    setStatus(t("PDF作成中にエラーが発生しました。"), "incorrect");
   } finally {
     exportButton.disabled = false;
   }

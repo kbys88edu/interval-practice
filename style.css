@@ -265,3 +265,29 @@ h1 {
     gap: 8px;
   }
 }
+
+
+/* Language toggle */
+.language-toggle {
+  display: inline-flex;
+  border: 1px solid var(--soft-line, rgba(47,47,47,0.28));
+  margin-right: 4px;
+}
+
+.lang-btn {
+  border: 0;
+  background: transparent;
+  color: var(--ink, #2b2b2b);
+  padding: 3px 6px;
+  font-size: 0.62rem;
+  line-height: 1;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  min-height: auto;
+}
+
+.lang-btn:hover,
+.lang-btn.active {
+  background: var(--ink, #2b2b2b);
+  color: var(--bg, #dedede);
+}

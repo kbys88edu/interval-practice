@@ -1,3 +1,8 @@
+
+function t(text) {
+  return window.EarTrainingLang?.translateText(text) || text;
+}
+
 const patterns = [
   // 4/4 basic
   { id: "44-q", meter: "4/4", name: "四分音符", abc: "C C C C |", events: [{t:0,d:1},{t:1,d:1},{t:2,d:1},{t:3,d:1}], level: "basic" },
@@ -33,7 +38,8 @@ let correctCount = 0;
 let resultLog = [];
 let questionStartTime = null;
 let latestResponseTimeSec = null;
-let synth = null;
+let rhythmSynth = null;
+let clickSynth = null;
 
 const choiceList = document.querySelector("#choice-list");
 const statusEl = document.querySelector("#status");
@@ -96,7 +102,7 @@ function newQuestion() {
   const pool = getAllowedPatterns();
 
   if (pool.length < 3) {
-    setStatus("出題できるリズムが3つ未満です。設定を増やしてください。", "incorrect");
+    setStatus(t("出題できるリズムが3つ未満です。設定を増やしてください。"), "incorrect");
     return;
   }
 
@@ -106,7 +112,7 @@ function newQuestion() {
   const sameMeterPool = pool.filter((pattern) => pattern.meter === correct.meter && pattern.id !== correct.id);
 
   if (sameMeterPool.length < 2) {
-    setStatus("同じ拍子で3択を作るには、候補が足りません。設定を増やしてください。", "incorrect");
+    setStatus(t("同じ拍子で3択を作るには、候補が足りません。設定を増やしてください。"), "incorrect");
     return;
   }
 
@@ -126,10 +132,10 @@ function newQuestion() {
   currentTimeEl.textContent = "--";
   answerText.textContent = "";
   answerNotation.innerHTML = "";
-  questionDisplay.textContent = correct.meter;
+  questionDisplay.textContent = `METER ${correct.meter}`;
 
   renderChoices();
-  setStatus(`${correct.meter} の1小節です。カウント後にリズムを再生します。`);
+  setStatus(`${correct.meter} の1小節です。3つの答えはすべて同じ拍子です。カウント後にリズムを再生します。`);
   playCurrentQuestion();
 }
 
@@ -146,7 +152,7 @@ function renderChoices() {
     card.innerHTML = `
       <span class="choice-label">${String.fromCharCode(65 + index)}</span>
       <div class="choice-body">
-        <div class="choice-meter">${choice.meter}</div>
+        <div class="choice-meter">METER ${choice.meter}</div>
         <div class="choice-notation" id="choice-${index}"></div>
       </div>
     `;
@@ -184,29 +190,37 @@ async function ensureAudio() {
     await Tone.start();
   }
 
-  if (!synth) {
-    synth = new Tone.MembraneSynth({
-      pitchDecay: 0.015,
+  if (!rhythmSynth) {
+    rhythmSynth = new Tone.MembraneSynth({
+      pitchDecay: 0.018,
       octaves: 3,
-      envelope: { attack: 0.001, decay: 0.16, sustain: 0, release: 0.02 }
+      envelope: { attack: 0.001, decay: 0.11, sustain: 0, release: 0.02 }
     }).toDestination();
-    synth.volume.value = -8;
+    rhythmSynth.volume.value = -7;
   }
 
-  return synth;
+  if (!clickSynth) {
+    clickSynth = new Tone.Synth({
+      oscillator: { type: "square" },
+      envelope: { attack: 0.001, decay: 0.035, sustain: 0, release: 0.01 }
+    }).toDestination();
+    clickSynth.volume.value = -14;
+  }
+
+  return { rhythmSynth, clickSynth };
 }
 
 async function playCurrentQuestion() {
   if (!currentQuestion) {
-    setStatus("先に NEW を押してください。", "incorrect");
+    setStatus(t("先に NEW を押してください。"), "incorrect");
     return;
   }
 
-  const instrument = await ensureAudio();
+  const { rhythmSynth, clickSynth } = await ensureAudio();
   const now = Tone.now();
   const beatSec = 60 / currentQuestion.tempo;
   const unitSec = currentQuestion.correct.meter === "6/8" ? beatSec / 2 : beatSec;
-  const pitch = getSoundType() === "kick" ? "C2" : "C4";
+  const rhythmPitch = getSoundType() === "kick" ? "C2" : "C4";
 
   if (!hasAnsweredCurrentQuestion) {
     questionStartTime = performance.now();
@@ -214,29 +228,38 @@ async function playCurrentQuestion() {
     currentTimeEl.textContent = "0.0s";
   }
 
-  // Count-in. Strong beat is slightly higher so the meter is audible.
+  // Count-in and in-measure metronome.
+  // Strong beats use a clearly higher click. This makes the performed meter audible.
   const countBeats = currentQuestion.correct.meter === "6/8" ? 2 : Number(currentQuestion.correct.meter.split("/")[0]);
+
   for (let i = 0; i < countBeats; i += 1) {
-    const countPitch = i === 0 ? "G5" : "C5";
-    instrument.triggerAttackRelease(countPitch, "32n", now + i * beatSec);
+    const countPitch = i === 0 ? "A5" : "C5";
+    clickSynth.triggerAttackRelease(countPitch, "32n", now + i * beatSec);
   }
 
   const start = now + (countBeats + 0.75) * beatSec;
+
+  // Metronome during the played bar.
+  for (let i = 0; i < countBeats; i += 1) {
+    const clickPitch = i === 0 ? "A5" : "C5";
+    clickSynth.triggerAttackRelease(clickPitch, "32n", start + i * beatSec);
+  }
+
   currentQuestion.correct.events.forEach((event) => {
-    instrument.triggerAttackRelease(pitch, "32n", start + event.t * unitSec);
+    rhythmSynth.triggerAttackRelease(rhythmPitch, "32n", start + event.t * unitSec);
   });
 
-  setStatus(`${currentQuestion.correct.meter} のリズムです。強拍は高いクリックで示しています。正しい譜例を選んでください。`);
+  setStatus(`${currentQuestion.correct.meter} のリズムです。1拍目は高いクリック、他の拍は低いクリックです。3つの譜例はすべて同じ拍子です。`);
 }
 
 function answer(choiceId) {
   if (!currentQuestion) {
-    setStatus("先に NEW を押してください。", "incorrect");
+    setStatus(t("先に NEW を押してください。"), "incorrect");
     return;
   }
 
   if (hasAnsweredCurrentQuestion) {
-    setStatus("この問題は回答済みです。NEW を押してください。");
+    setStatus(t("この問題は回答済みです。NEW を押してください。"));
     return;
   }
 
@@ -284,7 +307,7 @@ function answer(choiceId) {
 
 function showAnswer() {
   if (!currentQuestion) {
-    setStatus("先に NEW を押してください。", "incorrect");
+    setStatus(t("先に NEW を押してください。"), "incorrect");
     return;
   }
 
@@ -321,12 +344,12 @@ function resetScore() {
   currentTimeEl.textContent = "--";
   updateScore();
   renderHistory();
-  setStatus("スコアと履歴をリセットしました。");
+  setStatus(t("スコアと履歴をリセットしました。"));
 }
 
 function renderHistory() {
   if (resultLog.length === 0) {
-    historyList.textContent = "まだ解答履歴がありません。";
+    historyList.textContent = t("まだ解答履歴がありません。");
     return;
   }
 
@@ -349,12 +372,12 @@ function formatResponseTime(value) {
 
 async function exportResultsPdf() {
   if (!window.jspdf || !window.jspdf.jsPDF) {
-    setStatus("PDFライブラリを読み込めませんでした。インターネット接続を確認してください。", "incorrect");
+    setStatus(t("PDFライブラリを読み込めませんでした。インターネット接続を確認してください。"), "incorrect");
     return;
   }
 
   if (resultLog.length === 0) {
-    setStatus("PDFに出力する解答履歴がありません。", "incorrect");
+    setStatus(t("PDFに出力する解答履歴がありません。"), "incorrect");
     return;
   }
 
@@ -404,10 +427,10 @@ async function exportResultsPdf() {
     });
 
     doc.save("rhythm-dictation-result.pdf");
-    setStatus("結果PDFを出力しました。", "correct");
+    setStatus(t("結果PDFを出力しました。"), "correct");
   } catch (error) {
     console.error(error);
-    setStatus("PDF作成中にエラーが発生しました。", "incorrect");
+    setStatus(t("PDF作成中にエラーが発生しました。"), "incorrect");
   } finally {
     exportButton.disabled = false;
   }

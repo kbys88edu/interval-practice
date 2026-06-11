@@ -11,3 +11,5 @@ Practice:
 - Key → key signature
 - Major / minor / both
 - Treble clef / bass clef
+
+- Key-to-signature answers show only accidental counts, not key names

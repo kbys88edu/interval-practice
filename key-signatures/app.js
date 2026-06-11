@@ -1,3 +1,8 @@
+
+function t(text) {
+  return window.EarTrainingLang?.translateText(text) || text;
+}
+
 const signatures = [
   { acc: -7, label: "♭7", majorJa: "変ハ長調", minorJa: "変イ短調", majorRoman: "Cb dur", minorRoman: "ab moll", abcMajor: "Cb", abcMinor: "Abm" },
   { acc: -6, label: "♭6", majorJa: "変ト長調", minorJa: "変ホ短調", majorRoman: "Gb dur", minorRoman: "eb moll", abcMajor: "Gb", abcMinor: "Ebm" },
@@ -81,7 +86,7 @@ function renderSignatureSelect() {
   signatures.forEach((sig) => {
     const option = document.createElement("option");
     option.value = String(sig.acc);
-    option.textContent = `${sig.label} / ${sig.majorJa}・${sig.minorJa}`;
+    option.textContent = sig.label;
     signatureSelect.appendChild(option);
   });
 }
@@ -136,7 +141,7 @@ function newQuestion() {
   const keyPool = getKeyPool();
 
   if (keyPool.length === 0) {
-    setStatus("出題範囲が空です。", "incorrect");
+    setStatus(t("出題範囲が空です。"), "incorrect");
     return;
   }
 
@@ -161,7 +166,7 @@ function newQuestion() {
 
   renderQuestion();
   renderQuickButtons();
-  setStatus(questionType === "signatureToKey" ? "調号を見て調を答えてください。" : "調名を見て調号を答えてください。");
+  setStatus(questionType === "signatureToKey" ? "調号を見て調を答えてください。" : "調名を見て、調号の数だけを選んでください。");
 }
 
 function renderQuestion() {
@@ -244,12 +249,12 @@ function renderQuickButtons() {
 
 function checkAnswer() {
   if (!currentQuestion) {
-    setStatus("先に NEW を押してください。", "incorrect");
+    setStatus(t("先に NEW を押してください。"), "incorrect");
     return;
   }
 
   if (hasAnsweredCurrentQuestion) {
-    setStatus("この問題は回答済みです。NEW を押してください。");
+    setStatus(t("この問題は回答済みです。NEW を押してください。"));
     return;
   }
 
@@ -301,7 +306,7 @@ function checkAnswer() {
 
 function showAnswer() {
   if (!currentQuestion) {
-    setStatus("先に NEW を押してください。", "incorrect");
+    setStatus(t("先に NEW を押してください。"), "incorrect");
     return;
   }
 
@@ -374,12 +379,12 @@ function resetScore() {
   currentTimeEl.textContent = "--";
   updateScore();
   renderHistory();
-  setStatus("スコアと履歴をリセットしました。");
+  setStatus(t("スコアと履歴をリセットしました。"));
 }
 
 function renderHistory() {
   if (resultLog.length === 0) {
-    historyList.textContent = "まだ解答履歴がありません。";
+    historyList.textContent = t("まだ解答履歴がありません。");
     return;
   }
 
@@ -402,12 +407,12 @@ function formatResponseTime(value) {
 
 async function exportResultsPdf() {
   if (!window.jspdf || !window.jspdf.jsPDF) {
-    setStatus("PDFライブラリを読み込めませんでした。インターネット接続を確認してください。", "incorrect");
+    setStatus(t("PDFライブラリを読み込めませんでした。インターネット接続を確認してください。"), "incorrect");
     return;
   }
 
   if (resultLog.length === 0) {
-    setStatus("PDFに出力する解答履歴がありません。", "incorrect");
+    setStatus(t("PDFに出力する解答履歴がありません。"), "incorrect");
     return;
   }
 
@@ -462,10 +467,10 @@ async function exportResultsPdf() {
     });
 
     doc.save("key-signature-practice-result.pdf");
-    setStatus("結果PDFを出力しました。", "correct");
+    setStatus(t("結果PDFを出力しました。"), "correct");
   } catch (error) {
     console.error(error);
-    setStatus("PDF作成中にエラーが発生しました。", "incorrect");
+    setStatus(t("PDF作成中にエラーが発生しました。"), "incorrect");
   } finally {
     exportButton.disabled = false;
   }
