@@ -35,38 +35,33 @@ const MAX_TREBLE_MIDI = 81; // A5
 // The same sounding pitch can be C# or Db depending on musical spelling.
 // Each root candidate carries its spelling and a matching key signature context.
 const rootCandidates = [
-  { midi: 48, root: "C",  keySig: "C",  letter: "C", alt: 0 },
-  { midi: 49, root: "Db", keySig: "Db", letter: "D", alt: -1 },
-  { midi: 49, root: "C#", keySig: "C#", letter: "C", alt: 1 },
-  { midi: 50, root: "D",  keySig: "D",  letter: "D", alt: 0 },
-  { midi: 51, root: "Eb", keySig: "Eb", letter: "E", alt: -1 },
-  { midi: 51, root: "D#", keySig: "D#", letter: "D", alt: 1 },
-  { midi: 52, root: "E",  keySig: "E",  letter: "E", alt: 0 },
-  { midi: 53, root: "F",  keySig: "F",  letter: "F", alt: 0 },
-  { midi: 54, root: "Gb", keySig: "Gb", letter: "G", alt: -1 },
-  { midi: 54, root: "F#", keySig: "F#", letter: "F", alt: 1 },
-  { midi: 55, root: "G",  keySig: "G",  letter: "G", alt: 0 },
-  { midi: 56, root: "Ab", keySig: "Ab", letter: "A", alt: -1 },
-  { midi: 56, root: "G#", keySig: "G#", letter: "G", alt: 1 },
-  { midi: 57, root: "A",  keySig: "A",  letter: "A", alt: 0 },
-  { midi: 58, root: "Bb", keySig: "Bb", letter: "B", alt: -1 },
-  { midi: 58, root: "A#", keySig: "A#", letter: "A", alt: 1 },
-  { midi: 59, root: "B",  keySig: "B",  letter: "B", alt: 0 },
+  { midi: 48, root: "C",  majorKeySig: "C",  minorKeySig: "Cm",  letter: "C", alt: 0 },
+  { midi: 49, root: "Db", majorKeySig: "Db", minorKeySig: "Dbm", letter: "D", alt: -1 },
+  { midi: 49, root: "C#", majorKeySig: "C#", minorKeySig: "C#m", letter: "C", alt: 1 },
+  { midi: 50, root: "D",  majorKeySig: "D",  minorKeySig: "Dm",  letter: "D", alt: 0 },
+  { midi: 51, root: "Eb", majorKeySig: "Eb", minorKeySig: "Ebm", letter: "E", alt: -1 },
+  { midi: 52, root: "E",  majorKeySig: "E",  minorKeySig: "Em",  letter: "E", alt: 0 },
+  { midi: 53, root: "F",  majorKeySig: "F",  minorKeySig: "Fm",  letter: "F", alt: 0 },
+  { midi: 54, root: "Gb", majorKeySig: "Gb", minorKeySig: "Gbm", letter: "G", alt: -1 },
+  { midi: 54, root: "F#", majorKeySig: "F#", minorKeySig: "F#m", letter: "F", alt: 1 },
+  { midi: 55, root: "G",  majorKeySig: "G",  minorKeySig: "Gm",  letter: "G", alt: 0 },
+  { midi: 56, root: "Ab", majorKeySig: "Ab", minorKeySig: "Abm", letter: "A", alt: -1 },
+  { midi: 57, root: "A",  majorKeySig: "A",  minorKeySig: "Am",  letter: "A", alt: 0 },
+  { midi: 58, root: "Bb", majorKeySig: "Bb", minorKeySig: "Bbm", letter: "B", alt: -1 },
+  { midi: 59, root: "B",  majorKeySig: "B",  minorKeySig: "Bm",  letter: "B", alt: 0 },
 
-  { midi: 60, root: "C",  keySig: "C",  letter: "C", alt: 0 },
-  { midi: 61, root: "Db", keySig: "Db", letter: "D", alt: -1 },
-  { midi: 61, root: "C#", keySig: "C#", letter: "C", alt: 1 },
-  { midi: 62, root: "D",  keySig: "D",  letter: "D", alt: 0 },
-  { midi: 63, root: "Eb", keySig: "Eb", letter: "E", alt: -1 },
-  { midi: 63, root: "D#", keySig: "D#", letter: "D", alt: 1 },
-  { midi: 64, root: "E",  keySig: "E",  letter: "E", alt: 0 },
-  { midi: 65, root: "F",  keySig: "F",  letter: "F", alt: 0 },
-  { midi: 66, root: "Gb", keySig: "Gb", letter: "G", alt: -1 },
-  { midi: 66, root: "F#", keySig: "F#", letter: "F", alt: 1 },
-  { midi: 67, root: "G",  keySig: "G",  letter: "G", alt: 0 },
-  { midi: 68, root: "Ab", keySig: "Ab", letter: "A", alt: -1 },
-  { midi: 68, root: "G#", keySig: "G#", letter: "G", alt: 1 },
-  { midi: 69, root: "A",  keySig: "A",  letter: "A", alt: 0 }
+  { midi: 60, root: "C",  majorKeySig: "C",  minorKeySig: "Cm",  letter: "C", alt: 0 },
+  { midi: 61, root: "Db", majorKeySig: "Db", minorKeySig: "Dbm", letter: "D", alt: -1 },
+  { midi: 61, root: "C#", majorKeySig: "C#", minorKeySig: "C#m", letter: "C", alt: 1 },
+  { midi: 62, root: "D",  majorKeySig: "D",  minorKeySig: "Dm",  letter: "D", alt: 0 },
+  { midi: 63, root: "Eb", majorKeySig: "Eb", minorKeySig: "Ebm", letter: "E", alt: -1 },
+  { midi: 64, root: "E",  majorKeySig: "E",  minorKeySig: "Em",  letter: "E", alt: 0 },
+  { midi: 65, root: "F",  majorKeySig: "F",  minorKeySig: "Fm",  letter: "F", alt: 0 },
+  { midi: 66, root: "Gb", majorKeySig: "Gb", minorKeySig: "Gbm", letter: "G", alt: -1 },
+  { midi: 66, root: "F#", majorKeySig: "F#", minorKeySig: "F#m", letter: "F", alt: 1 },
+  { midi: 67, root: "G",  majorKeySig: "G",  minorKeySig: "Gm",  letter: "G", alt: 0 },
+  { midi: 68, root: "Ab", majorKeySig: "Ab", minorKeySig: "Abm", letter: "A", alt: -1 },
+  { midi: 69, root: "A",  majorKeySig: "A",  minorKeySig: "Am",  letter: "A", alt: 0 }
 ];
 
 const inversionLabels = {
@@ -642,7 +637,7 @@ function buildAbcNotation(question) {
   return `X:1
 M:4/4
 L:1/4
-K:${rootInfo.keySig} clef=${clef}
+K:${keySigForChord(rootInfo, question.chord?.id || question.chordId)} clef=${clef}
 ${body}`;
 }
 
@@ -704,10 +699,18 @@ function rootInfoFromMidi(rootMidi) {
   return rootCandidates.find((candidate) => candidate.midi === rootMidi) || {
     midi: rootMidi,
     root: midiToToneNote(rootMidi).replace(/[0-9-]/g, ""),
-    keySig: "C",
+    majorKeySig: "C",
+    minorKeySig: "Cm",
     letter: "C",
     alt: 0
   };
+}
+
+function keySigForChord(rootInfo, chordId) {
+  const minorContextIds = new Set(["min", "min7", "mMaj7", "m7b5", "dim", "dim7", "minAdd9"]);
+  return minorContextIds.has(chordId)
+    ? rootInfo.minorKeySig
+    : rootInfo.majorKeySig;
 }
 
 function midiToAbcChordTone(midi, rootInfo, chordId, toneIndex) {
@@ -729,7 +732,7 @@ function midiToAbcChordTone(midi, rootInfo, chordId, toneIndex) {
     return midiToAbcAbsolute(midi);
   }
 
-  const keySigAlt = keySignatureAlteration(rootInfo.keySig, letter);
+  const keySigAlt = keySignatureAlteration(keySigForChord(rootInfo, chordId), letter);
   if (keySigAlt === absoluteAlt) {
     return abcLetterWithOctave(letter, octave);
   }
@@ -763,8 +766,19 @@ function keySignatureAlteration(keySig, letter) {
   const sharps = ["F", "C", "G", "D", "A", "E", "B"];
   const flats = ["B", "E", "A", "D", "G", "C", "F"];
 
-  if (accidentalCount > 0 && sharps.slice(0, accidentalCount).includes(letter)) return 1;
-  if (accidentalCount < 0 && flats.slice(0, Math.abs(accidentalCount)).includes(letter)) return -1;
+  if (accidentalCount > 0) {
+    const fullCycles = Math.floor(accidentalCount / 7);
+    const remainder = accidentalCount % 7;
+    return fullCycles + (sharps.slice(0, remainder).includes(letter) ? 1 : 0);
+  }
+
+  if (accidentalCount < 0) {
+    const count = Math.abs(accidentalCount);
+    const fullCycles = Math.floor(count / 7);
+    const remainder = count % 7;
+    return -(fullCycles + (flats.slice(0, remainder).includes(letter) ? 1 : 0));
+  }
+
   return 0;
 }
 
@@ -778,13 +792,17 @@ function keySignatureAccidentalCount(keySig) {
     B: 5, "G#m": 5,
     "F#": 6, "D#m": 6,
     "C#": 7, "A#m": 7,
+
     F: -1, Dm: -1,
     Bb: -2, Gm: -2,
     Eb: -3, Cm: -3,
     Ab: -4, Fm: -4,
     Db: -5, Bbm: -5,
     Gb: -6, Ebm: -6,
-    Cb: -7, Abm: -7
+    Cb: -7, Abm: -7,
+
+    Dbm: -8,
+    Gbm: -9
   };
   return map[keySig] ?? 0;
 }
