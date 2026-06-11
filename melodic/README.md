@@ -17,3 +17,5 @@ Features:
 
 - Added sixteenth-note rhythm patterns.
 - Key selection changed to full random across 24 major/minor keys.
+
+- eighth-note beaming within quarter beats is now explicit for melodic notation

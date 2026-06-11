@@ -632,6 +632,8 @@ function showAnswer() {
 }
 
 function buildAbc(key, notes) {
+  // Notes are converted to ABC tokens first, then grouped by quarter-note beat.
+  // This explicitly beams eighth and sixteenth figures within each beat.
   const bars = [[], []];
 
   notes.forEach((note) => {
@@ -648,12 +650,36 @@ ${formatBarByBeat(bars[0])} | ${formatBarByBeat(bars[1])} |`;
 }
 
 function formatBarByBeat(items) {
-  const groups = [[], [], [], []];
-  items.forEach((item) => {
-    const beat = Math.min(3, Math.max(0, Math.floor(item.position / 4)));
-    groups[beat].push(item.token);
+  // Beam grouping follows the same principle as the rhythm page.
+  // In 4/4 and 3/4-style simple meter, the quarter note is the unit.
+  // Therefore two eighth notes inside the same quarter beat are written without a space:
+  //   C2D2 E2F2 G4 A4
+  // This prevents ABCJS from separating eighth-note beams.
+  const sorted = items.slice().sort((a, b) => a.position - b.position);
+  const groups = [];
+  let current = [];
+  let currentBeat = null;
+
+  sorted.forEach((item) => {
+    const beat = Math.floor(item.position / 4);
+    if (currentBeat === null) {
+      currentBeat = beat;
+    }
+
+    if (beat !== currentBeat) {
+      groups.push(current.join(""));
+      current = [];
+      currentBeat = beat;
+    }
+
+    current.push(item.token);
   });
-  return groups.map((group) => group.join("")).join(" ");
+
+  if (current.length) {
+    groups.push(current.join(""));
+  }
+
+  return groups.join(" ");
 }
 
 function renderAbc(targetId, abc, width) {
