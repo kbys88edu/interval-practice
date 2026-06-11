@@ -16,13 +16,14 @@
         <span class="label">RHYTHM</span>
       </div>
       <div class="top-copy">
-        <span>Listen to a one-bar rhythm and choose the correct notation</span>
-        <span>4/4 / 3/4 / 6/8 / triplets / sixteenths / ties</span>
+        <span>1-bar rhythm dictation</span>
+        <span>Same-meter 3-choice notation</span>
       </div>
       <div class="top-count">
         <a class="tool-link" href="../">HOME</a>
         <a class="tool-link" href="../intervals/">INTERVALS</a>
-        <a class="tool-link" href="../chords/">CHORDS</a><a class="tool-link" href="../progressions/">PROG</a>
+        <a class="tool-link" href="../chords/">CHORDS</a>
+        <a class="tool-link" href="../progressions/">PROG</a>
         <a class="tool-link" href="../minor-scales/">MINOR</a>
         <a class="tool-link" href="../related-keys/">KEYS</a>
         <a class="tool-link" href="../modes/">MODES</a>
@@ -34,7 +35,7 @@
     <section class="brand-zone">
       <div class="big-mark">R</div>
       <div class="brand-line"></div>
-      <div class="brand-sub">LISTEN / CHOOSE / NOTATE / EXPORT</div>
+      <div class="brand-sub">LISTEN / SAME METER / CHOOSE NOTATION</div>
     </section>
 
     <section class="workbench">
@@ -53,15 +54,17 @@
         <div class="field">
           <div class="field-label">CONTENT</div>
           <div class="mode-stack">
-            <label><input type="checkbox" id="allow-triplets" checked> 三連符</label>
-            <label><input type="checkbox" id="allow-sixteenths" checked> 16分音符</label>
-            <label><input type="checkbox" id="allow-ties" checked> タイ</label>
+            <label><input type="checkbox" name="content" value="basic" checked> 基本</label>
+            <label><input type="checkbox" name="content" value="triplet" checked> 三連符</label>
+            <label><input type="checkbox" name="content" value="sixteenth" checked> 16分音符</label>
+            <label><input type="checkbox" name="content" value="tie" checked> タイ</label>
           </div>
         </div>
 
         <div class="field">
           <label class="field-label" for="tempo-select">TEMPO</label>
           <select id="tempo-select">
+            <option value="60">60</option>
             <option value="72">72</option>
             <option value="84" selected>84</option>
             <option value="96">96</option>
@@ -70,11 +73,11 @@
         </div>
 
         <div class="field">
-          <div class="field-label">SOUND</div>
-          <div class="mode-stack">
-            <label><input type="radio" name="sound" value="wood" checked> Wood</label>
-            <label><input type="radio" name="sound" value="kick"> Low click</label>
-          </div>
+          <label class="field-label" for="sound-select">SOUND</label>
+          <select id="sound-select">
+            <option value="wood" selected>Wood</option>
+            <option value="click">Click</option>
+          </select>
         </div>
       </aside>
 
@@ -82,10 +85,10 @@
         <div class="main-grid">
           <div class="quiz-center">
             <div class="display-card">
-              <div class="display-label">CURRENT QUESTION</div>
-              <div id="question-display" class="question-display">LISTEN</div>
+              <div class="display-label">CURRENT METER</div>
+              <div id="question-display" class="question-display">METER</div>
               <div id="status" class="status" aria-live="polite">
-                NEW を押して、表示された拍子のリズムを聴き、同じ拍子で表示された3つの譜例から選んでください。
+                NEW を押して、演奏されたリズムを3つの譜例から選んでください。
               </div>
             </div>
 
@@ -107,7 +110,7 @@
 
           <div class="quiz-right">
             <div class="panel-title">CHOOSE ONE</div>
-            <div id="choice-meter-header" class="choice-meter-header">METER</div>
+            <div id="choice-meter-header" class="choice-meter-header">ALL CHOICES: --</div>
             <div id="choice-list" class="choice-list"></div>
           </div>
         </div>
@@ -116,9 +119,10 @@
 
     <section class="bottom-area">
       <div class="notation-card">
-        <div class="panel-title">ANSWER</div>
+        <div class="panel-title">ANSWER / NOTATION</div>
         <div id="answer-text" class="answer-text"></div>
-        <div id="answer-notation" class="notation"></div>
+        <div id="analysis-text" class="analysis-text"></div>
+        <div id="notation" class="notation"></div>
       </div>
 
       <div class="history-card">

@@ -1,34 +1,70 @@
-
 function t(text) {
   return window.EarTrainingLang?.translateText(text) || text;
 }
 
+// Rebuilt rhythm section.
+// Internal time unit:
+// 4/4 and 3/4 patterns use 16th-note units.
+// 4/4 bar length = 16 units. 3/4 bar length = 12 units.
+// 6/8 patterns use 16th-note units too.
+// 6/8 bar length = 12 units. One eighth note = 2 units.
+
 const patterns = [
   // 4/4 basic
-  { id: "44-q", meter: "4/4", name: "四分音符", abc: "C C C C |", events: [{t:0,d:1},{t:1,d:1},{t:2,d:1},{t:3,d:1}], level: "basic" },
-  { id: "44-hq", meter: "4/4", name: "二分 + 四分", abc: "C2 C C |", events: [{t:0,d:2},{t:2,d:1},{t:3,d:1}], level: "basic" },
-  { id: "44-eeq", meter: "4/4", name: "八分入り", abc: "C C/ C/ C C |", events: [{t:0,d:1},{t:1,d:.5},{t:1.5,d:.5},{t:2,d:1},{t:3,d:1}], level: "basic" },
-  { id: "44-sync", meter: "4/4", name: "シンコペーション", abc: "C C/ C3/ C |", events: [{t:0,d:1},{t:1,d:.5},{t:1.5,d:1.5},{t:3,d:1}], tie: true },
-  { id: "44-16a", meter: "4/4", name: "16分音符", abc: "C/2C/2C/2C/2 C C C |", events: [{t:0,d:.25},{t:.25,d:.25},{t:.5,d:.25},{t:.75,d:.25},{t:1,d:1},{t:2,d:1},{t:3,d:1}], sixteenth: true },
-  { id: "44-16b", meter: "4/4", name: "付点風16分", abc: "C3/4C/4 C C C |", events: [{t:0,d:.75},{t:.75,d:.25},{t:1,d:1},{t:2,d:1},{t:3,d:1}], sixteenth: true },
-  { id: "44-trip", meter: "4/4", name: "三連符", abc: "(3CCC C C C |", events: [{t:0,d:1/3},{t:1/3,d:1/3},{t:2/3,d:1/3},{t:1,d:1},{t:2,d:1},{t:3,d:1}], triplet: true },
-  { id: "44-rest", meter: "4/4", name: "休符入り", abc: "C z C/ C/ C |", events: [{t:0,d:1},{t:2,d:.5},{t:2.5,d:.5},{t:3,d:1}], level: "basic" },
+  { id: "44-basic-quarters", meter: "4/4", group: "basic", label: "four quarters", abc: "C C C C |", hits: [0, 4, 8, 12] },
+  { id: "44-basic-half", meter: "4/4", group: "basic", label: "half + quarters", abc: "C2 C C |", hits: [0, 8, 12] },
+  { id: "44-basic-eighths", meter: "4/4", group: "basic", label: "eighth-note motion", abc: "C C/ C/ C C |", hits: [0, 4, 6, 8, 12] },
+  { id: "44-basic-rest", meter: "4/4", group: "basic", label: "quarter rest", abc: "C z C C |", hits: [0, 8, 12] },
 
-  // 3/4
-  { id: "34-q", meter: "3/4", name: "四分音符", abc: "C C C |", events: [{t:0,d:1},{t:1,d:1},{t:2,d:1}], level: "basic" },
-  { id: "34-he", meter: "3/4", name: "二分 + 四分", abc: "C2 C |", events: [{t:0,d:2},{t:2,d:1}], level: "basic" },
-  { id: "34-ee", meter: "3/4", name: "八分入り", abc: "C/ C/ C C |", events: [{t:0,d:.5},{t:.5,d:.5},{t:1,d:1},{t:2,d:1}], level: "basic" },
-  { id: "34-16", meter: "3/4", name: "16分音符", abc: "C/2C/2C/2C/2 C C |", events: [{t:0,d:.25},{t:.25,d:.25},{t:.5,d:.25},{t:.75,d:.25},{t:1,d:1},{t:2,d:1}], sixteenth: true },
-  { id: "34-trip", meter: "3/4", name: "三連符", abc: "C (3CCC C |", events: [{t:0,d:1},{t:1,d:1/3},{t:1+1/3,d:1/3},{t:1+2/3,d:1/3},{t:2,d:1}], triplet: true },
-  { id: "34-tie", meter: "3/4", name: "タイ風", abc: "C C3/2 C/ |", events: [{t:0,d:1},{t:1,d:1.5},{t:2.5,d:.5}], tie: true },
+  // 4/4 sixteenth
+  { id: "44-sixteenth-1", meter: "4/4", group: "sixteenth", label: "sixteenth group", abc: "C C/2C/2C/2C/2 C C |", hits: [0, 4, 5, 6, 7, 8, 12] },
+  { id: "44-sixteenth-2", meter: "4/4", group: "sixteenth", label: "two sixteenth groups", abc: "C/2C/2C/2C/2 C C/2C/2C/2C/2 C |", hits: [0, 1, 2, 3, 4, 8, 9, 10, 11, 12] },
+  { id: "44-sixteenth-3", meter: "4/4", group: "sixteenth", label: "eighth + two sixteenths", abc: "C/ C/2C/2 C C C |", hits: [0, 2, 3, 4, 8, 12] },
 
-  // 6/8: using L:1/8, event unit is eighth note; playback converts by meter
-  { id: "68-basic", meter: "6/8", name: "基本", abc: "C C C C C C |", events: [{t:0,d:1},{t:1,d:1},{t:2,d:1},{t:3,d:1},{t:4,d:1},{t:5,d:1}], level: "basic" },
-  { id: "68-dotted", meter: "6/8", name: "付点四分", abc: "C3 C3 |", events: [{t:0,d:3},{t:3,d:3}], level: "basic" },
-  { id: "68-mix", meter: "6/8", name: "3+1+1+1", abc: "C3 C C C |", events: [{t:0,d:3},{t:3,d:1},{t:4,d:1},{t:5,d:1}], level: "basic" },
-  { id: "68-mix2", meter: "6/8", name: "1+1+1+3", abc: "C C C C3 |", events: [{t:0,d:1},{t:1,d:1},{t:2,d:1},{t:3,d:3}], level: "basic" },
-  { id: "68-16", meter: "6/8", name: "16分音符", abc: "C/2C/2 C C C3 |", events: [{t:0,d:.5},{t:.5,d:.5},{t:1,d:1},{t:2,d:1},{t:3,d:3}], sixteenth: true },
-  { id: "68-tie", meter: "6/8", name: "タイ風", abc: "C2 C2 C C |", events: [{t:0,d:2},{t:2,d:2},{t:4,d:1},{t:5,d:1}], tie: true }
+  // 4/4 triplet
+  { id: "44-triplet-1", meter: "4/4", group: "triplet", label: "one triplet beat", abc: "(3C/2C/2C/2 C C C |", hits: [0, 1.333, 2.667, 4, 8, 12] },
+  { id: "44-triplet-2", meter: "4/4", group: "triplet", label: "two triplet beats", abc: "C (3C/2C/2C/2 C C |", hits: [0, 4, 5.333, 6.667, 8, 12] },
+
+  // 4/4 ties
+  { id: "44-tie-1", meter: "4/4", group: "tie", label: "syncopated tie", abc: "C/ C/-C/ C C |", hits: [0, 2, 8, 12] },
+  { id: "44-tie-2", meter: "4/4", group: "tie", label: "held middle", abc: "C C-C C |", hits: [0, 4, 12] },
+
+  // 3/4 basic
+  { id: "34-basic-quarters", meter: "3/4", group: "basic", label: "three quarters", abc: "C C C |", hits: [0, 4, 8] },
+  { id: "34-basic-half", meter: "3/4", group: "basic", label: "half + quarter", abc: "C2 C |", hits: [0, 8] },
+  { id: "34-basic-eighths", meter: "3/4", group: "basic", label: "eighth motion", abc: "C C/ C/ C |", hits: [0, 4, 6, 8] },
+  { id: "34-basic-rest", meter: "3/4", group: "basic", label: "rest", abc: "C z C |", hits: [0, 8] },
+
+  // 3/4 sixteenth
+  { id: "34-sixteenth-1", meter: "3/4", group: "sixteenth", label: "sixteenth group", abc: "C/2C/2C/2C/2 C C |", hits: [0, 1, 2, 3, 4, 8] },
+  { id: "34-sixteenth-2", meter: "3/4", group: "sixteenth", label: "eighth + sixteenths", abc: "C/ C/2C/2 C C |", hits: [0, 2, 3, 4, 8] },
+
+  // 3/4 triplet
+  { id: "34-triplet-1", meter: "3/4", group: "triplet", label: "triplet opening", abc: "(3C/2C/2C/2 C C |", hits: [0, 1.333, 2.667, 4, 8] },
+  { id: "34-triplet-2", meter: "3/4", group: "triplet", label: "triplet middle", abc: "C (3C/2C/2C/2 C |", hits: [0, 4, 5.333, 6.667, 8] },
+
+  // 3/4 ties
+  { id: "34-tie-1", meter: "3/4", group: "tie", label: "middle tie", abc: "C/ C/-C/ C |", hits: [0, 2, 8] },
+  { id: "34-tie-2", meter: "3/4", group: "tie", label: "held start", abc: "C-C C |", hits: [0, 8] },
+
+  // 6/8 basic
+  { id: "68-basic-six", meter: "6/8", group: "basic", label: "six eighths", abc: "C C C C C C |", hits: [0, 2, 4, 6, 8, 10] },
+  { id: "68-basic-two-dotted", meter: "6/8", group: "basic", label: "two dotted quarters", abc: "C3 C3 |", hits: [0, 6] },
+  { id: "68-basic-3-1-1-1", meter: "6/8", group: "basic", label: "3 + 1 + 1 + 1", abc: "C3 C C C |", hits: [0, 6, 8, 10] },
+  { id: "68-basic-1-1-1-3", meter: "6/8", group: "basic", label: "1 + 1 + 1 + 3", abc: "C C C C3 |", hits: [0, 2, 4, 6] },
+  { id: "68-basic-rest", meter: "6/8", group: "basic", label: "rest inside", abc: "C z C C C C |", hits: [0, 4, 6, 8, 10] },
+
+  // 6/8 sixteenth
+  { id: "68-sixteenth-1", meter: "6/8", group: "sixteenth", label: "sixteenths first beat", abc: "C/2C/2 C C C C C |", hits: [0, 1, 2, 4, 6, 8, 10] },
+  { id: "68-sixteenth-2", meter: "6/8", group: "sixteenth", label: "sixteenths second group", abc: "C C C C/2C/2 C C |", hits: [0, 2, 4, 6, 7, 8, 10] },
+
+  // 6/8 triplet-like subdivision
+  { id: "68-triplet-1", meter: "6/8", group: "triplet", label: "triplet color", abc: "(3C/2C/2C/2 C C C C |", hits: [0, 1.333, 2.667, 4, 6, 8, 10] },
+  { id: "68-triplet-2", meter: "6/8", group: "triplet", label: "triplet second dotted beat", abc: "C C C (3C/2C/2C/2 C C |", hits: [0, 2, 4, 6, 7.333, 8.667, 10] },
+
+  // 6/8 ties
+  { id: "68-tie-1", meter: "6/8", group: "tie", label: "tie across middle", abc: "C C-C C C |", hits: [0, 2, 6, 8] },
+  { id: "68-tie-2", meter: "6/8", group: "tie", label: "held first dotted beat", abc: "C3-C C C |", hits: [0, 8, 10] }
 ];
 
 let currentQuestion = null;
@@ -46,7 +82,8 @@ const choiceMeterHeader = document.querySelector("#choice-meter-header");
 const statusEl = document.querySelector("#status");
 const questionDisplay = document.querySelector("#question-display");
 const answerText = document.querySelector("#answer-text");
-const answerNotation = document.querySelector("#answer-notation");
+const analysisText = document.querySelector("#analysis-text");
+const notationEl = document.querySelector("#notation");
 const totalCountEl = document.querySelector("#total-count");
 const correctCountEl = document.querySelector("#correct-count");
 const scorePercentEl = document.querySelector("#score-percent");
@@ -62,10 +99,11 @@ document.querySelector("#export-pdf").addEventListener("click", exportResultsPdf
 
 function init() {
   updateScore();
+  setStatus("NEW を押して、演奏されたリズムを3つの譜例から選んでください。");
 }
 
-function getSelectedMeters() {
-  return Array.from(document.querySelectorAll('input[name="meter"]:checked')).map((input) => input.value);
+function getSelectedValues(name) {
+  return Array.from(document.querySelectorAll(`input[name="${name}"]:checked`)).map((input) => input.value);
 }
 
 function getTempo() {
@@ -73,21 +111,15 @@ function getTempo() {
 }
 
 function getSoundType() {
-  return document.querySelector('input[name="sound"]:checked').value;
+  return document.querySelector("#sound-select").value;
 }
 
-function getAllowedPatterns() {
-  const meters = getSelectedMeters();
-  const allowTriplets = document.querySelector("#allow-triplets").checked;
-  const allowSixteenths = document.querySelector("#allow-sixteenths").checked;
-  const allowTies = document.querySelector("#allow-ties").checked;
+function getPool() {
+  const meters = getSelectedValues("meter");
+  const groups = getSelectedValues("content");
 
   return patterns.filter((pattern) => {
-    if (!meters.includes(pattern.meter)) return false;
-    if (pattern.triplet && !allowTriplets) return false;
-    if (pattern.sixteenth && !allowSixteenths) return false;
-    if (pattern.tie && !allowTies) return false;
-    return true;
+    return meters.includes(pattern.meter) && groups.includes(pattern.group);
   });
 }
 
@@ -100,31 +132,38 @@ function shuffle(array) {
 }
 
 function newQuestion() {
-  const pool = getAllowedPatterns();
+  const pool = getPool();
 
   if (pool.length < 3) {
-    setStatus(t("出題できるリズムが3つ未満です。設定を増やしてください。"), "incorrect");
+    setStatus("3択を作るには候補が足りません。拍子または内容を増やしてください。", "incorrect");
     return;
   }
 
   clearFeedback();
 
   const correct = randomItem(pool);
-  const sameMeterPool = pool.filter((pattern) => pattern.meter === correct.meter && pattern.id !== correct.id);
+  const sameMeterPool = pool.filter((pattern) => {
+    return pattern.meter === correct.meter && pattern.id !== correct.id;
+  });
 
   if (sameMeterPool.length < 2) {
-    setStatus(t("同じ拍子で3択を作るには、候補が足りません。設定を増やしてください。"), "incorrect");
+    setStatus(`${correct.meter} の候補が足りません。同じ拍子で3択を作るため、内容設定を増やしてください。`, "incorrect");
     return;
   }
 
-  const distractors = shuffle(sameMeterPool).slice(0, 2);
-  const choices = shuffle([correct, ...distractors]);
+  const choices = shuffle([correct, ...shuffle(sameMeterPool).slice(0, 2)]);
+
+  if (!choices.every((choice) => choice.meter === correct.meter)) {
+    setStatus("内部エラー：拍子が混在しました。もう一度NEWを押してください。", "incorrect");
+    return;
+  }
 
   currentQuestion = {
     number: totalCount + 1,
     correct,
     choices,
-    tempo: getTempo()
+    tempo: getTempo(),
+    sound: getSoundType()
   };
 
   hasAnsweredCurrentQuestion = false;
@@ -132,12 +171,13 @@ function newQuestion() {
   latestResponseTimeSec = null;
   currentTimeEl.textContent = "--";
   answerText.textContent = "";
-  answerNotation.innerHTML = "";
+  analysisText.textContent = "";
+  notationEl.innerHTML = "";
   questionDisplay.textContent = `METER ${correct.meter}`;
-  if (choiceMeterHeader) choiceMeterHeader.textContent = `ALL CHOICES: ${correct.meter}`;
+  choiceMeterHeader.textContent = `ALL CHOICES: ${correct.meter}`;
 
   renderChoices();
-  setStatus(`${correct.meter} の1小節です。3つの答えはすべて同じ拍子です。カウント後にリズムを再生します。`);
+  setStatus(`${correct.meter} の1小節です。カウント後すぐに本編リズムが始まります。`);
   playCurrentQuestion();
 }
 
@@ -153,38 +193,18 @@ function renderChoices() {
     card.dataset.id = choice.id;
     card.innerHTML = `
       <span class="choice-label">${String.fromCharCode(65 + index)}</span>
-      <div class="choice-body">
-        <div class="choice-meter">METER ${choice.meter}</div>
-        <div class="choice-notation" id="choice-${index}"></div>
-      </div>
+      <span class="choice-body">
+        <span class="choice-meter">METER ${choice.meter}</span>
+        <span class="choice-notation" id="choice-notation-${index}"></span>
+      </span>
     `;
     card.addEventListener("click", () => answer(choice.id));
     choiceList.appendChild(card);
 
-    const target = card.querySelector(`#choice-${index}`);
-    renderRhythm(target, choice);
+    requestAnimationFrame(() => {
+      renderAbc(`choice-notation-${index}`, buildAbc(choice), 360);
+    });
   });
-}
-
-function renderRhythm(target, pattern) {
-  const abc = buildAbc(pattern);
-  ABCJS.renderAbc(target, abc, {
-    responsive: "resize",
-    staffwidth: 520,
-    paddingtop: 0,
-    paddingbottom: 0,
-    paddingleft: 0,
-    paddingright: 0
-  });
-}
-
-function buildAbc(pattern) {
-  const length = pattern.meter === "6/8" ? "1/8" : "1/4";
-  return `X:1
-M:${pattern.meter}
-L:${length}
-K:C clef=perc
-${pattern.abc}`;
 }
 
 async function ensureAudio() {
@@ -194,11 +214,11 @@ async function ensureAudio() {
 
   if (!rhythmSynth) {
     rhythmSynth = new Tone.MembraneSynth({
-      pitchDecay: 0.018,
-      octaves: 3,
-      envelope: { attack: 0.001, decay: 0.11, sustain: 0, release: 0.02 }
+      pitchDecay: 0.015,
+      octaves: 2.2,
+      envelope: { attack: 0.001, decay: 0.08, sustain: 0, release: 0.02 }
     }).toDestination();
-    rhythmSynth.volume.value = -7;
+    rhythmSynth.volume.value = -6;
   }
 
   if (!clickSynth) {
@@ -206,7 +226,7 @@ async function ensureAudio() {
       oscillator: { type: "square" },
       envelope: { attack: 0.001, decay: 0.035, sustain: 0, release: 0.01 }
     }).toDestination();
-    clickSynth.volume.value = -14;
+    clickSynth.volume.value = -13;
   }
 
   return { rhythmSynth, clickSynth };
@@ -214,23 +234,22 @@ async function ensureAudio() {
 
 async function playCurrentQuestion() {
   if (!currentQuestion) {
-    setStatus(t("先に NEW を押してください。"), "incorrect");
+    setStatus("先に NEW を押してください。", "incorrect");
     return;
   }
 
   const { rhythmSynth, clickSynth } = await ensureAudio();
 
-  // Schedule slightly ahead of the current audio time.
-  // This avoids browser timing instability and removes the perceived gap before the bar.
-  const scheduleLeadSec = 0.12;
-  const now = Tone.now() + scheduleLeadSec;
+  const lead = 0.14;
+  const startNow = Tone.now() + lead;
+  const tempo = currentQuestion.tempo;
+  const quarterSec = 60 / tempo;
+  const sixteenthSec = quarterSec / 4;
+  const meter = currentQuestion.correct.meter;
 
-  const beatSec = 60 / currentQuestion.tempo;
-  const isSixEight = currentQuestion.correct.meter === "6/8";
-
-  // In 6/8, one unit is the eighth note. In 4/4 and 3/4, one unit is the quarter note.
-  const unitSec = isSixEight ? beatSec / 2 : beatSec;
-  const rhythmPitch = getSoundType() === "kick" ? "C2" : "C4";
+  const count = getCountSpec(meter, quarterSec);
+  const countStart = startNow;
+  const barStart = countStart + count.countClicks * count.stepSec;
 
   if (!hasAnsweredCurrentQuestion) {
     questionStartTime = performance.now();
@@ -238,44 +257,56 @@ async function playCurrentQuestion() {
     currentTimeEl.textContent = "0.0s";
   }
 
-  // Count-in:
-  // 4/4: 4 quarter-note clicks
-  // 3/4: 3 quarter-note clicks
-  // 6/8: 6 eighth-note clicks
-  const countClicks = isSixEight ? 6 : Number(currentQuestion.correct.meter.split("/")[0]);
-  const clickStepSec = isSixEight ? unitSec : beatSec;
-  const countStart = now;
-  const barStart = countStart + countClicks * clickStepSec;
-
-  for (let i = 0; i < countClicks; i += 1) {
-    const isAccent = isSixEight ? (i === 0 || i === 3) : i === 0;
-    const countPitch = isAccent ? "A5" : "C5";
-    clickSynth.triggerAttackRelease(countPitch, "32n", countStart + i * clickStepSec);
+  // Count-in
+  for (let i = 0; i < count.countClicks; i += 1) {
+    clickSynth.triggerAttackRelease(count.isAccent(i) ? "A5" : "C5", "32n", countStart + i * count.stepSec);
   }
 
-  // The played bar starts exactly one pulse after the last count click.
-  // There is no additional silent offset.
-  for (let i = 0; i < countClicks; i += 1) {
-    const isAccent = isSixEight ? (i === 0 || i === 3) : i === 0;
-    const clickPitch = isAccent ? "A5" : "C5";
-    clickSynth.triggerAttackRelease(clickPitch, "32n", barStart + i * clickStepSec);
+  // Metronome inside the performed bar
+  for (let i = 0; i < count.countClicks; i += 1) {
+    clickSynth.triggerAttackRelease(count.isAccent(i) ? "A5" : "C5", "32n", barStart + i * count.stepSec);
   }
 
-  currentQuestion.correct.events.forEach((event) => {
-    rhythmSynth.triggerAttackRelease(rhythmPitch, "32n", barStart + event.t * unitSec);
+  const rhythmPitch = currentQuestion.sound === "click" ? "C3" : "C4";
+  currentQuestion.correct.hits.forEach((unit) => {
+    rhythmSynth.triggerAttackRelease(rhythmPitch, "32n", barStart + unit * sixteenthSec);
   });
 
-  setStatus(`${currentQuestion.correct.meter} のリズムです。選択肢はすべて同じ拍子です。6/8では8分音符単位で6回クリックします。`);
+  const msg = meter === "6/8"
+    ? "6/8です。カウントも本編も8分音符単位で6回クリックします。1拍目と4拍目が高い音です。"
+    : `${meter}です。1拍目が高いクリックです。カウント後すぐ本編に入ります。`;
+  setStatus(msg);
+}
+
+function getCountSpec(meter, quarterSec) {
+  if (meter === "6/8") {
+    return {
+      countClicks: 6,
+      stepSec: quarterSec / 2,
+      isAccent(index) {
+        return index === 0 || index === 3;
+      }
+    };
+  }
+
+  const countClicks = meter === "3/4" ? 3 : 4;
+  return {
+    countClicks,
+    stepSec: quarterSec,
+    isAccent(index) {
+      return index === 0;
+    }
+  };
 }
 
 function answer(choiceId) {
   if (!currentQuestion) {
-    setStatus(t("先に NEW を押してください。"), "incorrect");
+    setStatus("先に NEW を押してください。", "incorrect");
     return;
   }
 
   if (hasAnsweredCurrentQuestion) {
-    setStatus(t("この問題は回答済みです。NEW を押してください。"));
+    setStatus("この問題は回答済みです。NEW を押してください。");
     return;
   }
 
@@ -302,33 +333,57 @@ function answer(choiceId) {
   });
 
   const selected = currentQuestion.choices.find((item) => item.id === choiceId);
+
   setStatus(
-    `${isCorrect ? "正解" : "不正解"} / 正解：${currentQuestion.correct.meter} ${currentQuestion.correct.name} / 選択：${selected?.name || "-"} / ${formatResponseTime(latestResponseTimeSec)}`,
+    `${isCorrect ? "正解" : "不正解"} / 拍子：${currentQuestion.correct.meter} / 正解：${currentQuestion.correct.label} / 選択：${selected?.label || "-"} / ${formatResponseTime(latestResponseTimeSec)}`,
     isCorrect ? "correct" : "incorrect"
   );
 
   resultLog.push({
     number: totalCount,
     meter: currentQuestion.correct.meter,
-    name: currentQuestion.correct.name,
-    selectedName: selected?.name || "",
+    label: currentQuestion.correct.label,
+    selectedLabel: selected?.label || "",
     isCorrect,
-    responseTimeSec: latestResponseTimeSec,
-    abc: buildAbc(currentQuestion.correct)
+    responseTimeSec: latestResponseTimeSec
   });
 
   updateScore();
   renderHistory();
+  showAnswer();
 }
 
 function showAnswer() {
   if (!currentQuestion) {
-    setStatus(t("先に NEW を押してください。"), "incorrect");
+    setStatus("先に NEW を押してください。", "incorrect");
     return;
   }
 
-  answerText.textContent = `正解：${currentQuestion.correct.meter} / ${currentQuestion.correct.name}`;
-  renderRhythm(answerNotation, currentQuestion.correct);
+  answerText.textContent = `正解：${currentQuestion.correct.meter} / ${currentQuestion.correct.label}`;
+  analysisText.textContent = `3つの選択肢はすべて ${currentQuestion.correct.meter} です。`;
+  renderAbc("notation", buildAbc(currentQuestion.correct), 680);
+}
+
+function buildAbc(pattern) {
+  const lUnit = pattern.meter === "6/8" ? "1/8" : "1/4";
+  return `X:1
+M:${pattern.meter}
+L:${lUnit}
+K:C clef=perc
+${pattern.abc}`;
+}
+
+function renderAbc(targetId, abc, width) {
+  if (!window.ABCJS) return;
+  ABCJS.renderAbc(targetId, abc, {
+    responsive: "resize",
+    staffwidth: width,
+    paddingtop: 0,
+    paddingbottom: 0,
+    paddingleft: 0,
+    paddingright: 0,
+    add_classes: true
+  });
 }
 
 function clearFeedback() {
@@ -360,7 +415,7 @@ function resetScore() {
   currentTimeEl.textContent = "--";
   updateScore();
   renderHistory();
-  setStatus(t("スコアと履歴をリセットしました。"));
+  setStatus("スコアと履歴をリセットしました。");
 }
 
 function renderHistory() {
@@ -375,7 +430,7 @@ function renderHistory() {
     row.className = "history-item";
     row.innerHTML = `
       <span>${String(item.number).padStart(2, "0")}</span>
-      <span>${item.meter} / ${item.name} / ${formatResponseTime(item.responseTimeSec)}</span>
+      <span>${item.meter} / ${item.label} / ${formatResponseTime(item.responseTimeSec)}</span>
       <span class="${item.isCorrect ? "ok" : "ng"}">${item.isCorrect ? "OK" : "NG"}</span>
     `;
     historyList.appendChild(row);
@@ -388,12 +443,12 @@ function formatResponseTime(value) {
 
 async function exportResultsPdf() {
   if (!window.jspdf || !window.jspdf.jsPDF) {
-    setStatus(t("PDFライブラリを読み込めませんでした。インターネット接続を確認してください。"), "incorrect");
+    setStatus("PDFライブラリを読み込めませんでした。インターネット接続を確認してください。", "incorrect");
     return;
   }
 
   if (resultLog.length === 0) {
-    setStatus(t("PDFに出力する解答履歴がありません。"), "incorrect");
+    setStatus("PDFに出力する解答履歴がありません。", "incorrect");
     return;
   }
 
@@ -435,18 +490,18 @@ async function exportResultsPdf() {
       }
       doc.setFont("helvetica", "bold");
       doc.setFontSize(10);
-      doc.text(`${String(item.number).padStart(2, "0")}  ${item.meter}  ${item.name}`, 16, y);
+      doc.text(`${String(item.number).padStart(2, "0")}  ${item.meter}  ${item.label}`, 16, y);
       doc.setFont("helvetica", "normal");
       doc.setFontSize(9);
-      doc.text(`Your answer: ${item.selectedName || "-"} / ${item.isCorrect ? "OK" : "NG"} / Time: ${formatResponseTime(item.responseTimeSec)}`, 16, y + 6);
+      doc.text(`Your answer: ${item.selectedLabel || "-"} / ${item.isCorrect ? "OK" : "NG"} / Time: ${formatResponseTime(item.responseTimeSec)}`, 16, y + 6);
       y += 18;
     });
 
     doc.save("rhythm-dictation-result.pdf");
-    setStatus(t("結果PDFを出力しました。"), "correct");
+    setStatus("結果PDFを出力しました。", "correct");
   } catch (error) {
     console.error(error);
-    setStatus(t("PDF作成中にエラーが発生しました。"), "incorrect");
+    setStatus("PDF作成中にエラーが発生しました。", "incorrect");
   } finally {
     exportButton.disabled = false;
   }
