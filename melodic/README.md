@@ -23,3 +23,8 @@ Features:
 - removed obsolete key checkbox validation; melody now always selects from all keys randomly
 
 - key-aware melodic spelling: diatonic notes covered by the key signature no longer show redundant accidentals
+
+- final accidental spelling fix: diatonic notes use plain letters under the key signature; chromatic alterations use absolute ABC accidentals, including naturals such as =B in C minor
+
+- Added 3/4 and 6/8 meters to melodic dictation.
+- Beaming is grouped by quarter-note units in 3/4 and 4/4, and by dotted-quarter units in 6/8.

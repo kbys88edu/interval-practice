@@ -49,113 +49,164 @@ const progressions = {
   ]
 };
 
-// One bar = 16 sixteenth units. Each group inside a bar is one beat group.
-// Tokens are joined within a group, spaces separate beat groups, so beams follow beat units.
+// Each rhythm pattern is 2 bars.
+// 4/4 bar = 16 sixteenth units.
+// 3/4 bar = 12 sixteenth units.
+// 6/8 bar = 12 sixteenth units; beaming unit = dotted quarter = 6 units.
 const rhythmPatterns = [
   {
-    id: "simple-quarters",
+    id: "44-simple",
+    meter: "4/4",
     group: "simple",
-    label: "four quarters",
+    label: "4/4 quarters",
     bars: [
       [{ units: 4, abcDur: "4" }, { units: 4, abcDur: "4" }, { units: 4, abcDur: "4" }, { units: 4, abcDur: "4" }],
       [{ units: 4, abcDur: "4" }, { units: 4, abcDur: "4" }, { units: 4, abcDur: "4" }, { units: 4, abcDur: "4" }]
     ]
   },
   {
-    id: "eighth-pairs",
+    id: "44-eighth",
+    meter: "4/4",
     group: "eighth",
-    label: "eighth pairs",
+    label: "4/4 eighths",
     bars: [
       [{ units: 2, abcDur: "2" }, { units: 2, abcDur: "2" }, { units: 4, abcDur: "4" }, { units: 2, abcDur: "2" }, { units: 2, abcDur: "2" }, { units: 4, abcDur: "4" }],
       [{ units: 4, abcDur: "4" }, { units: 2, abcDur: "2" }, { units: 2, abcDur: "2" }, { units: 4, abcDur: "4" }, { units: 4, abcDur: "4" }]
     ]
   },
   {
-    id: "dotted-opening",
-    group: "dotted",
-    label: "dotted eighth",
+    id: "44-sixteenth",
+    meter: "4/4",
+    group: "sixteenth",
+    label: "4/4 sixteenths",
     bars: [
-      [{ units: 3, abcDur: "3" }, { units: 1, abcDur: "" }, { units: 4, abcDur: "4" }, { units: 4, abcDur: "4" }, { units: 4, abcDur: "4" }],
-      [{ units: 4, abcDur: "4" }, { units: 3, abcDur: "3" }, { units: 1, abcDur: "" }, { units: 4, abcDur: "4" }, { units: 4, abcDur: "4" }]
+      [{ units: 1, abcDur: "" }, { units: 1, abcDur: "" }, { units: 1, abcDur: "" }, { units: 1, abcDur: "" }, { units: 4, abcDur: "4" }, { units: 2, abcDur: "2" }, { units: 1, abcDur: "" }, { units: 1, abcDur: "" }, { units: 4, abcDur: "4" }],
+      [{ units: 4, abcDur: "4" }, { units: 1, abcDur: "" }, { units: 1, abcDur: "" }, { units: 2, abcDur: "2" }, { units: 4, abcDur: "4" }, { units: 4, abcDur: "4" }]
     ]
   },
   {
-    id: "reverse-dotted",
+    id: "44-dotted",
+    meter: "4/4",
     group: "dotted",
-    label: "reverse dotted",
+    label: "4/4 dotted",
     bars: [
-      [{ units: 1, abcDur: "" }, { units: 3, abcDur: "3" }, { units: 4, abcDur: "4" }, { units: 4, abcDur: "4" }, { units: 4, abcDur: "4" }],
-      [{ units: 4, abcDur: "4" }, { units: 4, abcDur: "4" }, { units: 1, abcDur: "" }, { units: 3, abcDur: "3" }, { units: 4, abcDur: "4" }]
+      [{ units: 3, abcDur: "3" }, { units: 1, abcDur: "" }, { units: 4, abcDur: "4" }, { units: 6, abcDur: "6" }, { units: 2, abcDur: "2" }],
+      [{ units: 4, abcDur: "4" }, { units: 1, abcDur: "" }, { units: 3, abcDur: "3" }, { units: 4, abcDur: "4" }, { units: 4, abcDur: "4" }]
     ]
   },
   {
-    id: "dotted-quarter",
-    group: "dotted",
-    label: "dotted quarter",
-    bars: [
-      [{ units: 6, abcDur: "6" }, { units: 2, abcDur: "2" }, { units: 4, abcDur: "4" }, { units: 4, abcDur: "4" }],
-      [{ units: 4, abcDur: "4" }, { units: 6, abcDur: "6" }, { units: 2, abcDur: "2" }, { units: 4, abcDur: "4" }]
-    ]
-  },
-  {
-    id: "triplet-first",
+    id: "44-triplet",
+    meter: "4/4",
     group: "triplet",
-    label: "triplet first beat",
+    label: "4/4 triplets",
     bars: [
-      [{ units: 4/3, abcDur: "2", triplet: "start" }, { units: 4/3, abcDur: "2", triplet: "mid" }, { units: 4/3, abcDur: "2", triplet: "mid" }, { units: 4, abcDur: "4" }, { units: 4, abcDur: "4" }, { units: 4, abcDur: "4" }],
-      [{ units: 4, abcDur: "4" }, { units: 4, abcDur: "4" }, { units: 4/3, abcDur: "2", triplet: "start" }, { units: 4/3, abcDur: "2", triplet: "mid" }, { units: 4/3, abcDur: "2", triplet: "mid" }, { units: 4, abcDur: "4" }]
+      [{ units: 4/3, abcDur: "2", triplet: "start" }, { units: 4/3, abcDur: "2" }, { units: 4/3, abcDur: "2" }, { units: 4, abcDur: "4" }, { units: 4, abcDur: "4" }, { units: 4, abcDur: "4" }],
+      [{ units: 4, abcDur: "4" }, { units: 4, abcDur: "4" }, { units: 4/3, abcDur: "2", triplet: "start" }, { units: 4/3, abcDur: "2" }, { units: 4/3, abcDur: "2" }, { units: 4, abcDur: "4" }]
+    ]
+  },
+
+  {
+    id: "34-simple",
+    meter: "3/4",
+    group: "simple",
+    label: "3/4 quarters",
+    bars: [
+      [{ units: 4, abcDur: "4" }, { units: 4, abcDur: "4" }, { units: 4, abcDur: "4" }],
+      [{ units: 4, abcDur: "4" }, { units: 4, abcDur: "4" }, { units: 4, abcDur: "4" }]
     ]
   },
   {
-    id: "triplet-middle",
-    group: "triplet",
-    label: "triplet middle",
+    id: "34-eighth",
+    meter: "3/4",
+    group: "eighth",
+    label: "3/4 eighths",
     bars: [
-      [{ units: 4, abcDur: "4" }, { units: 4/3, abcDur: "2", triplet: "start" }, { units: 4/3, abcDur: "2", triplet: "mid" }, { units: 4/3, abcDur: "2", triplet: "mid" }, { units: 4, abcDur: "4" }, { units: 4, abcDur: "4" }],
-      [{ units: 4, abcDur: "4" }, { units: 4, abcDur: "4" }, { units: 4, abcDur: "4" }, { units: 4/3, abcDur: "2", triplet: "start" }, { units: 4/3, abcDur: "2", triplet: "mid" }, { units: 4/3, abcDur: "2", triplet: "mid" }]
+      [{ units: 2, abcDur: "2" }, { units: 2, abcDur: "2" }, { units: 4, abcDur: "4" }, { units: 2, abcDur: "2" }, { units: 2, abcDur: "2" }],
+      [{ units: 4, abcDur: "4" }, { units: 2, abcDur: "2" }, { units: 2, abcDur: "2" }, { units: 4, abcDur: "4" }]
+    ]
+  },
+  {
+    id: "34-sixteenth",
+    meter: "3/4",
+    group: "sixteenth",
+    label: "3/4 sixteenths",
+    bars: [
+      [{ units: 1, abcDur: "" }, { units: 1, abcDur: "" }, { units: 1, abcDur: "" }, { units: 1, abcDur: "" }, { units: 4, abcDur: "4" }, { units: 4, abcDur: "4" }],
+      [{ units: 4, abcDur: "4" }, { units: 2, abcDur: "2" }, { units: 1, abcDur: "" }, { units: 1, abcDur: "" }, { units: 4, abcDur: "4" }]
+    ]
+  },
+  {
+    id: "34-dotted",
+    meter: "3/4",
+    group: "dotted",
+    label: "3/4 dotted",
+    bars: [
+      [{ units: 3, abcDur: "3" }, { units: 1, abcDur: "" }, { units: 4, abcDur: "4" }, { units: 4, abcDur: "4" }],
+      [{ units: 4, abcDur: "4" }, { units: 1, abcDur: "" }, { units: 3, abcDur: "3" }, { units: 4, abcDur: "4" }]
+    ]
+  },
+  {
+    id: "34-triplet",
+    meter: "3/4",
+    group: "triplet",
+    label: "3/4 triplets",
+    bars: [
+      [{ units: 4/3, abcDur: "2", triplet: "start" }, { units: 4/3, abcDur: "2" }, { units: 4/3, abcDur: "2" }, { units: 4, abcDur: "4" }, { units: 4, abcDur: "4" }],
+      [{ units: 4, abcDur: "4" }, { units: 4/3, abcDur: "2", triplet: "start" }, { units: 4/3, abcDur: "2" }, { units: 4/3, abcDur: "2" }, { units: 4, abcDur: "4" }]
+    ]
+  },
+
+  {
+    id: "68-basic",
+    meter: "6/8",
+    group: "simple",
+    label: "6/8 basic",
+    bars: [
+      [{ units: 2, abcDur: "2" }, { units: 2, abcDur: "2" }, { units: 2, abcDur: "2" }, { units: 6, abcDur: "6" }],
+      [{ units: 6, abcDur: "6" }, { units: 2, abcDur: "2" }, { units: 2, abcDur: "2" }, { units: 2, abcDur: "2" }]
+    ]
+  },
+  {
+    id: "68-eighth",
+    meter: "6/8",
+    group: "eighth",
+    label: "6/8 eighths",
+    bars: [
+      [{ units: 2, abcDur: "2" }, { units: 2, abcDur: "2" }, { units: 2, abcDur: "2" }, { units: 2, abcDur: "2" }, { units: 2, abcDur: "2" }, { units: 2, abcDur: "2" }],
+      [{ units: 6, abcDur: "6" }, { units: 2, abcDur: "2" }, { units: 2, abcDur: "2" }, { units: 2, abcDur: "2" }]
+    ]
+  },
+  {
+    id: "68-sixteenth",
+    meter: "6/8",
+    group: "sixteenth",
+    label: "6/8 sixteenths",
+    bars: [
+      [{ units: 1, abcDur: "" }, { units: 1, abcDur: "" }, { units: 2, abcDur: "2" }, { units: 2, abcDur: "2" }, { units: 2, abcDur: "2" }, { units: 2, abcDur: "2" }, { units: 2, abcDur: "2" }],
+      [{ units: 2, abcDur: "2" }, { units: 2, abcDur: "2" }, { units: 2, abcDur: "2" }, { units: 1, abcDur: "" }, { units: 1, abcDur: "" }, { units: 2, abcDur: "2" }, { units: 2, abcDur: "2" }]
+    ]
+  },
+  {
+    id: "68-dotted",
+    meter: "6/8",
+    group: "dotted",
+    label: "6/8 dotted",
+    bars: [
+      [{ units: 3, abcDur: "3" }, { units: 1, abcDur: "" }, { units: 2, abcDur: "2" }, { units: 6, abcDur: "6" }],
+      [{ units: 6, abcDur: "6" }, { units: 1, abcDur: "" }, { units: 3, abcDur: "3" }, { units: 2, abcDur: "2" }]
+    ]
+  },
+  {
+    id: "68-triplet",
+    meter: "6/8",
+    group: "triplet",
+    label: "6/8 triplets",
+    bars: [
+      [{ units: 2, abcDur: "2" }, { units: 2/3, abcDur: "", triplet: "start" }, { units: 2/3, abcDur: "" }, { units: 2/3, abcDur: "" }, { units: 2, abcDur: "2" }, { units: 6, abcDur: "6" }],
+      [{ units: 6, abcDur: "6" }, { units: 2, abcDur: "2" }, { units: 2/3, abcDur: "", triplet: "start" }, { units: 2/3, abcDur: "" }, { units: 2/3, abcDur: "" }, { units: 2, abcDur: "2" }]
     ]
   }
 ];
-
-
-rhythmPatterns.push(
-  {
-    id: "sixteenth-run",
-    group: "sixteenth",
-    label: "sixteenth run",
-    bars: [
-      [{ units: 1, abcDur: "" }, { units: 1, abcDur: "" }, { units: 1, abcDur: "" }, { units: 1, abcDur: "" }, { units: 4, abcDur: "4" }, { units: 4, abcDur: "4" }, { units: 4, abcDur: "4" }],
-      [{ units: 4, abcDur: "4" }, { units: 1, abcDur: "" }, { units: 1, abcDur: "" }, { units: 1, abcDur: "" }, { units: 1, abcDur: "" }, { units: 4, abcDur: "4" }, { units: 4, abcDur: "4" }]
-    ]
-  },
-  {
-    id: "eighth-two-sixteenths",
-    group: "sixteenth",
-    label: "eighth + two sixteenths",
-    bars: [
-      [{ units: 2, abcDur: "2" }, { units: 1, abcDur: "" }, { units: 1, abcDur: "" }, { units: 4, abcDur: "4" }, { units: 2, abcDur: "2" }, { units: 1, abcDur: "" }, { units: 1, abcDur: "" }, { units: 4, abcDur: "4" }],
-      [{ units: 4, abcDur: "4" }, { units: 2, abcDur: "2" }, { units: 1, abcDur: "" }, { units: 1, abcDur: "" }, { units: 4, abcDur: "4" }, { units: 4, abcDur: "4" }]
-    ]
-  },
-  {
-    id: "two-sixteenths-eighth",
-    group: "sixteenth",
-    label: "two sixteenths + eighth",
-    bars: [
-      [{ units: 1, abcDur: "" }, { units: 1, abcDur: "" }, { units: 2, abcDur: "2" }, { units: 4, abcDur: "4" }, { units: 4, abcDur: "4" }, { units: 4, abcDur: "4" }],
-      [{ units: 4, abcDur: "4" }, { units: 4, abcDur: "4" }, { units: 1, abcDur: "" }, { units: 1, abcDur: "" }, { units: 2, abcDur: "2" }, { units: 4, abcDur: "4" }]
-    ]
-  },
-  {
-    id: "syncopated-sixteenth",
-    group: "sixteenth",
-    label: "syncopated sixteenth",
-    bars: [
-      [{ units: 2, abcDur: "2" }, { units: 1, abcDur: "" }, { units: 1, abcDur: "" }, { units: 2, abcDur: "2" }, { units: 2, abcDur: "2" }, { units: 4, abcDur: "4" }, { units: 4, abcDur: "4" }],
-      [{ units: 4, abcDur: "4" }, { units: 4, abcDur: "4" }, { units: 2, abcDur: "2" }, { units: 1, abcDur: "" }, { units: 1, abcDur: "" }, { units: 4, abcDur: "4" }]
-    ]
-  }
-);
 
 let currentQuestion = null;
 let hasAnsweredCurrentQuestion = false;
@@ -210,8 +261,14 @@ function shuffle(array) {
 
 function newQuestion() {
   const keyIds = allKeyIds;
+  const selectedMeters = getSelectedValues("meter");
   const selectedFigures = getSelectedValues("figure");
   const selectedRhythms = getSelectedValues("rhythm");
+
+  if (selectedMeters.length === 0) {
+    setStatus("拍子を1つ以上選んでください。", "incorrect");
+    return;
+  }
 
   if (selectedFigures.length === 0) {
     setStatus("旋律型を1つ以上選んでください。", "incorrect");
@@ -227,9 +284,14 @@ function newQuestion() {
 
   const key = keyDefs[randomItem(keyIds)];
   const progression = randomItem(progressions[key.mode]);
-  const rhythmPool = rhythmPatterns.filter((pattern) => selectedRhythms.includes(pattern.group));
-  const rhythm = randomItem(rhythmPool);
+  const rhythmPool = rhythmPatterns.filter((pattern) => selectedMeters.includes(pattern.meter) && selectedRhythms.includes(pattern.group));
 
+  if (rhythmPool.length === 0) {
+    setStatus("選択された拍子とリズムの組み合わせに候補がありません。", "incorrect");
+    return;
+  }
+
+  const rhythm = randomItem(rhythmPool);
   const correct = buildMelody(key, progression, rhythm, selectedFigures);
   const distractors = buildMelodyDistractors(correct, key, progression, rhythm, selectedFigures, 2);
   const choices = shuffle([correct, ...distractors]);
@@ -240,6 +302,7 @@ function newQuestion() {
     key,
     progression,
     rhythm,
+    meter: rhythm.meter,
     figures: selectedFigures,
     tempo: getTempo(),
     correct,
@@ -253,11 +316,11 @@ function newQuestion() {
   answerText.textContent = "";
   analysisText.textContent = "";
   notationEl.innerHTML = "";
-  questionDisplay.textContent = key.label.toUpperCase();
-  choiceKeyHeader.textContent = `KEY: ${key.label} / 2 BARS / ${progression.label}`;
+  questionDisplay.textContent = `${rhythm.meter} / ${key.label.toUpperCase()}`;
+  choiceKeyHeader.textContent = `METER: ${rhythm.meter} / KEY: ${key.label} / 2 BARS / ${progression.label}`;
 
   renderChoices();
-  setStatus(`${key.label} / 2小節 / 全調ランダム / 想定和声：${progression.label} / ${rhythm.label}`);
+  setStatus(`${rhythm.meter} / ${key.label} / 2小節 / 想定和声：${progression.label} / ${rhythm.label}`);
   playCurrentQuestion();
 }
 
@@ -284,7 +347,7 @@ function buildMelody(key, progression, rhythm, selectedFigures) {
   events.forEach((event, index) => {
     const isFirst = index === 0;
     const isLast = index === events.length - 1;
-    const isStrong = event.position === 0 || event.position === 4 || event.position === 8 || event.position === 12;
+    const isStrong = isStrongPosition(rhythm.meter, event.position);
     const chordTones = chordToneDegrees(key, event.harmonyDegree);
     const nextEvent = events[index + 1];
     const prevNote = notes[notes.length - 1];
@@ -297,7 +360,7 @@ function buildMelody(key, progression, rhythm, selectedFigures) {
     } else if (isLast) {
       degree = cadenceDegree(key, progression);
       role = "cadence";
-    } else if (selectedFigures.includes("suspension") && canMakeSuspension(event, prevNote, chordTones)) {
+    } else if (selectedFigures.includes("suspension") && canMakeSuspension(rhythm.meter, event, prevNote, chordTones)) {
       degree = prevNote.degree;
       role = "suspension";
     } else if (!isStrong && selectedFigures.includes("passing") && prevNote && nextEvent) {
@@ -306,7 +369,7 @@ function buildMelody(key, progression, rhythm, selectedFigures) {
       degree = passing ?? chooseNeighborOrChord(prevNote.degree, chordTones, selectedFigures);
       role = passing === null ? "neighbor" : "passing";
     } else if (!isStrong && selectedFigures.includes("neighbor") && prevNote) {
-      degree = chooseNeighborDegree(prevNote.degree, key);
+      degree = chooseNeighborDegree(prevNote.degree);
       role = "neighbor";
     } else {
       degree = chooseNearChordTone(previousDegree, chordTones);
@@ -335,6 +398,11 @@ function sumUnits(bar, eventIndex) {
   return Math.round(total * 1000) / 1000;
 }
 
+function isStrongPosition(meter, position) {
+  if (meter === "6/8") return position === 0 || position === 6;
+  return position === 0 || position === 4 || position === 8 || position === 12;
+}
+
 function chooseOpeningDegree(chordTones) {
   return randomItem(chordTones.filter((degree) => degree >= 0 && degree <= 4));
 }
@@ -344,9 +412,9 @@ function cadenceDegree(key, progression) {
   return randomItem([0, 0, 2, 4, 7]);
 }
 
-function canMakeSuspension(event, prevNote, chordTones) {
+function canMakeSuspension(meter, event, prevNote, chordTones) {
   if (!prevNote) return false;
-  if (!(event.position === 0 || event.position === 4 || event.position === 8 || event.position === 12)) return false;
+  if (!isStrongPosition(meter, event.position)) return false;
   if (chordTones.includes(prevNote.degree)) return false;
   return Math.abs(prevNote.degree - chordTones[0]) <= 4;
 }
@@ -357,7 +425,7 @@ function choosePassingDegree(fromDegree, toDegree) {
   return fromDegree + Math.sign(diff);
 }
 
-function chooseNeighborDegree(centerDegree, key) {
+function chooseNeighborDegree(centerDegree) {
   const candidates = [centerDegree - 1, centerDegree + 1].filter((degree) => degree >= 0 && degree <= 9);
   return candidates.length ? randomItem(candidates) : centerDegree;
 }
@@ -436,7 +504,7 @@ function mutateMelody(correct, key, progression) {
   shuffle(mutable).slice(0, count).forEach(({ note }) => {
     const chordTones = chordToneDegrees(key, note.harmonyDegree);
     if (note.role === "passing") {
-      note.degree = chooseNeighborDegree(note.degree, key);
+      note.degree = chooseNeighborDegree(note.degree);
       note.role = "neighbor";
     } else if (note.role === "neighbor") {
       note.degree = chooseNearChordTone(note.degree, chordTones);
@@ -445,7 +513,7 @@ function mutateMelody(correct, key, progression) {
       note.degree = chooseNearChordTone(note.degree, chordTones);
       note.role = "resolution";
     } else {
-      note.degree = chooseNeighborDegree(note.degree, key);
+      note.degree = chooseNeighborDegree(note.degree);
       note.role = "neighbor";
     }
     note.degree = clampDegree(note.degree);
@@ -456,7 +524,7 @@ function mutateMelody(correct, key, progression) {
 }
 
 function finalizeMelody(key, progression, rhythm, notes) {
-  const abc = buildAbc(key, notes);
+  const abc = buildAbc(key, rhythm, notes);
   const contour = contourFromNotes(notes);
   const roles = Array.from(new Set(notes.map((note) => note.role))).join(" / ");
   return {
@@ -500,7 +568,7 @@ function renderChoices() {
     card.innerHTML = `
       <span class="choice-top">
         <span class="choice-label">${String.fromCharCode(65 + index)}</span>
-        <span class="choice-meter">${currentQuestion.key.label}</span>
+        <span class="choice-meter">${currentQuestion.meter} / ${currentQuestion.key.label}</span>
       </span>
       <span class="choice-notation" id="${notationId}"></span>
     `;
@@ -548,7 +616,8 @@ async function playCurrentQuestion() {
   const quarterSec = 60 / tempo;
   const sixteenthSec = quarterSec / 4;
   const now = Tone.now() + 0.12;
-  const barStart = now + 4 * quarterSec;
+  const count = currentQuestion.meter === "6/8" ? get68Count(quarterSec) : getSimpleCount(currentQuestion.meter, quarterSec);
+  const barStart = now + count.duration;
 
   if (!hasAnsweredCurrentQuestion) {
     questionStartTime = performance.now();
@@ -556,18 +625,34 @@ async function playCurrentQuestion() {
     currentTimeEl.textContent = "0.0s";
   }
 
-  // Count-in only. No metronome during melody.
-  for (let i = 0; i < 4; i += 1) {
-    clickSynth.triggerAttackRelease(i === 0 ? "A5" : "C5", "32n", now + i * quarterSec);
-  }
-
-  currentQuestion.correct.notes.forEach((note) => {
-    const start = barStart + (note.barIndex * 16 + note.position) * sixteenthSec;
-    const durSec = note.units * sixteenthSec;
-    melodySynth.triggerAttackRelease(midiToToneNote(note.midi), Math.max(0.06, durSec * 0.88), start);
+  count.clicks.forEach((click) => {
+    clickSynth.triggerAttackRelease(click.accent ? "A5" : "C5", "32n", now + click.time);
   });
 
-  setStatus(`${currentQuestion.key.label} / 2小節 / ${currentQuestion.progression.label} / カウント後に旋律のみ再生します。`);
+  const barUnits = currentQuestion.meter === "4/4" ? 16 : 12;
+  currentQuestion.correct.notes.forEach((note) => {
+    const start = barStart + (note.barIndex * barUnits + note.position) * sixteenthSec;
+    const durSec = note.units * sixteenthSec;
+    melodySynth.triggerAttackRelease(midiToToneNote(note.midi), Math.max(0.05, durSec * 0.88), start);
+  });
+
+  setStatus(`${currentQuestion.meter} / ${currentQuestion.key.label} / 2小節 / ${currentQuestion.progression.label} / カウント後に旋律のみ再生します。`);
+}
+
+function getSimpleCount(meter, quarterSec) {
+  const beats = meter === "3/4" ? 3 : 4;
+  return {
+    duration: beats * quarterSec,
+    clicks: Array.from({ length: beats }, (_, i) => ({ time: i * quarterSec, accent: i === 0 }))
+  };
+}
+
+function get68Count(quarterSec) {
+  const eighthSec = quarterSec / 2;
+  return {
+    duration: 6 * eighthSec,
+    clicks: Array.from({ length: 6 }, (_, i) => ({ time: i * eighthSec, accent: i === 0 || i === 3 }))
+  };
 }
 
 function answer(choiceId) {
@@ -598,12 +683,13 @@ function answer(choiceId) {
   const selected = currentQuestion.choices.find((item) => item.id === choiceId);
 
   setStatus(
-    `${isCorrect ? "正解" : "不正解"} / ${currentQuestion.key.label} / ${currentQuestion.progression.label} / ${formatResponseTime(latestResponseTimeSec)}`,
+    `${isCorrect ? "正解" : "不正解"} / ${currentQuestion.meter} / ${currentQuestion.key.label} / ${currentQuestion.progression.label} / ${formatResponseTime(latestResponseTimeSec)}`,
     isCorrect ? "correct" : "incorrect"
   );
 
   resultLog.push({
     number: totalCount,
+    meter: currentQuestion.meter,
     keyLabel: currentQuestion.key.label,
     harmony: currentQuestion.progression.label,
     roles: currentQuestion.correct.roles,
@@ -626,16 +712,12 @@ function showAnswer() {
     return;
   }
 
-  answerText.textContent = `正解：${currentQuestion.key.label} / 2小節 / 想定和声：${currentQuestion.progression.label}`;
+  answerText.textContent = `正解：${currentQuestion.meter} / ${currentQuestion.key.label} / 2小節 / 想定和声：${currentQuestion.progression.label}`;
   analysisText.textContent = `含まれる要素：${currentQuestion.correct.roles}`;
   renderAbc("notation", currentQuestion.correct.abc, 680);
 }
 
-function buildAbc(key, notes) {
-  // Notes are converted to ABC tokens first, then grouped by quarter-note beat.
-  // The spelling is key-aware: diatonic notes covered by the key signature do
-  // not receive redundant accidentals. Only chromatic notes, such as the raised
-  // leading tone in minor, receive accidentals.
+function buildAbc(key, rhythm, notes) {
   const bars = [[], []];
 
   notes.forEach((note) => {
@@ -645,45 +727,35 @@ function buildAbc(key, notes) {
   });
 
   return `X:1
-M:4/4
+M:${rhythm.meter}
 L:1/16
 K:${key.keySig}
-${formatBarByBeat(bars[0])} | ${formatBarByBeat(bars[1])} |`;
+${formatBarByMeter(bars[0], rhythm.meter)} | ${formatBarByMeter(bars[1], rhythm.meter)} |`;
 }
 
-function formatBarByBeat(items) {
-  // Beam grouping follows the same principle as the rhythm page.
-  // In 4/4 and 3/4-style simple meter, the quarter note is the unit.
-  // Therefore two eighth notes inside the same quarter beat are written without a space:
-  //   C2D2 E2F2 G4 A4
-  // This prevents ABCJS from separating eighth-note beams.
+function formatBarByMeter(items, meter) {
+  const unit = meter === "6/8" ? 6 : 4;
   const sorted = items.slice().sort((a, b) => a.position - b.position);
   const groups = [];
   let current = [];
-  let currentBeat = null;
+  let currentGroup = null;
 
   sorted.forEach((item) => {
-    const beat = Math.floor(item.position / 4);
-    if (currentBeat === null) {
-      currentBeat = beat;
-    }
+    const group = Math.floor(item.position / unit);
+    if (currentGroup === null) currentGroup = group;
 
-    if (beat !== currentBeat) {
+    if (group !== currentGroup) {
       groups.push(current.join(""));
       current = [];
-      currentBeat = beat;
+      currentGroup = group;
     }
 
     current.push(item.token);
   });
 
-  if (current.length) {
-    groups.push(current.join(""));
-  }
-
+  if (current.length) groups.push(current.join(""));
   return groups.join(" ");
 }
-
 
 const naturalPitchClasses = {
   C: 0,
@@ -698,21 +770,27 @@ const naturalPitchClasses = {
 const letterOrder = ["C", "D", "E", "F", "G", "A", "B"];
 
 function melodicNoteToAbc(note, key) {
-  const degree = ((note.degree % 7) + 7) % 7;
-  const octaveShift = Math.floor(note.degree / 7);
+  const scaleDegree = ((note.degree % 7) + 7) % 7;
+  const letter = letterForScaleDegree(key, scaleDegree);
+  const octave = Math.floor(note.midi / 12) - 1;
+  const actualPc = mod12(note.midi);
+  const naturalPc = naturalPitchClasses[letter];
+  const keySigAlt = keySignatureAlteration(key.keySig, letter);
+  const keySigPc = mod12(naturalPc + keySigAlt);
+
+  if (actualPc === keySigPc) {
+    return abcLetterWithOctave(letter, octave);
+  }
+
+  const absoluteAlt = absoluteAccidentalFromNatural(actualPc, naturalPc);
+  const prefix = abcAccidentalPrefix(absoluteAlt);
+  return `${prefix}${abcLetterWithOctave(letter, octave)}`;
+}
+
+function letterForScaleDegree(key, scaleDegree) {
   const tonicLetter = tonicLetterFromKey(key.keySig);
   const tonicLetterIndex = letterOrder.indexOf(tonicLetter);
-  const letter = letterOrder[(tonicLetterIndex + degree) % 7];
-
-  const naturalPc = naturalPitchClasses[letter];
-  const keySignaturePc = mod12(naturalPc + keySignatureAlteration(key.keySig, letter));
-  const actualPc = mod12(note.midi);
-  const octave = Math.floor(note.midi / 12) - 1;
-
-  const accidentalDelta = normalizedPcDelta(actualPc - keySignaturePc);
-  const accidental = accidentalPrefix(accidentalDelta);
-
-  return `${accidental}${abcLetterWithOctave(letter, octave)}`;
+  return letterOrder[(tonicLetterIndex + scaleDegree) % 7];
 }
 
 function tonicLetterFromKey(keySig) {
@@ -750,26 +828,22 @@ function keySignatureAccidentalCount(keySig) {
   return map[keySig] ?? 0;
 }
 
-function normalizedPcDelta(delta) {
-  let d = ((delta % 12) + 12) % 12;
-  if (d > 6) d -= 12;
-  return d;
+function absoluteAccidentalFromNatural(actualPc, naturalPc) {
+  const candidates = [-2, -1, 0, 1, 2];
+  const match = candidates.find((alt) => mod12(naturalPc + alt) === actualPc);
+  return match ?? 0;
 }
 
-function accidentalPrefix(delta) {
-  if (delta === 0) return "";
-  if (delta === 1) return "^";
-  if (delta === 2) return "^^";
-  if (delta === -1) return "_";
-  if (delta === -2) return "__";
+function abcAccidentalPrefix(absoluteAlt) {
+  if (absoluteAlt === 0) return "=";
+  if (absoluteAlt === 1) return "^";
+  if (absoluteAlt === 2) return "^^";
+  if (absoluteAlt === -1) return "_";
+  if (absoluteAlt === -2) return "__";
   return "";
 }
 
 function abcLetterWithOctave(letter, octave) {
-  // ABC octave mapping:
-  // MIDI 60 = C4 = middle C = C
-  // MIDI 72 = C5 = c
-  // MIDI 48 = C3 = C,
   if (octave >= 5) {
     return letter.toLowerCase() + "'".repeat(octave - 5);
   }
@@ -784,7 +858,6 @@ function abcLetterWithOctave(letter, octave) {
 function mod12(value) {
   return ((value % 12) + 12) % 12;
 }
-
 
 function renderAbc(targetId, abc, width) {
   if (!window.ABCJS) return;
@@ -804,21 +877,6 @@ function midiToToneNote(midi) {
   const pc = ((midi % 12) + 12) % 12;
   const octave = Math.floor(midi / 12) - 1;
   return `${names[pc]}${octave}`;
-}
-
-function midiToAbc(midi) {
-  const sharpNames = ["C", "^C", "D", "^D", "E", "F", "^F", "G", "^G", "A", "^A", "B"];
-  const pc = ((midi % 12) + 12) % 12;
-  const octave = Math.floor(midi / 12) - 1;
-  let name = sharpNames[pc];
-
-  if (octave >= 5) {
-    name = name.toLowerCase() + "'".repeat(octave - 5);
-  } else if (octave <= 3) {
-    name = name + ",".repeat(4 - octave);
-  }
-
-  return name;
 }
 
 function clearFeedback() {
@@ -865,7 +923,7 @@ function renderHistory() {
     row.className = "history-item";
     row.innerHTML = `
       <span>${String(item.number).padStart(2, "0")}</span>
-      <span>${item.keyLabel} / ${item.harmony} / ${formatResponseTime(item.responseTimeSec)}</span>
+      <span>${item.meter} / ${item.keyLabel} / ${item.harmony} / ${formatResponseTime(item.responseTimeSec)}</span>
       <span class="${item.isCorrect ? "ok" : "ng"}">${item.isCorrect ? "OK" : "NG"}</span>
     `;
     historyList.appendChild(row);
@@ -927,7 +985,7 @@ async function exportResultsPdf() {
 
       doc.setFont("helvetica", "bold");
       doc.setFontSize(10);
-      doc.text(`${String(item.number).padStart(2, "0")}  ${item.keyLabel}  ${item.harmony}  ${item.isCorrect ? "OK" : "NG"}`, 16, y);
+      doc.text(`${String(item.number).padStart(2, "0")}  ${item.meter}  ${item.keyLabel}  ${item.harmony}  ${item.isCorrect ? "OK" : "NG"}`, 16, y);
 
       doc.setFont("helvetica", "normal");
       doc.setFontSize(9);
