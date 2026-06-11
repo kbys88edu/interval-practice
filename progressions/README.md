@@ -11,3 +11,6 @@ Practice:
 - Choose the correct Roman numerals from three options
 - Major and minor
 - Basic progressions and cadential progressions
+
+- Playback uses four-part-style voicing: bass + three upper voices
+- Upper voices are selected by a voice-leading score that favors common tones, small motion, and comfortable spacing
