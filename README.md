@@ -42,3 +42,5 @@ Mode Practice now includes 10 phrase variants per mode.
 ## Language toggle
 
 All pages include a JP / EN language toggle. The selected language is saved in localStorage.
+
+- `/progressions/` chord progression trainer

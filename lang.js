@@ -79,6 +79,17 @@
     "METER": "METER",
     "6/8では8分音符単位で6回クリックします。強拍は高いクリックです。": "In 6/8, the metronome clicks six eighth-note pulses. Strong beats use the higher click.",
 
+
+    "コード進行": "Chord progressions",
+    "コード進行聞き取り": "Chord Progression Practice",
+    "長調": "Major",
+    "短調": "Minor",
+    "終止": "Cadences",
+    "全て": "All",
+    "ブロック+分散": "Block + arpeggio",
+    "演奏された短いコード進行を聴き、3つのローマ数字から正しい進行を選びます。": "Listen to a short chord progression and choose the correct Roman numerals from three options.",
+    "NEW を押して、演奏されたコード進行を3つの選択肢から選んでください。": "Press NEW, then choose the performed progression from three options.",
+
     // Japanese UI
     "出題範囲を選び、NEW を押してください。": "Choose a range, then press NEW.",
     "NEW を押してください。": "Press NEW.",
