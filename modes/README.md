@@ -17,3 +17,5 @@ Includes:
 - Scale / Phrase / Drone + Phrase
 - PDF export
 - Response time tracking
+
+- 10 phrase variants per mode, randomly selected for Phrase and Drone + Phrase

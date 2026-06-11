@@ -7,7 +7,18 @@ const modes = [
     degrees: "1 2 3 4 5 6 7",
     feature: "長音階",
     comment: "明るく安定した長調の基準。",
-    phrase: [0, 2, 4, 7, 9, 7, 4, 2, 0]
+    phraseVariants: [
+      [0, 2, 4, 7, 9, 7, 4, 2, 0],
+      [0, 4, 5, 7, 11, 9, 7, 4, 0],
+      [0, 2, 4, 5, 4, 7, 9, 11, 12],
+      [0, 7, 4, 2, 5, 4, 2, 0],
+      [0, 2, 4, 7, 5, 4, 2, 0],
+      [0, 4, 7, 9, 11, 12, 11, 7, 4, 0],
+      [0, 5, 4, 2, 0, 4, 7, 12],
+      [0, 2, 4, 2, 5, 7, 9, 7, 0],
+      [0, 4, 7, 11, 9, 7, 5, 4, 2, 0],
+      [0, 2, 5, 7, 9, 11, 9, 7, 4, 0]
+    ]
   },
   {
     id: "dorian",
@@ -17,7 +28,18 @@ const modes = [
     degrees: "1 2 ♭3 4 5 6 ♭7",
     feature: "長6度",
     comment: "短調の中に6度だけ明るく残る。",
-    phrase: [0, 3, 5, 7, 9, 7, 5, 3, 0]
+    phraseVariants: [
+      [0, 3, 5, 7, 9, 7, 5, 3, 0],
+      [0, 2, 3, 5, 9, 7, 5, 3, 0],
+      [0, 3, 5, 9, 10, 9, 7, 5, 3, 0],
+      [0, 7, 9, 10, 9, 7, 5, 3, 0],
+      [0, 3, 5, 7, 5, 9, 7, 3, 0],
+      [0, 2, 3, 5, 7, 9, 7, 5, 0],
+      [0, 5, 3, 2, 0, 7, 9, 10, 9, 7, 0],
+      [0, 3, 7, 9, 7, 5, 3, 2, 0],
+      [0, 2, 5, 9, 7, 5, 3, 0],
+      [0, 3, 5, 10, 9, 7, 5, 3, 0]
+    ]
   },
   {
     id: "phrygian",
@@ -27,7 +49,18 @@ const modes = [
     degrees: "1 ♭2 ♭3 4 5 ♭6 ♭7",
     feature: "短2度",
     comment: "主音のすぐ上に半音があり、強い緊張がある。",
-    phrase: [0, 1, 0, 3, 5, 3, 1, 0]
+    phraseVariants: [
+      [0, 1, 0, 3, 5, 3, 1, 0],
+      [0, 1, 3, 5, 3, 1, 0],
+      [0, 3, 1, 0, 5, 3, 1, 0],
+      [0, 1, 0, 1, 3, 5, 3, 1, 0],
+      [0, 5, 3, 1, 0, 1, 0],
+      [0, 1, 3, 1, 0, 8, 7, 5, 3, 1, 0],
+      [0, 3, 5, 7, 5, 3, 1, 0],
+      [0, 1, 3, 5, 8, 7, 5, 3, 1, 0],
+      [0, 1, 0, 3, 1, 0, 5, 3, 1, 0],
+      [0, 3, 1, 0, 1, 3, 5, 3, 0]
+    ]
   },
   {
     id: "lydian",
@@ -37,7 +70,18 @@ const modes = [
     degrees: "1 2 3 #4 5 6 7",
     feature: "増4度",
     comment: "長調より浮遊感があり、4度が上ずって聴こえる。",
-    phrase: [0, 2, 4, 6, 7, 6, 4, 2, 0]
+    phraseVariants: [
+      [0, 2, 4, 6, 7, 6, 4, 2, 0],
+      [0, 4, 6, 7, 11, 7, 6, 4, 0],
+      [0, 2, 4, 6, 4, 2, 7, 6, 4, 0],
+      [0, 7, 6, 4, 2, 0, 4, 6, 7, 12],
+      [0, 2, 6, 7, 9, 7, 6, 4, 0],
+      [0, 4, 6, 11, 9, 7, 6, 4, 0],
+      [0, 2, 4, 7, 6, 4, 2, 0],
+      [0, 6, 7, 6, 4, 2, 4, 6, 12],
+      [0, 2, 4, 6, 7, 9, 7, 6, 4, 0],
+      [0, 4, 7, 11, 12, 11, 7, 6, 4, 0]
+    ]
   },
   {
     id: "mixolydian",
@@ -47,7 +91,18 @@ const modes = [
     degrees: "1 2 3 4 5 6 ♭7",
     feature: "短7度",
     comment: "長調に近いが、7度が低く、少し民俗的・開放的。",
-    phrase: [0, 4, 7, 10, 9, 7, 4, 2, 0]
+    phraseVariants: [
+      [0, 4, 7, 10, 9, 7, 4, 2, 0],
+      [0, 2, 4, 7, 10, 7, 4, 0],
+      [0, 7, 10, 9, 7, 5, 4, 2, 0],
+      [0, 4, 5, 7, 10, 9, 7, 4, 0],
+      [0, 2, 4, 7, 9, 10, 9, 7, 0],
+      [0, 4, 7, 10, 12, 10, 9, 7, 4, 0],
+      [0, 5, 4, 2, 0, 7, 10, 9, 7, 0],
+      [0, 2, 4, 10, 9, 7, 5, 4, 0],
+      [0, 4, 7, 9, 7, 10, 9, 7, 4, 0],
+      [0, 2, 5, 7, 10, 7, 5, 4, 2, 0]
+    ]
   },
   {
     id: "aeolian",
@@ -57,7 +112,18 @@ const modes = [
     degrees: "1 2 ♭3 4 5 ♭6 ♭7",
     feature: "短6度",
     comment: "自然短音階。暗く、6度も7度も低い。",
-    phrase: [0, 2, 3, 7, 8, 7, 5, 3, 0]
+    phraseVariants: [
+      [0, 2, 3, 7, 8, 7, 5, 3, 0],
+      [0, 3, 5, 7, 8, 7, 5, 3, 0],
+      [0, 2, 3, 5, 8, 7, 5, 3, 0],
+      [0, 7, 8, 10, 8, 7, 5, 3, 0],
+      [0, 3, 2, 0, 5, 7, 8, 7, 3, 0],
+      [0, 2, 3, 7, 5, 3, 8, 7, 0],
+      [0, 5, 3, 2, 0, 7, 8, 7, 5, 3, 0],
+      [0, 3, 5, 8, 10, 8, 7, 5, 3, 0],
+      [0, 2, 3, 5, 7, 8, 7, 3, 0],
+      [0, 3, 7, 8, 7, 5, 3, 2, 0]
+    ]
   },
   {
     id: "locrian",
@@ -67,7 +133,18 @@ const modes = [
     degrees: "1 ♭2 ♭3 4 ♭5 ♭6 ♭7",
     feature: "短2度 + 減5度",
     comment: "主音上の5度が減5度になり、非常に不安定。",
-    phrase: [0, 1, 3, 5, 6, 5, 3, 1, 0]
+    phraseVariants: [
+      [0, 1, 3, 5, 6, 5, 3, 1, 0],
+      [0, 1, 3, 6, 5, 3, 1, 0],
+      [0, 3, 1, 0, 6, 5, 3, 1, 0],
+      [0, 1, 0, 3, 5, 6, 5, 3, 0],
+      [0, 6, 5, 3, 1, 0, 1, 3, 0],
+      [0, 1, 3, 5, 3, 6, 5, 3, 1, 0],
+      [0, 3, 5, 6, 8, 6, 5, 3, 1, 0],
+      [0, 1, 3, 1, 0, 5, 6, 5, 3, 0],
+      [0, 3, 6, 5, 3, 1, 0],
+      [0, 1, 3, 5, 6, 10, 8, 6, 5, 3, 1, 0]
+    ]
   }
 ];
 
@@ -203,14 +280,15 @@ function newQuestion() {
   const mode = randomItem(selectedModes);
   const tonicMidi = randomItem(tonicPool);
   const questionType = getQuestionType();
-  const midiNotes = buildQuestionNotes(tonicMidi, mode, questionType);
+  const built = buildQuestionNotes(tonicMidi, mode, questionType);
 
   currentQuestion = {
     number: totalCount + 1,
     mode,
     questionType,
     tonicMidi,
-    midiNotes
+    midiNotes: built.midiNotes,
+    phraseIndex: built.phraseIndex
   };
 
   hasAnsweredCurrentQuestion = false;
@@ -227,16 +305,27 @@ function newQuestion() {
 
 function buildQuestionNotes(tonicMidi, mode, questionType) {
   if (questionType === "scale") {
-    return mode.intervals.map((interval) => tonicMidi + interval);
+    return {
+      midiNotes: mode.intervals.map((interval) => tonicMidi + interval),
+      phraseIndex: null
+    };
   }
 
   if (questionType === "phrase" || questionType === "dronePhrase") {
+    const variants = mode.phraseVariants || [mode.phrase || mode.intervals];
+    const phraseIndex = Math.floor(Math.random() * variants.length);
     const opening = [tonicMidi, tonicMidi + 12];
-    const phrase = mode.phrase.map((interval) => tonicMidi + interval);
-    return opening.concat(phrase);
+    const phrase = variants[phraseIndex].map((interval) => tonicMidi + interval);
+    return {
+      midiNotes: opening.concat(phrase),
+      phraseIndex
+    };
   }
 
-  return mode.intervals.map((interval) => tonicMidi + interval);
+  return {
+    midiNotes: mode.intervals.map((interval) => tonicMidi + interval),
+    phraseIndex: null
+  };
 }
 
 async function ensureAudio() {
@@ -432,6 +521,7 @@ function answer(modeId) {
     feature: currentQuestion.mode.feature,
     degrees: currentQuestion.mode.degrees,
     comment: currentQuestion.mode.comment,
+    phraseIndex: currentQuestion.phraseIndex,
     isCorrect,
     responseTimeSec: latestResponseTimeSec,
     midiNotes: currentQuestion.midiNotes
@@ -496,7 +586,8 @@ function showAnswerAndNotation() {
 
   const tonicName = midiToToneNote(currentQuestion.tonicMidi);
   answerText.textContent = `正解：${tonicName} ${currentQuestion.mode.name} / ${currentQuestion.mode.ja} / ${getQuestionTypeLabel(currentQuestion.questionType)}`;
-  analysisText.textContent = `特徴音：${currentQuestion.mode.feature} / 構成：${currentQuestion.mode.degrees} / 聴き方：${currentQuestion.mode.comment}`;
+  const phraseText = currentQuestion.phraseIndex !== null ? ` / Phrase ${currentQuestion.phraseIndex + 1}` : "";
+  analysisText.textContent = `特徴音：${currentQuestion.mode.feature} / 構成：${currentQuestion.mode.degrees} / 聴き方：${currentQuestion.mode.comment}${phraseText}`;
 
   const abc = buildAbcNotation(currentQuestion);
   ABCJS.renderAbc("notation", abc, {
@@ -521,7 +612,7 @@ function renderHistory() {
     row.className = "history-item";
     row.innerHTML = `
       <span>${String(item.number).padStart(2, "0")}</span>
-      <span>${item.questionTypeLabel} / ${item.modeName} / ${formatResponseTime(item.responseTimeSec)}</span>
+      <span>${item.questionTypeLabel} / ${item.modeName}${item.phraseIndex !== null ? " #" + (item.phraseIndex + 1) : ""} / ${formatResponseTime(item.responseTimeSec)}</span>
       <span class="${item.isCorrect ? "ok" : "ng"}">${item.isCorrect ? "OK" : "NG"}</span>
     `;
     historyList.appendChild(row);
@@ -623,7 +714,7 @@ async function exportResultsPdf() {
       doc.setFont("helvetica", "bold");
       doc.setFontSize(10);
       doc.text(
-        `${String(item.number).padStart(2, "0")}  ${item.questionTypeLabel}  Tonic: ${item.tonicNote}  ${item.modeName}`,
+        `${String(item.number).padStart(2, "0")}  ${item.questionTypeLabel}${item.phraseIndex !== null ? " #" + (item.phraseIndex + 1) : ""}  Tonic: ${item.tonicNote}  ${item.modeName}`,
         16,
         y
       );
