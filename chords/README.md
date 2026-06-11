@@ -16,3 +16,5 @@ Features:
 - Key signatures are shown in notation
 - Diatonic notes covered by the key signature do not receive redundant accidentals
 - PDF export includes correct and selected notation
+
+- UI compatibility fixed: chord type checkboxes and answer buttons are generated for the existing HTML layout.

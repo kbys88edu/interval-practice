@@ -1059,3 +1059,24 @@ button.micro:hover {
     margin-right: auto;
   }
 }
+
+
+.option-tile {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 4px 8px;
+  align-items: center;
+  border: 1px solid var(--soft-line, rgba(0,0,0,0.2));
+  padding: 7px;
+  min-height: 46px;
+}
+
+.option-tile small {
+  grid-column: 2;
+  opacity: 0.68;
+  font-size: 10px;
+}
+
+.answer-grid button {
+  min-height: 34px;
+}

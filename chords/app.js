@@ -91,16 +91,92 @@ const scorePercentEl = document.querySelector("#score-percent");
 const currentTimeEl = document.querySelector("#current-time");
 const progressCountEl = document.querySelector("#progress-count");
 const historyList = document.querySelector("#history-list");
+const chordOptionsEl = document.querySelector("#chord-options");
+const answerButtonsEl = document.querySelector("#answer-buttons");
+const inversionOptionsEl = document.querySelector("#inversion-options");
+const selectAllChordsButton = document.querySelector("#select-all-chords");
+const clearAllChordsButton = document.querySelector("#clear-all-chords");
+
 
 document.querySelector("#new-question").addEventListener("click", newQuestion);
 document.querySelector("#play-question").addEventListener("click", playCurrentQuestion);
 document.querySelector("#show-answer").addEventListener("click", showAnswer);
 document.querySelector("#reset-score").addEventListener("click", resetScore);
 document.querySelector("#export-pdf").addEventListener("click", exportResultsPdf);
+if (selectAllChordsButton) {
+  selectAllChordsButton.addEventListener("click", () => {
+    document.querySelectorAll('input[name="chordType"]').forEach((input) => input.checked = true);
+  });
+}
+
+if (clearAllChordsButton) {
+  clearAllChordsButton.addEventListener("click", () => {
+    document.querySelectorAll('input[name="chordType"]').forEach((input) => input.checked = false);
+  });
+}
+
+document.querySelectorAll("[data-preset]").forEach((button) => {
+  button.addEventListener("click", () => applyPreset(button.dataset.preset));
+});
+
 
 function init() {
+  renderChordOptions();
+  renderAnswerButtons();
   updateScore();
   setStatus("NEW を押して、演奏された和音を3つの選択肢から選んでください。");
+}
+
+
+function renderChordOptions() {
+  if (!chordOptionsEl) return;
+
+  chordOptionsEl.innerHTML = "";
+  chordTypes.forEach((chord, index) => {
+    const label = document.createElement("label");
+    label.className = "option-tile";
+
+    const checked = ["maj", "min", "dim", "aug", "dom7", "maj7", "min7"].includes(chord.id);
+    label.innerHTML = `
+      <input type="checkbox" name="chordType" value="${chord.id}" ${checked ? "checked" : ""}>
+      <span>${chord.symbol || "major"}</span>
+      <small>${chord.label}</small>
+    `;
+
+    chordOptionsEl.appendChild(label);
+  });
+}
+
+function renderAnswerButtons() {
+  if (!answerButtonsEl) return;
+
+  answerButtonsEl.innerHTML = "";
+  chordTypes.forEach((chord) => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.textContent = chord.symbol || "major";
+    button.addEventListener("click", () => {
+      if (!currentQuestion || hasAnsweredCurrentQuestion) return;
+      const matching = currentQuestion.choices.find((choice) => choice.chord.id === chord.id);
+      if (matching) answer(matching.id);
+    });
+    answerButtonsEl.appendChild(button);
+  });
+}
+
+function applyPreset(preset) {
+  const groups = {
+    triads: ["maj", "min", "dim", "aug"],
+    sevenths: ["maj7", "dom7", "min7", "mMaj7", "m7b5", "dim7"],
+    advanced: chordTypes.map((chord) => chord.id)
+  };
+
+  const selected = new Set(groups[preset] || groups.advanced);
+  document.querySelectorAll('input[name="chordType"]').forEach((input) => {
+    input.checked = selected.has(input.value);
+  });
+
+  setStatus(preset === "triads" ? "三和音プリセットにしました。" : preset === "sevenths" ? "七和音プリセットにしました。" : "応用プリセットにしました。");
 }
 
 function selectedModes() {
@@ -112,7 +188,7 @@ function selectedChordTypeIds() {
 }
 
 function selectedInversions() {
-  return Array.from(document.querySelectorAll('input[name="inversion"]:checked')).map((input) => Number(input.value));
+  return Array.from(document.querySelectorAll('#inversion-options input[type="checkbox"]:checked')).map((input) => Number(input.value));
 }
 
 function getTempo() {
@@ -414,7 +490,7 @@ function showAnswer() {
 
   const correct = currentQuestion.correct;
   answerText.textContent = `正解：${correct.detailLabel} / 調号 ${correct.keySig}`;
-  analysisText.textContent = `構成音：${correct.spelledTones.map((tone) => tone.label).join(" - ")}。属7の第7音は短7度として理論的に綴ります。`;
+  if (analysisText) analysisText.textContent = `構成音：${correct.spelledTones.map((tone) => tone.label).join(" - ")}。属7の第7音は短7度として理論的に綴ります。`;
   renderAbc("notation", correct.abc, 460);
 }
 
