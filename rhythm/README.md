@@ -14,3 +14,6 @@ Rules:
 - No metronome during the performed rhythm
 
 - PC rhythm choices use a stable three-column layout to prevent notation from becoming too large or too small
+
+- ABC notation now beams 3/4 and 4/4 by quarter-note groups, and 6/8 by dotted-quarter groups
+- PDF export includes both correct notation and selected notation for each answer

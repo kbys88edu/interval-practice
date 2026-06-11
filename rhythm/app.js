@@ -421,6 +421,8 @@ function answer(choiceId) {
     meter: currentQuestion.correct.meter,
     label: currentQuestion.correct.label,
     selectedLabel: selected?.label || "",
+    correctAbc: buildAbc(currentQuestion.correct),
+    selectedAbc: selected ? buildAbc(selected) : "",
     isCorrect,
     responseTimeSec: latestResponseTimeSec
   });
@@ -446,7 +448,72 @@ function buildAbc(pattern) {
 M:${pattern.meter}
 L:1/16
 K:C clef=perc
-${pattern.abcBody} |`;
+${formatBeamedAbcBody(pattern)} |`;
+}
+
+function formatBeamedAbcBody(pattern) {
+  // ABC beams are broken mainly by spaces.
+  // 4/4 and 3/4: one beaming group = quarter note = 4 sixteenth units.
+  // 6/8: one beaming group = dotted quarter = 3 eighths = 6 sixteenth units.
+  const groupUnits = pattern.meter === "6/8" ? 6 : 4;
+  const tokens = tokenizeAbcBody(pattern.abcBody);
+  const groups = [];
+  let current = "";
+  let used = 0;
+
+  tokens.forEach((token) => {
+    const units = abcTokenUnits(token);
+
+    if (used > 0 && used + units > groupUnits) {
+      groups.push(current);
+      current = "";
+      used = 0;
+    }
+
+    current += token;
+    used += units;
+
+    if (used >= groupUnits) {
+      groups.push(current);
+      current = "";
+      used = 0;
+    }
+  });
+
+  if (current) groups.push(current);
+  return groups.join(" ");
+}
+
+function tokenizeAbcBody(body) {
+  // Keep tuplets and tied groups together where possible.
+  const raw = body.trim().split(/\s+/).filter(Boolean);
+  const tokens = [];
+
+  raw.forEach((part) => {
+    if (part.includes("-")) {
+      tokens.push(part);
+      return;
+    }
+    tokens.push(part);
+  });
+
+  return tokens;
+}
+
+function abcTokenUnits(token) {
+  // Tuplet notation in this app uses (3C2C2C2 for a quarter-note triplet group.
+  if (token.startsWith("(3")) {
+    return 4;
+  }
+
+  let total = 0;
+  const re = /[Cz](\d*)/g;
+  let match;
+  while ((match = re.exec(token)) !== null) {
+    total += match[1] ? Number(match[1]) : 1;
+  }
+
+  return total || 1;
 }
 
 function renderAbc(targetId, abc, width) {
@@ -559,28 +626,156 @@ async function exportResultsPdf() {
     doc.text(`Avg. time: ${avgTime !== null ? avgTime.toFixed(1) + "s" : "-"}`, 138, 39);
 
     let y = 52;
-    resultLog.forEach((item) => {
-      if (y > 266) {
+
+    for (const item of resultLog) {
+      if (y > 220) {
         doc.addPage();
         y = 18;
       }
+
       doc.setFont("helvetica", "bold");
       doc.setFontSize(10);
-      doc.text(`${String(item.number).padStart(2, "0")}  ${item.meter}  ${item.label}`, 16, y);
+      doc.text(`${String(item.number).padStart(2, "0")}  ${item.meter}  ${item.isCorrect ? "OK" : "NG"}`, 16, y);
+
       doc.setFont("helvetica", "normal");
       doc.setFontSize(9);
-      doc.text(`Your answer: ${item.selectedLabel || "-"} / ${item.isCorrect ? "OK" : "NG"} / Time: ${formatResponseTime(item.responseTimeSec)}`, 16, y + 6);
+      doc.text(`Correct: ${item.label}`, 16, y + 6);
+      doc.text(`Your answer: ${item.selectedLabel || "-"} / Time: ${formatResponseTime(item.responseTimeSec)}`, 16, y + 12);
+
       y += 18;
-    });
+
+      if (item.correctAbc) {
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(8);
+        doc.text("Correct notation", 16, y);
+        const correctNotation = await abcToPngDataUrl(item.correctAbc, 620);
+        const correctSize = fitImageSize(correctNotation, 174, 24);
+        doc.addImage(
+          correctNotation.dataUrl,
+          "PNG",
+          18 + (174 - correctSize.width) / 2,
+          y + 2,
+          correctSize.width,
+          correctSize.height
+        );
+        y += correctSize.height + 8;
+      }
+
+      if (item.selectedAbc) {
+        if (y > 250) {
+          doc.addPage();
+          y = 18;
+        }
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(8);
+        doc.text("Selected notation", 16, y);
+        const selectedNotation = await abcToPngDataUrl(item.selectedAbc, 620);
+        const selectedSize = fitImageSize(selectedNotation, 174, 24);
+        doc.addImage(
+          selectedNotation.dataUrl,
+          "PNG",
+          18 + (174 - selectedSize.width) / 2,
+          y + 2,
+          selectedSize.width,
+          selectedSize.height
+        );
+        y += selectedSize.height + 10;
+      } else {
+        y += 8;
+      }
+    }
 
     doc.save("rhythm-dictation-result.pdf");
-    setStatus("結果PDFを出力しました。", "correct");
+    setStatus("正解譜例と選択譜例を含むPDFを出力しました。", "correct");
   } catch (error) {
     console.error(error);
     setStatus("PDF作成中にエラーが発生しました。", "incorrect");
   } finally {
     exportButton.disabled = false;
   }
+}
+
+function fitImageSize(notation, maxWidth, maxHeight) {
+  const scale = Math.min(maxWidth / notation.widthMm, maxHeight / notation.heightMm);
+  return {
+    width: notation.widthMm * scale,
+    height: notation.heightMm * scale
+  };
+}
+
+async function abcToPngDataUrl(abc, staffwidth = 620) {
+  if (!window.ABCJS) {
+    throw new Error("ABCJS is not available.");
+  }
+
+  const holder = document.createElement("div");
+  holder.style.position = "fixed";
+  holder.style.left = "-10000px";
+  holder.style.top = "0";
+  holder.style.width = `${staffwidth}px`;
+  holder.style.background = "#ffffff";
+  holder.style.color = "#000000";
+  document.body.appendChild(holder);
+
+  try {
+    ABCJS.renderAbc(holder, abc, {
+      responsive: "resize",
+      staffwidth,
+      paddingtop: 0,
+      paddingbottom: 0,
+      paddingleft: 0,
+      paddingright: 0,
+      add_classes: true
+    });
+
+    const svg = holder.querySelector("svg");
+    if (!svg) {
+      throw new Error("No SVG generated.");
+    }
+
+    svg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+    svg.style.background = "#ffffff";
+
+    const bbox = svg.getBBox();
+    const width = Math.max(1, Math.ceil(bbox.width + 12));
+    const height = Math.max(1, Math.ceil(bbox.height + 12));
+    svg.setAttribute("width", String(width));
+    svg.setAttribute("height", String(height));
+    svg.setAttribute("viewBox", `${bbox.x - 6} ${bbox.y - 6} ${width} ${height}`);
+
+    const svgText = new XMLSerializer().serializeToString(svg);
+    const svgBlob = new Blob([svgText], { type: "image/svg+xml;charset=utf-8" });
+    const url = URL.createObjectURL(svgBlob);
+
+    const img = await loadImage(url);
+    URL.revokeObjectURL(url);
+
+    const scale = 2;
+    const canvas = document.createElement("canvas");
+    canvas.width = Math.ceil(width * scale);
+    canvas.height = Math.ceil(height * scale);
+    const ctx = canvas.getContext("2d");
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+    return {
+      dataUrl: canvas.toDataURL("image/png"),
+      widthMm: width * 0.264583,
+      heightMm: height * 0.264583
+    };
+  } finally {
+    holder.remove();
+  }
+}
+
+function loadImage(url) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => resolve(img);
+    img.onerror = reject;
+    img.src = url;
+  });
 }
 
 init();
