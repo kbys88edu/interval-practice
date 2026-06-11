@@ -226,12 +226,12 @@ function newQuestion() {
   latestResponseTimeSec = null;
   currentTimeEl.textContent = "--";
   answerText.textContent = "";
-  if (analysisText) if (analysisText) analysisText.textContent = "";
+  if (analysisText) analysisText.textContent = "";
   notationEl.innerHTML = "";
   questionDisplay.textContent = "LISTEN";
 
   renderChoices();
-  setStatus(`${modeLabel(mode)} / 聴いてから右側の3択を選んでください。`);
+  setStatus("聴いてから右側の3択を選んでください。");
   playCurrentQuestion();
 }
 
@@ -334,32 +334,24 @@ function renderChoices() {
   choiceList.innerHTML = "";
   if (!currentQuestion) return;
 
-  const renderId = currentQuestion.renderId;
-
   currentQuestion.choices.forEach((choice, index) => {
-    const notationId = `choice-notation-${renderId}-${index}`;
     const card = document.createElement("button");
     card.type = "button";
     card.className = "choice-card chord-choice-card";
     card.dataset.id = choice.id;
 
+    // Do not show chord name, spelling, key signature, or notation during the question.
+    // The page is an ear-training question; the answer is revealed only after answering or SHOW.
     card.innerHTML = `
       <span class="choice-top">
         <span class="choice-label">${String.fromCharCode(65 + index)}</span>
-        <span class="choice-name">${choice.answerLabel}</span>
+        <span class="choice-name">Choice ${String.fromCharCode(65 + index)}</span>
       </span>
-      <span class="choice-info">${choice.keySig} / ${choice.chord.label} / ${inversionLabel(choice.inversion)}</span>
-      <span class="choice-tones">Listen and choose</span>
-      <span class="choice-notation" id="${notationId}"></span>
+      <span class="choice-info">Listen first, then choose.</span>
     `;
 
     card.addEventListener("click", () => answer(choice.id));
     choiceList.appendChild(card);
-
-    requestAnimationFrame(() => {
-      if (!currentQuestion || currentQuestion.renderId !== renderId) return;
-      renderAbc(notationId, choice.abc, 250);
-    });
   });
 }
 
@@ -417,7 +409,33 @@ async function playCurrentQuestion() {
     });
   }
 
-  setStatus(`${modeLabel(currentQuestion.mode)} / 再生中。右側の3択を選んでください。`);
+  setStatus("再生中。右側の3択を選んでください。");
+}
+
+
+function revealChoiceCards() {
+  if (!currentQuestion) return;
+
+  document.querySelectorAll(".choice-card").forEach((card, index) => {
+    const choice = currentQuestion.choices.find((item) => item.id === card.dataset.id);
+    if (!choice) return;
+
+    const notationId = `revealed-choice-notation-${currentQuestion.renderId}-${index}`;
+    card.innerHTML = `
+      <span class="choice-top">
+        <span class="choice-label">${String.fromCharCode(65 + index)}</span>
+        <span class="choice-name">${choice.answerLabel}</span>
+      </span>
+      <span class="choice-info">${choice.keySig} / ${choice.chord.label} / ${inversionLabel(choice.inversion)}</span>
+      <span class="choice-tones">${choice.spelledTones.map((tone) => tone.label).join(" - ")}</span>
+      <span class="choice-notation" id="${notationId}"></span>
+    `;
+
+    requestAnimationFrame(() => {
+      if (!currentQuestion) return;
+      renderAbc(notationId, choice.abc, 250);
+    });
+  });
 }
 
 function answer(choiceId) {
@@ -446,6 +464,8 @@ function answer(choiceId) {
     if (card.dataset.id === currentQuestion.correct.id) card.classList.add("selected-correct");
     if (!isCorrect && card.dataset.id === choiceId) card.classList.add("selected-incorrect");
   });
+
+  revealChoiceCards();
 
   setStatus(
     `${isCorrect ? "正解" : "不正解"} / 正解：${currentQuestion.correct.detailLabel} / 選択：${selected?.detailLabel || "-"} / ${formatResponseTime(latestResponseTimeSec)}`,
@@ -476,9 +496,11 @@ function showAnswer() {
     return;
   }
 
+  revealChoiceCards();
+
   const correct = currentQuestion.correct;
   answerText.textContent = `正解：${correct.detailLabel} / 調号 ${correct.keySig}`;
-  if (analysisText) if (analysisText) analysisText.textContent = `構成音：${correct.spelledTones.map((tone) => tone.label).join(" - ")}。属7の第7音は短7度として理論的に綴ります。`;
+  if (analysisText) analysisText.textContent = `構成音：${correct.spelledTones.map((tone) => tone.label).join(" - ")}。属7の第7音は短7度として理論的に綴ります。`;
   renderAbc("notation", correct.abc, 460);
 }
 
