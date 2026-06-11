@@ -18,3 +18,5 @@ Features:
 - PDF export includes correct and selected notation
 
 - UI compatibility fixed: chord type checkboxes and answer buttons are generated for the existing HTML layout.
+
+- Fixed HTML/app mismatch: the 3 answer choices now render into #answer-buttons, matching the existing Chords layout like the Progressions page.

@@ -1080,3 +1080,47 @@ button.micro:hover {
 .answer-grid button {
   min-height: 34px;
 }
+
+
+.chord-choice-card {
+  width: 100%;
+  display: grid;
+  gap: 6px;
+  text-align: left;
+  padding: 10px;
+  border: 1px solid var(--soft-line, rgba(0,0,0,0.22));
+  background: var(--panel-bg, rgba(255,255,255,0.03));
+}
+
+.chord-choice-card .choice-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  align-items: baseline;
+}
+
+.chord-choice-card .choice-label {
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+.chord-choice-card .choice-name {
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.chord-choice-card .choice-info,
+.chord-choice-card .choice-tones {
+  font-size: 11px;
+  opacity: 0.75;
+}
+
+.chord-choice-card .choice-notation {
+  display: block;
+  overflow: hidden;
+}
+
+.answer-grid {
+  display: grid;
+  gap: 8px;
+}

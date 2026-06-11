@@ -79,7 +79,7 @@ let latestResponseTimeSec = null;
 let synth = null;
 let clickSynth = null;
 
-const choiceList = document.querySelector("#choice-list");
+const choiceList = document.querySelector("#answer-buttons");
 const statusEl = document.querySelector("#status");
 const questionDisplay = document.querySelector("#question-display");
 const answerText = document.querySelector("#answer-text");
@@ -122,7 +122,6 @@ document.querySelectorAll("[data-preset]").forEach((button) => {
 
 function init() {
   renderChordOptions();
-  renderAnswerButtons();
   updateScore();
   setStatus("NEW を押して、演奏された和音を3つの選択肢から選んでください。");
 }
@@ -148,20 +147,8 @@ function renderChordOptions() {
 }
 
 function renderAnswerButtons() {
-  if (!answerButtonsEl) return;
-
-  answerButtonsEl.innerHTML = "";
-  chordTypes.forEach((chord) => {
-    const button = document.createElement("button");
-    button.type = "button";
-    button.textContent = chord.symbol || "major";
-    button.addEventListener("click", () => {
-      if (!currentQuestion || hasAnsweredCurrentQuestion) return;
-      const matching = currentQuestion.choices.find((choice) => choice.chord.id === chord.id);
-      if (matching) answer(matching.id);
-    });
-    answerButtonsEl.appendChild(button);
-  });
+  // The existing HTML uses #answer-buttons as the 3-choice answer area.
+  // Do not overwrite it with static chord-type buttons.
 }
 
 function applyPreset(preset) {
@@ -239,7 +226,7 @@ function newQuestion() {
   latestResponseTimeSec = null;
   currentTimeEl.textContent = "--";
   answerText.textContent = "";
-  analysisText.textContent = "";
+  if (analysisText) analysisText.textContent = "";
   notationEl.innerHTML = "";
   questionDisplay.textContent = "LISTEN";
 
@@ -353,7 +340,7 @@ function renderChoices() {
     const notationId = `choice-notation-${renderId}-${index}`;
     const card = document.createElement("button");
     card.type = "button";
-    card.className = "choice-card";
+    card.className = "choice-card chord-choice-card";
     card.dataset.id = choice.id;
 
     card.innerHTML = `
@@ -362,6 +349,7 @@ function renderChoices() {
         <span class="choice-name">${choice.answerLabel}</span>
       </span>
       <span class="choice-info">${choice.keySig} / ${choice.chord.label} / ${inversionLabel(choice.inversion)}</span>
+      <span class="choice-tones">${choice.spelledTones.map((tone) => tone.label).join(" - ")}</span>
       <span class="choice-notation" id="${notationId}"></span>
     `;
 
