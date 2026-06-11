@@ -21,3 +21,5 @@ Features:
 - eighth-note beaming within quarter beats is now explicit for melodic notation
 
 - removed obsolete key checkbox validation; melody now always selects from all keys randomly
+
+- key-aware melodic spelling: diatonic notes covered by the key signature no longer show redundant accidentals

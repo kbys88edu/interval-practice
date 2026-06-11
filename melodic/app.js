@@ -633,12 +633,14 @@ function showAnswer() {
 
 function buildAbc(key, notes) {
   // Notes are converted to ABC tokens first, then grouped by quarter-note beat.
-  // This explicitly beams eighth and sixteenth figures within each beat.
+  // The spelling is key-aware: diatonic notes covered by the key signature do
+  // not receive redundant accidentals. Only chromatic notes, such as the raised
+  // leading tone in minor, receive accidentals.
   const bars = [[], []];
 
   notes.forEach((note) => {
     const prefix = note.triplet === "start" ? "(3" : "";
-    const token = `${prefix}${midiToAbc(note.midi)}${note.abcDur}`;
+    const token = `${prefix}${melodicNoteToAbc(note, key)}${note.abcDur}`;
     bars[note.barIndex].push({ token, position: note.position });
   });
 
@@ -681,6 +683,108 @@ function formatBarByBeat(items) {
 
   return groups.join(" ");
 }
+
+
+const naturalPitchClasses = {
+  C: 0,
+  D: 2,
+  E: 4,
+  F: 5,
+  G: 7,
+  A: 9,
+  B: 11
+};
+
+const letterOrder = ["C", "D", "E", "F", "G", "A", "B"];
+
+function melodicNoteToAbc(note, key) {
+  const degree = ((note.degree % 7) + 7) % 7;
+  const octaveShift = Math.floor(note.degree / 7);
+  const tonicLetter = tonicLetterFromKey(key.keySig);
+  const tonicLetterIndex = letterOrder.indexOf(tonicLetter);
+  const letter = letterOrder[(tonicLetterIndex + degree) % 7];
+
+  const naturalPc = naturalPitchClasses[letter];
+  const keySignaturePc = mod12(naturalPc + keySignatureAlteration(key.keySig, letter));
+  const actualPc = mod12(note.midi);
+  const octave = Math.floor(note.midi / 12) - 1;
+
+  const accidentalDelta = normalizedPcDelta(actualPc - keySignaturePc);
+  const accidental = accidentalPrefix(accidentalDelta);
+
+  return `${accidental}${abcLetterWithOctave(letter, octave)}`;
+}
+
+function tonicLetterFromKey(keySig) {
+  return keySig.replace("m", "").replace("#", "").replace("b", "").charAt(0) || "C";
+}
+
+function keySignatureAlteration(keySig, letter) {
+  const accidentalCount = keySignatureAccidentalCount(keySig);
+  const sharps = ["F", "C", "G", "D", "A", "E", "B"];
+  const flats = ["B", "E", "A", "D", "G", "C", "F"];
+
+  if (accidentalCount > 0 && sharps.slice(0, accidentalCount).includes(letter)) return 1;
+  if (accidentalCount < 0 && flats.slice(0, Math.abs(accidentalCount)).includes(letter)) return -1;
+  return 0;
+}
+
+function keySignatureAccidentalCount(keySig) {
+  const map = {
+    C: 0, Am: 0,
+    G: 1, Em: 1,
+    D: 2, Bm: 2,
+    A: 3, "F#m": 3,
+    E: 4, "C#m": 4,
+    B: 5, "G#m": 5,
+    "F#": 6, "D#m": 6,
+    "C#": 7, "A#m": 7,
+    F: -1, Dm: -1,
+    Bb: -2, Gm: -2,
+    Eb: -3, Cm: -3,
+    Ab: -4, Fm: -4,
+    Db: -5, Bbm: -5,
+    Gb: -6, Ebm: -6,
+    Cb: -7, Abm: -7
+  };
+  return map[keySig] ?? 0;
+}
+
+function normalizedPcDelta(delta) {
+  let d = ((delta % 12) + 12) % 12;
+  if (d > 6) d -= 12;
+  return d;
+}
+
+function accidentalPrefix(delta) {
+  if (delta === 0) return "";
+  if (delta === 1) return "^";
+  if (delta === 2) return "^^";
+  if (delta === -1) return "_";
+  if (delta === -2) return "__";
+  return "";
+}
+
+function abcLetterWithOctave(letter, octave) {
+  // ABC octave mapping:
+  // MIDI 60 = C4 = middle C = C
+  // MIDI 72 = C5 = c
+  // MIDI 48 = C3 = C,
+  if (octave >= 5) {
+    return letter.toLowerCase() + "'".repeat(octave - 5);
+  }
+
+  if (octave <= 3) {
+    return letter + ",".repeat(4 - octave);
+  }
+
+  return letter;
+}
+
+function mod12(value) {
+  return ((value % 12) + 12) % 12;
+}
+
 
 function renderAbc(targetId, abc, width) {
   if (!window.ABCJS) return;
