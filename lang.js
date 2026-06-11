@@ -38,6 +38,7 @@
     "MODE": "MODE",
     "SOUND": "SOUND",
     "METER": "METER",
+    "6/8では8分音符単位で6回クリックします。強拍は高いクリックです。": "In 6/8, the metronome clicks six eighth-note pulses. Strong beats use the higher click.",
     "CONTENT": "CONTENT",
     "TEMPO": "TEMPO",
     "PRESET": "PRESET",
@@ -76,6 +77,7 @@
 
     "調名を見て、調号の数だけを選んでください。": "Look at the key name and choose only the number of accidentals.",
     "METER": "METER",
+    "6/8では8分音符単位で6回クリックします。強拍は高いクリックです。": "In 6/8, the metronome clicks six eighth-note pulses. Strong beats use the higher click.",
 
     // Japanese UI
     "出題範囲を選び、NEW を押してください。": "Choose a range, then press NEW.",

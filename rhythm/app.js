@@ -229,27 +229,33 @@ async function playCurrentQuestion() {
   }
 
   // Count-in and in-measure metronome.
-  // Strong beats use a clearly higher click. This makes the performed meter audible.
-  const countBeats = currentQuestion.correct.meter === "6/8" ? 2 : Number(currentQuestion.correct.meter.split("/")[0]);
+  // 4/4 and 3/4: quarter-note clicks.
+  // 6/8: six eighth-note clicks, with the 1st and 4th eighths accented.
+  const isSixEight = currentQuestion.correct.meter === "6/8";
+  const countClicks = isSixEight ? 6 : Number(currentQuestion.correct.meter.split("/")[0]);
+  const clickStepSec = isSixEight ? unitSec : beatSec;
 
-  for (let i = 0; i < countBeats; i += 1) {
-    const countPitch = i === 0 ? "A5" : "C5";
-    clickSynth.triggerAttackRelease(countPitch, "32n", now + i * beatSec);
+  for (let i = 0; i < countClicks; i += 1) {
+    const isAccent = isSixEight ? (i === 0 || i === 3) : i === 0;
+    const countPitch = isAccent ? "A5" : "C5";
+    clickSynth.triggerAttackRelease(countPitch, "32n", now + i * clickStepSec);
   }
 
-  const start = now + (countBeats + 0.75) * beatSec;
+  // Enter immediately after the count-in, with only a tiny scheduling offset.
+  const start = now + countClicks * clickStepSec;
 
   // Metronome during the played bar.
-  for (let i = 0; i < countBeats; i += 1) {
-    const clickPitch = i === 0 ? "A5" : "C5";
-    clickSynth.triggerAttackRelease(clickPitch, "32n", start + i * beatSec);
+  for (let i = 0; i < countClicks; i += 1) {
+    const isAccent = isSixEight ? (i === 0 || i === 3) : i === 0;
+    const clickPitch = isAccent ? "A5" : "C5";
+    clickSynth.triggerAttackRelease(clickPitch, "32n", start + i * clickStepSec);
   }
 
   currentQuestion.correct.events.forEach((event) => {
     rhythmSynth.triggerAttackRelease(rhythmPitch, "32n", start + event.t * unitSec);
   });
 
-  setStatus(`${currentQuestion.correct.meter} のリズムです。1拍目は高いクリック、他の拍は低いクリックです。3つの譜例はすべて同じ拍子です。`);
+  setStatus(`${currentQuestion.correct.meter} のリズムです。6/8では8分音符単位で6回クリックします。強拍は高いクリックです。`);
 }
 
 function answer(choiceId) {

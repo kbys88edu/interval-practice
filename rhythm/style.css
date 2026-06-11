@@ -671,3 +671,46 @@ select {
     font-size: 0.76rem;
   }
 }
+
+
+/* Darker rhythm notation */
+.choice-card {
+  background: rgba(255, 255, 255, 0.48);
+}
+
+.choice-card:hover {
+  background: rgba(255, 255, 255, 0.62);
+}
+
+.choice-notation,
+.notation {
+  background: #ffffff;
+  border: 1px solid rgba(47, 47, 47, 0.18);
+}
+
+.choice-notation svg,
+.notation svg {
+  opacity: 1;
+}
+
+.choice-notation svg path,
+.choice-notation svg text,
+.choice-notation svg line,
+.choice-notation svg rect,
+.notation svg path,
+.notation svg text,
+.notation svg line,
+.notation svg rect {
+  opacity: 1 !important;
+}
+
+.choice-notation svg path,
+.notation svg path {
+  stroke-opacity: 1 !important;
+  fill-opacity: 1 !important;
+}
+
+.choice-notation svg text,
+.notation svg text {
+  fill: #111111 !important;
+}

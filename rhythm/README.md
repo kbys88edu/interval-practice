@@ -16,3 +16,8 @@ Practice:
 - Count-in uses a higher click on the strong beat
 
 - Rhythm answers are generated from the same meter only; playback includes high strong-beat clicks and lower weak-beat clicks
+
+- In 6/8, the metronome clicks six eighth-note pulses with accents on 1 and 4
+- The rhythm starts immediately after the count-in without an extra gap
+
+- Rhythm answer notation contrast increased for clearer reading
