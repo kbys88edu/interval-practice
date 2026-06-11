@@ -19,3 +19,5 @@ Features:
 - Key selection changed to full random across 24 major/minor keys.
 
 - eighth-note beaming within quarter beats is now explicit for melodic notation
+
+- removed obsolete key checkbox validation; melody now always selects from all keys randomly

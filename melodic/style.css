@@ -957,3 +957,12 @@ select {
     color: var(--error);
   }
 }
+
+
+.static-info span {
+  display: block;
+  border: 1px solid var(--soft-line);
+  padding: 6px;
+  text-align: center;
+  background: rgba(255,255,255,0.18);
+}
