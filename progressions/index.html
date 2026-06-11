@@ -12,12 +12,10 @@
 <body>
   <main class="screen">
     <header class="topbar">
-      <div class="top-item">
-        <span class="label">PROGRESSION</span>
-      </div>
+      <div class="top-item"><span class="label">PROGRESSION</span></div>
       <div class="top-copy">
-        <span>Listen to a short chord progression and choose the correct Roman numerals</span>
-        <span>Major / minor / cadential / common progressions</span>
+        <span>Listen to a voiced harmonic progression and choose the correct Roman numerals</span>
+        <span>Triads / seventh chords / centered notation</span>
       </div>
       <div class="top-count">
         <a class="tool-link" href="../">HOME</a>
@@ -35,7 +33,7 @@
     <section class="brand-zone">
       <div class="big-mark">P</div>
       <div class="brand-line"></div>
-      <div class="brand-sub">LISTEN / ROMAN NUMERALS / NOTATE / EXPORT</div>
+      <div class="brand-sub">LISTEN / ROMAN NUMERALS / NOTATION / EXPORT</div>
     </section>
 
     <section class="workbench">
@@ -51,11 +49,11 @@
         </div>
 
         <div class="field">
-          <div class="field-label">LEVEL</div>
+          <div class="field-label">CHORD TYPE</div>
           <div class="mode-stack">
-            <label><input type="radio" name="level" value="basic" checked> 基本</label>
-            <label><input type="radio" name="level" value="cadence"> 終止</label>
-            <label><input type="radio" name="level" value="all"> 全て</label>
+            <label><input type="radio" name="complexity" value="triads" checked> 三和音</label>
+            <label><input type="radio" name="complexity" value="sevenths"> 7の和音</label>
+            <label><input type="radio" name="complexity" value="all"> 全て</label>
           </div>
         </div>
 
@@ -70,10 +68,10 @@
         <div class="field">
           <label class="field-label" for="tempo-select">TEMPO</label>
           <select id="tempo-select">
-            <option value="60">60</option>
-            <option value="72" selected>72</option>
-            <option value="84">84</option>
-            <option value="96">96</option>
+            <option value="56">56</option>
+            <option value="66" selected>66</option>
+            <option value="76">76</option>
+            <option value="88">88</option>
           </select>
         </div>
 
@@ -115,7 +113,7 @@
           </div>
 
           <div class="quiz-right">
-            <div class="panel-title">ANSWER</div>
+            <div class="panel-title">CHOOSE ONE</div>
             <div id="choice-list" class="choice-list"></div>
           </div>
         </div>
