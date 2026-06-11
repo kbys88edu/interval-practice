@@ -3,9 +3,8 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Mode Practice | 教会旋法</title>
+  <title>Key Signature Practice | 調号</title>
   <link rel="stylesheet" href="style.css" />
-  <script src="https://unpkg.com/tone@14.8.49/build/Tone.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/abcjs@6.4.4/dist/abcjs-basic-min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
 </head>
@@ -13,11 +12,11 @@
   <main class="screen">
     <header class="topbar">
       <div class="top-item">
-        <span class="label">MODE</span>
+        <span class="label">KEY SIGNATURE</span>
       </div>
       <div class="top-copy">
-        <span>Modal ear training with scales, phrases, and tonic drones</span>
-        <span>Ionian / Dorian / Phrygian / Lydian / Mixolydian / Aeolian / Locrian</span>
+        <span>Read key signatures and identify major / minor keys</span>
+        <span>Key signature → key / key → key signature</span>
       </div>
       <div class="top-count">
         <a class="tool-link" href="../">HOME</a>
@@ -25,14 +24,15 @@
         <a class="tool-link" href="../chords/">CHORDS</a>
         <a class="tool-link" href="../minor-scales/">MINOR</a>
         <a class="tool-link" href="../related-keys/">KEYS</a>
-        <a class="tool-link" href="../key-signatures/">SIG</a><a class="tool-link" href="../rhythm/">RHYTHM</a><span id="progress-count">00 / 00</span>
+        <a class="tool-link" href="../modes/">MODES</a>
+        <a class="tool-link" href="../rhythm/">RHYTHM</a><span id="progress-count">00 / 00</span>
       </div>
     </header>
 
     <section class="brand-zone">
-      <div class="big-mark">M</div>
+      <div class="big-mark">♯♭</div>
       <div class="brand-line"></div>
-      <div class="brand-sub">SCALE / PHRASE / DRONE / EXPORT</div>
+      <div class="brand-sub">SIGNATURE / KEY / ANSWER / EXPORT</div>
     </section>
 
     <section class="workbench">
@@ -42,38 +42,33 @@
         <div class="field">
           <div class="field-label">QUESTION TYPE</div>
           <div class="mode-stack">
-            <label><input type="radio" name="questionType" value="scale" checked> Scale</label>
-            <label><input type="radio" name="questionType" value="phrase"> Phrase</label>
-            <label><input type="radio" name="questionType" value="dronePhrase"> Drone + Phrase</label>
+            <label><input type="radio" name="questionType" value="signatureToKey" checked> 調号 → 調</label>
+            <label><input type="radio" name="questionType" value="keyToSignature"> 調 → 調号</label>
           </div>
         </div>
 
         <div class="field">
-          <label class="field-label" for="instrument-select">SOUND</label>
-          <select id="instrument-select">
-            <option value="realPiano">リアルピアノ</option>
-            <option value="softPiano">ソフトピアノ</option>
-            <option value="clearSine">サイン波</option>
-            <option value="warmSynth">ウォームシンセ</option>
-            <option value="organ">オルガン</option>
-            <option value="pluck">プラック</option>
-          </select>
+          <div class="field-label">KEY TYPE</div>
+          <div class="mode-stack">
+            <label><input type="radio" name="keyMode" value="both" checked> 長調・短調</label>
+            <label><input type="radio" name="keyMode" value="major"> 長調のみ</label>
+            <label><input type="radio" name="keyMode" value="minor"> 短調のみ</label>
+          </div>
         </div>
 
         <div class="field">
-          <div class="field-label">TONIC RANGE</div>
+          <div class="field-label">RANGE</div>
           <div class="preset-row">
-            <button class="mini" data-tonics="white" type="button">白鍵</button>
-            <button class="mini" data-tonics="all" type="button">全調</button>
+            <button class="mini" data-range="basic" type="button">基本</button>
+            <button class="mini" data-range="all" type="button">全調号</button>
           </div>
         </div>
 
         <div class="field">
-          <div class="field-label">PRESET</div>
-          <div class="preset-row three">
-            <button class="mini" data-preset="beginner" type="button">初級</button>
-            <button class="mini" data-preset="middle" type="button">中級</button>
-            <button class="mini" data-preset="advanced" type="button">上級</button>
+          <div class="field-label">CLEF</div>
+          <div class="mode-stack">
+            <label><input type="radio" name="clef" value="treble" checked> ト音記号</label>
+            <label><input type="radio" name="clef" value="bass"> ヘ音記号</label>
           </div>
         </div>
       </aside>
@@ -81,28 +76,25 @@
       <section class="panel main-panel">
         <div class="main-grid">
           <div class="quiz-left">
-            <div class="panel-title row-title">
-              <span>RANGE</span>
-              <span class="range-tools">
-                <button id="select-all-modes" class="micro" type="button">ALL</button>
-                <button id="clear-all-modes" class="micro" type="button">NONE</button>
-              </span>
+            <div class="panel-title">QUESTION</div>
+            <div class="question-card">
+              <div id="key-name-display" class="key-name-display">KEY</div>
+              <div id="signature-display" class="signature-display"></div>
             </div>
-            <div id="mode-options" class="choice-grid"></div>
           </div>
 
           <div class="quiz-center">
             <div class="display-card">
               <div class="display-label">CURRENT QUESTION</div>
-              <div id="question-display" class="question-display">LISTEN</div>
+              <div id="question-display" class="question-display">READ</div>
               <div id="status" class="status" aria-live="polite">
-                出題範囲を選び、NEW を押してください。
+                NEW を押してください。
               </div>
             </div>
 
             <div class="button-row">
               <button id="new-question" type="button">NEW</button>
-              <button id="play-question" type="button">PLAY</button>
+              <button id="check-answer" type="button">CHECK</button>
               <button id="show-answer" type="button">SHOW</button>
               <button id="export-pdf" type="button">PDF</button>
             </div>
@@ -118,7 +110,17 @@
 
           <div class="quiz-right">
             <div class="panel-title">ANSWER</div>
-            <div id="answer-buttons" class="answer-grid"></div>
+            <div id="key-answer-area" class="answer-area">
+              <label class="answer-label" for="answer-input">調名を入力</label>
+              <input id="answer-input" class="answer-input" type="text" autocomplete="off" placeholder="例：ト長調 / G dur / e moll" />
+              <div id="quick-buttons" class="quick-buttons"></div>
+            </div>
+
+            <div id="signature-answer-area" class="answer-area hidden">
+              <label class="answer-label" for="signature-select">調号を選択</label>
+              <select id="signature-select"></select>
+              <div class="hint-small">例：♯1、♭3、調号なし</div>
+            </div>
           </div>
         </div>
       </section>
@@ -126,9 +128,8 @@
 
     <section class="bottom-area">
       <div class="notation-card">
-        <div class="panel-title">NOTATION / ANALYSIS</div>
+        <div class="panel-title">ANSWER / NOTATION</div>
         <div id="answer-text" class="answer-text"></div>
-        <div id="analysis-text" class="analysis-text"></div>
         <div id="notation" class="notation"></div>
       </div>
 

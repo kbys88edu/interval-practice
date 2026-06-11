@@ -30,3 +30,7 @@ Real piano sounds and PDF export require an internet connection.
 ## Range update
 
 Interval and chord trainers use treble-range notes up to A5 where possible.
+
+- `/key-signatures/` key signature trainer
+
+- `/rhythm/` rhythm dictation trainer

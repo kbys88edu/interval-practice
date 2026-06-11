@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Interval Practice | 音程の聞き分け</title>
+  <title>Rhythm Dictation | リズム聞き取り</title>
   <link rel="stylesheet" href="style.css" />
   <script src="https://unpkg.com/tone@14.8.49/build/Tone.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/abcjs@6.4.4/dist/abcjs-basic-min.js"></script>
@@ -13,21 +13,28 @@
   <main class="screen">
     <header class="topbar">
       <div class="top-item">
-        <span class="label">INTERVAL</span>
+        <span class="label">RHYTHM</span>
       </div>
       <div class="top-copy">
-        <span>Ear training for melodic and harmonic intervals</span>
-        <span>Mode A / Mode B / Mode D</span>
+        <span>Listen to a one-bar rhythm and choose the correct notation</span>
+        <span>4/4 / 3/4 / 6/8 / triplets / sixteenths / ties</span>
       </div>
       <div class="top-count">
-        <a class="tool-link" href="../">HOME</a><a class="tool-link" href="../chords/">CHORDS</a><a class="tool-link" href="../minor-scales/">MINOR</a><a class="tool-link" href="../related-keys/">KEYS</a><a class="tool-link" href="../modes/">MODES</a><a class="tool-link" href="../key-signatures/">SIG</a><a class="tool-link" href="../rhythm/">RHYTHM</a><span id="progress-count">00 / 00</span>
+        <a class="tool-link" href="../">HOME</a>
+        <a class="tool-link" href="../intervals/">INTERVALS</a>
+        <a class="tool-link" href="../chords/">CHORDS</a>
+        <a class="tool-link" href="../minor-scales/">MINOR</a>
+        <a class="tool-link" href="../related-keys/">KEYS</a>
+        <a class="tool-link" href="../modes/">MODES</a>
+        <a class="tool-link" href="../key-signatures/">SIG</a>
+        <span id="progress-count">00 / 00</span>
       </div>
     </header>
 
     <section class="brand-zone">
-      <div class="big-mark" id="big-note">C</div>
+      <div class="big-mark">R</div>
       <div class="brand-line"></div>
-      <div class="brand-sub">LISTEN / ANSWER / NOTATE / EXPORT</div>
+      <div class="brand-sub">LISTEN / CHOOSE / NOTATE / EXPORT</div>
     </section>
 
     <section class="workbench">
@@ -35,49 +42,50 @@
         <div class="panel-title">SETTINGS</div>
 
         <div class="field">
-          <div class="field-label">MODE</div>
+          <div class="field-label">METER</div>
           <div class="mode-stack">
-            <label><input type="radio" name="mode" value="ascending" checked> A 上行</label>
-            <label><input type="radio" name="mode" value="descending"> B 下行</label>
-            <label><input type="radio" name="mode" value="harmonic"> D 同時</label>
+            <label><input type="checkbox" name="meter" value="4/4" checked> 4/4</label>
+            <label><input type="checkbox" name="meter" value="3/4" checked> 3/4</label>
+            <label><input type="checkbox" name="meter" value="6/8" checked> 6/8</label>
           </div>
         </div>
 
         <div class="field">
-          <label class="field-label" for="instrument-select">SOUND</label>
-          <select id="instrument-select">
-            <option value="realPiano">リアルピアノ</option>
-            <option value="softPiano">ソフトピアノ</option>
-            <option value="clearSine">サイン波</option>
-            <option value="warmSynth">ウォームシンセ</option>
-            <option value="organ">オルガン</option>
-            <option value="pluck">プラック</option>
+          <div class="field-label">CONTENT</div>
+          <div class="mode-stack">
+            <label><input type="checkbox" id="allow-triplets" checked> 三連符</label>
+            <label><input type="checkbox" id="allow-sixteenths" checked> 16分音符</label>
+            <label><input type="checkbox" id="allow-ties" checked> タイ</label>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="field-label" for="tempo-select">TEMPO</label>
+          <select id="tempo-select">
+            <option value="72">72</option>
+            <option value="84" selected>84</option>
+            <option value="96">96</option>
+            <option value="108">108</option>
           </select>
         </div>
 
         <div class="field">
-          <div class="field-label">PRESET</div>
-          <div class="preset-row">
-            <button class="mini" data-preset="beginner" type="button">初級</button>
-            <button class="mini" data-preset="intermediate" type="button">中級</button>
-            <button class="mini" data-preset="advanced" type="button">上級</button>
+          <div class="field-label">SOUND</div>
+          <div class="mode-stack">
+            <label><input type="radio" name="sound" value="wood" checked> Wood</label>
+            <label><input type="radio" name="sound" value="kick"> Low click</label>
           </div>
         </div>
       </aside>
 
       <section class="panel main-panel">
         <div class="main-grid">
-          <div class="quiz-left">
-            <div class="panel-title">RANGE</div>
-            <div id="interval-options" class="interval-grid"></div>
-          </div>
-
           <div class="quiz-center">
             <div class="display-card">
               <div class="display-label">CURRENT QUESTION</div>
               <div id="question-display" class="question-display">LISTEN</div>
               <div id="status" class="status" aria-live="polite">
-                出題範囲を選び、新しい問題を押してください。
+                NEW を押して、演奏されたリズムを3つの譜例から選んでください。
               </div>
             </div>
 
@@ -98,8 +106,8 @@
           </div>
 
           <div class="quiz-right">
-            <div class="panel-title">ANSWER</div>
-            <div id="answer-buttons" class="answer-grid"></div>
+            <div class="panel-title">CHOOSE ONE</div>
+            <div id="choice-list" class="choice-list"></div>
           </div>
         </div>
       </section>
@@ -107,9 +115,9 @@
 
     <section class="bottom-area">
       <div class="notation-card">
-        <div class="panel-title">NOTATION</div>
+        <div class="panel-title">ANSWER</div>
         <div id="answer-text" class="answer-text"></div>
-        <div id="notation" class="notation"></div>
+        <div id="answer-notation" class="notation"></div>
       </div>
 
       <div class="history-card">
