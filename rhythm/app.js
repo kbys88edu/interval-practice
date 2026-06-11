@@ -262,19 +262,16 @@ async function playCurrentQuestion() {
     clickSynth.triggerAttackRelease(count.isAccent(i) ? "A5" : "C5", "32n", countStart + i * count.stepSec);
   }
 
-  // Metronome inside the performed bar
-  for (let i = 0; i < count.countClicks; i += 1) {
-    clickSynth.triggerAttackRelease(count.isAccent(i) ? "A5" : "C5", "32n", barStart + i * count.stepSec);
-  }
-
+  // No metronome during the performed bar.
+  // The count-in defines the meter; the rhythm itself is played alone.
   const rhythmPitch = currentQuestion.sound === "click" ? "C3" : "C4";
   currentQuestion.correct.hits.forEach((unit) => {
     rhythmSynth.triggerAttackRelease(rhythmPitch, "32n", barStart + unit * sixteenthSec);
   });
 
   const msg = meter === "6/8"
-    ? "6/8です。カウントも本編も8分音符単位で6回クリックします。1拍目と4拍目が高い音です。"
-    : `${meter}です。1拍目が高いクリックです。カウント後すぐ本編に入ります。`;
+    ? "6/8です。カウントは8分音符単位で6回鳴り、その後リズムだけが再生されます。1拍目と4拍目が高い音です。"
+    : `${meter}です。カウント後、メトロノームなしで本編リズムだけが再生されます。`;
   setStatus(msg);
 }
 

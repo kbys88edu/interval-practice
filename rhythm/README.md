@@ -9,3 +9,5 @@ Rules:
 - 6/8 count-in and bar metronome use six eighth-note clicks
 - In 6/8, clicks 1 and 4 are accented with a higher pitch
 - The played rhythm starts immediately after the count-in, with no extra gap
+
+- The metronome stops after the count-in; the rhythm is played alone
