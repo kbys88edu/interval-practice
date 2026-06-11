@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Melodic Dictation | 旋律聴音</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://unpkg.com/tone@14.8.49/build/Tone.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/abcjs@6.4.4/dist/abcjs-basic-min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+</head>
+<body>
+  <main class="screen">
+    <header class="topbar">
+      <div class="top-item"><span class="label">MELODY</span></div>
+      <div class="top-copy">
+        <span>Melodic dictation</span>
+        <span>2 bars / all keys / 16th notes / passing tones / neighbor tones / suspensions</span>
+      </div>
+      <div class="top-count">
+        <a class="tool-link" href="../">HOME</a>
+        <a class="tool-link" href="../intervals/">INTERVALS</a>
+        <a class="tool-link" href="../chords/">CHORDS</a>
+        <a class="tool-link" href="../progressions/">PROG</a>
+        <a class="tool-link" href="../rhythm/">RHYTHM</a>
+        <a class="tool-link" href="../minor-scales/">MINOR</a>
+        <a class="tool-link" href="../related-keys/">KEYS</a>
+        <a class="tool-link" href="../modes/">MODES</a>
+        <a class="tool-link" href="../key-signatures/">SIG</a>
+        <span id="progress-count">00 / 00</span>
+      </div>
+    </header>
+
+    <section class="brand-zone">
+      <div class="big-mark">M</div>
+      <div class="brand-line"></div>
+      <div class="brand-sub">LISTEN / HARMONIC MELODY / UNIT NOTATION</div>
+    </section>
+
+    <section class="workbench">
+      <aside class="config-panel">
+        <div class="panel-title">SETTINGS</div>
+
+        <div class="field">
+          <div class="field-label">KEY</div>
+          <div class="mode-stack static-info">
+            <span>長短全調からランダム</span>
+            <span>24 keys / random</span>
+          </div>
+        </div>
+
+        <div class="field">
+          <div class="field-label">MELODY TYPE</div>
+          <div class="mode-stack">
+            <label><input type="checkbox" name="figure" value="passing" checked> 経過音</label>
+            <label><input type="checkbox" name="figure" value="neighbor" checked> 刺繍音</label>
+            <label><input type="checkbox" name="figure" value="suspension" checked> 係留音</label>
+            <label><input type="checkbox" name="figure" value="cadential" checked> 終止型</label>
+          </div>
+        </div>
+
+        <div class="field">
+          <div class="field-label">RHYTHM</div>
+          <div class="mode-stack">
+            <label><input type="checkbox" name="rhythm" value="simple" checked> 四分中心</label>
+            <label><input type="checkbox" name="rhythm" value="eighth" checked> 八分音符</label>
+            <label><input type="checkbox" name="rhythm" value="sixteenth" checked> 16分音符</label>
+            <label><input type="checkbox" name="rhythm" value="dotted" checked> 付点</label>
+            <label><input type="checkbox" name="rhythm" value="triplet" checked> 三連符</label>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="field-label" for="tempo-select">TEMPO</label>
+          <select id="tempo-select">
+            <option value="60">60</option>
+            <option value="72" selected>72</option>
+            <option value="84">84</option>
+            <option value="96">96</option>
+          </select>
+        </div>
+      </aside>
+
+      <section class="main-panel">
+        <div class="question-strip">
+          <div class="display-card">
+            <div class="display-label">CURRENT QUESTION</div>
+            <div id="question-display" class="question-display">LISTEN</div>
+            <div id="status" class="status" aria-live="polite">
+              NEW を押して、演奏された2小節の旋律を3つの譜例から選んでください。
+            </div>
+          </div>
+
+          <div class="control-zone">
+            <div class="button-row">
+              <button id="new-question" type="button">NEW</button>
+              <button id="play-question" type="button">PLAY</button>
+              <button id="show-answer" type="button">SHOW</button>
+              <button id="export-pdf" type="button">PDF</button>
+            </div>
+
+            <div class="score-strip">
+              <div><span>QUESTIONS</span><strong id="total-count">0</strong></div>
+              <div><span>CORRECT</span><strong id="correct-count">0</strong></div>
+              <div><span>RATE</span><strong id="score-percent">0%</strong></div>
+              <div><span>TIME</span><strong id="current-time">--</strong></div>
+              <button id="reset-score" type="button" class="mini">RESET</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="choices-zone">
+          <div id="choice-key-header" class="choice-key-header">KEY: --</div>
+          <div id="choice-list" class="choice-list"></div>
+        </div>
+
+        <div class="answer-zone">
+          <div class="notation-card">
+            <div class="panel-title">ANSWER / NOTATION</div>
+            <div id="answer-text" class="answer-text"></div>
+            <div id="analysis-text" class="analysis-text"></div>
+            <div id="notation" class="notation"></div>
+          </div>
+
+          <div class="history-card">
+            <div class="panel-title">RESULT LOG</div>
+            <div id="history-list" class="history-list">まだ解答履歴がありません。</div>
+          </div>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+  <script src="../lang.js"></script>
+</body>
+</html>
