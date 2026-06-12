@@ -76,6 +76,7 @@ let correctCount = 0;
 let resultLog = [];
 let questionStartTime = null;
 let latestResponseTimeSec = null;
+let chordDifficulty = "advanced";
 let synth = null;
 let clickSynth = null;
 
@@ -96,6 +97,7 @@ const answerButtonsEl = document.querySelector("#answer-buttons");
 const inversionOptionsEl = document.querySelector("#inversion-options");
 const selectAllChordsButton = document.querySelector("#select-all-chords");
 const clearAllChordsButton = document.querySelector("#clear-all-chords");
+let difficultyToggleEl = null;
 
 
 document.querySelector("#new-question").addEventListener("click", newQuestion);
@@ -121,11 +123,61 @@ document.querySelectorAll("[data-preset]").forEach((button) => {
 
 
 function init() {
+  ensureChordDifficultyStyle();
+  renderDifficultyToggle();
   renderChordOptions();
   updateScore();
-  setStatus("NEW を押して、演奏された和音を3つの選択肢から選んでください。");
+  setStatus("レベルを選び、NEW を押してください。中級はコード種別、上級は譜例3択です。");
 }
 
+
+
+function ensureChordDifficultyStyle() {
+  if (document.querySelector("#chord-difficulty-inline-style")) return;
+  const style = document.createElement("style");
+  style.id = "chord-difficulty-inline-style";
+  style.textContent = `
+    .difficulty-button.is-active { outline: 2px solid currentColor; }
+    .chord-type-answer-card { min-height: 54px; justify-content: center; }
+    .chord-type-answer-card .choice-label { font-size: 18px; font-weight: 700; }
+  `;
+  document.head.appendChild(style);
+}
+
+function renderDifficultyToggle() {
+  if (difficultyToggleEl || !chordOptionsEl) return;
+  const host = chordOptionsEl.parentElement;
+  if (!host || !host.parentElement) return;
+
+  difficultyToggleEl = document.createElement("div");
+  difficultyToggleEl.className = "field difficulty-field";
+  difficultyToggleEl.innerHTML = `
+    <div class="field-label">LEVEL</div>
+    <div class="preset-row difficulty-row">
+      <button type="button" class="mini difficulty-button is-active" data-difficulty="intermediate">中級：色彩で答える</button>
+      <button type="button" class="mini difficulty-button" data-difficulty="advanced">上級：譜例3択</button>
+    </div>
+  `;
+  host.parentElement.insertBefore(difficultyToggleEl, host);
+
+  difficultyToggleEl.querySelectorAll("[data-difficulty]").forEach((button) => {
+    button.addEventListener("click", () => {
+      chordDifficulty = button.dataset.difficulty;
+      difficultyToggleEl.querySelectorAll("[data-difficulty]").forEach((item) => item.classList.remove("is-active"));
+      button.classList.add("is-active");
+      if (choiceList) choiceList.innerHTML = "";
+      answerText.textContent = "";
+      if (analysisText) analysisText.textContent = "";
+      notationEl.innerHTML = "";
+      questionDisplay.textContent = "LISTEN";
+      setStatus(chordDifficulty === "intermediate"
+        ? "中級：楽譜を見ず、コードの色彩感をボタンから選びます。"
+        : "上級：譜例を見て3択から選びます。");
+    });
+  });
+
+  chordDifficulty = "intermediate";
+}
 
 function renderChordOptions() {
   if (!chordOptionsEl) return;
@@ -209,12 +261,21 @@ function newQuestion() {
   const correctBase = randomItem(candidates);
   const correct = buildChoice(correctChord, correctBase.root, correctBase.inversion, mode);
 
-  const distractors = buildDistractors(correct, chordPool, inversions, mode, 2);
-  const choices = shuffle([correct, ...distractors]);
+  const choices = chordDifficulty === "advanced"
+    ? shuffle([correct, ...buildDistractors(correct, chordPool, inversions, mode, 2)])
+    : chordPool.map((chord) => ({
+        id: `type-${chord.id}-${Date.now()}-${Math.random().toString(16).slice(2)}`,
+        answerType: "chordType",
+        chord,
+        chordId: chord.id,
+        answerLabel: chord.symbol || "major",
+        detailLabel: chord.label
+      }));
 
   currentQuestion = {
     number: totalCount + 1,
     renderId: `chord-${Date.now()}-${Math.random().toString(16).slice(2)}`,
+    difficulty: chordDifficulty,
     mode,
     correct,
     choices,
@@ -231,7 +292,9 @@ function newQuestion() {
   questionDisplay.textContent = "LISTEN";
 
   renderChoices();
-  setStatus("聴いて、譜例だけを見て右側の3択を選んでください。");
+  setStatus(chordDifficulty === "intermediate"
+    ? "聴いて、コードの種類をボタンから選んでください。"
+    : "聴いて、譜例だけを見て右側の3択を選んでください。");
   playCurrentQuestion();
 }
 
@@ -334,6 +397,36 @@ function renderChoices() {
   choiceList.innerHTML = "";
   if (!currentQuestion) return;
 
+  if (currentQuestion.difficulty === "intermediate") {
+    renderIntermediateChordTypeChoices();
+    return;
+  }
+
+  renderAdvancedNotationChoices();
+}
+
+function renderIntermediateChordTypeChoices() {
+  currentQuestion.choices.forEach((choice) => {
+    const card = document.createElement("button");
+    card.type = "button";
+    card.className = "choice-card chord-choice-card chord-type-answer-card";
+    card.dataset.id = choice.id;
+    card.dataset.chordId = choice.chordId;
+
+    // 中級：楽譜なし。音の色彩感だけでコード種別を選ぶ。
+    card.innerHTML = `
+      <span class="choice-top">
+        <span class="choice-label">${choice.answerLabel}</span>
+      </span>
+      <span class="choice-info">${choice.detailLabel}</span>
+    `;
+
+    card.addEventListener("click", () => answer(choice.id));
+    choiceList.appendChild(card);
+  });
+}
+
+function renderAdvancedNotationChoices() {
   const renderId = currentQuestion.renderId;
 
   currentQuestion.choices.forEach((choice, index) => {
@@ -343,8 +436,7 @@ function renderChoices() {
     card.className = "choice-card chord-choice-card";
     card.dataset.id = choice.id;
 
-    // 出題時は和音名・調号名・構成音を隠す。
-    // ただし選択肢として必要な譜例だけは表示する。
+    // 上級：和音名・調号名・構成音は隠し、譜例だけ表示。
     card.innerHTML = `
       <span class="choice-top">
         <span class="choice-label">${String.fromCharCode(65 + index)}</span>
@@ -418,12 +510,28 @@ async function playCurrentQuestion() {
     });
   }
 
-  setStatus("再生中。譜例だけを見て右側の3択を選んでください。");
+  setStatus(currentQuestion.difficulty === "intermediate"
+    ? "再生中。コードの種類をボタンから選んでください。"
+    : "再生中。譜例だけを見て右側の3択を選んでください。");
 }
 
 
 function revealChoiceCards() {
   if (!currentQuestion) return;
+
+  if (currentQuestion.difficulty === "intermediate") {
+    document.querySelectorAll(".choice-card").forEach((card) => {
+      const choice = currentQuestion.choices.find((item) => item.id === card.dataset.id);
+      if (!choice) return;
+      card.innerHTML = `
+        <span class="choice-top">
+          <span class="choice-label">${choice.answerLabel}</span>
+        </span>
+        <span class="choice-info">${choice.detailLabel}</span>
+      `;
+    });
+    return;
+  }
 
   document.querySelectorAll(".choice-card").forEach((card, index) => {
     const choice = currentQuestion.choices.find((item) => item.id === card.dataset.id);
@@ -463,21 +571,29 @@ function answer(choiceId) {
   totalCount += 1;
 
   const selected = currentQuestion.choices.find((choice) => choice.id === choiceId);
-  const isCorrect = choiceId === currentQuestion.correct.id;
+  const isCorrect = currentQuestion.difficulty === "intermediate"
+    ? selected?.chordId === currentQuestion.correct.chord.id
+    : choiceId === currentQuestion.correct.id;
   if (isCorrect) correctCount += 1;
 
   currentTimeEl.textContent = formatResponseTime(latestResponseTimeSec);
 
   document.querySelectorAll(".choice-card").forEach((card) => {
     card.classList.remove("selected-correct", "selected-incorrect");
-    if (card.dataset.id === currentQuestion.correct.id) card.classList.add("selected-correct");
-    if (!isCorrect && card.dataset.id === choiceId) card.classList.add("selected-incorrect");
+
+    if (currentQuestion.difficulty === "intermediate") {
+      if (card.dataset.chordId === currentQuestion.correct.chord.id) card.classList.add("selected-correct");
+      if (!isCorrect && card.dataset.id === choiceId) card.classList.add("selected-incorrect");
+    } else {
+      if (card.dataset.id === currentQuestion.correct.id) card.classList.add("selected-correct");
+      if (!isCorrect && card.dataset.id === choiceId) card.classList.add("selected-incorrect");
+    }
   });
 
   revealChoiceCards();
 
   setStatus(
-    `${isCorrect ? "正解" : "不正解"} / 正解：${currentQuestion.correct.detailLabel} / 選択：${selected?.detailLabel || "-"} / ${formatResponseTime(latestResponseTimeSec)}`,
+    `${isCorrect ? "正解" : "不正解"} / 正解：${currentQuestion.correct.chord.label} / 選択：${selected?.detailLabel || "-"} / ${formatResponseTime(latestResponseTimeSec)}`,
     isCorrect ? "correct" : "incorrect"
   );
 
@@ -485,6 +601,7 @@ function answer(choiceId) {
     number: totalCount,
     correctLabel: currentQuestion.correct.detailLabel,
     selectedLabel: selected?.detailLabel || "",
+    difficulty: currentQuestion.difficulty,
     keySig: currentQuestion.correct.keySig,
     spelledTones: currentQuestion.correct.spelledTones.map((tone) => tone.label).join(" - "),
     selectedSpelledTones: selected ? selected.spelledTones.map((tone) => tone.label).join(" - ") : "",
