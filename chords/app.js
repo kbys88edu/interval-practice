@@ -405,6 +405,24 @@ function renderChoices() {
   renderAdvancedNotationChoices();
 }
 
+
+function attachChoiceAnswerHandler(card, choiceId) {
+  let handled = false;
+
+  const run = (event) => {
+    if (event) event.preventDefault();
+    if (handled) return;
+    handled = true;
+    answer(choiceId);
+    setTimeout(() => {
+      handled = false;
+    }, 350);
+  };
+
+  card.addEventListener("click", run);
+  card.addEventListener("touchend", run, { passive: false });
+}
+
 function renderIntermediateChordTypeChoices() {
   currentQuestion.choices.forEach((choice) => {
     const card = document.createElement("button");
@@ -421,7 +439,7 @@ function renderIntermediateChordTypeChoices() {
       <span class="choice-info">${choice.detailLabel}</span>
     `;
 
-    card.addEventListener("click", () => answer(choice.id));
+    attachChoiceAnswerHandler(card, choice.id);
     choiceList.appendChild(card);
   });
 }
@@ -446,7 +464,7 @@ function renderAdvancedNotationChoices() {
       <span class="choice-notation" id="${notationId}"></span>
     `;
 
-    card.addEventListener("click", () => answer(choice.id));
+    attachChoiceAnswerHandler(card, choice.id);
     choiceList.appendChild(card);
 
     requestAnimationFrame(() => {
@@ -557,67 +575,51 @@ function revealChoiceCards() {
 
 function answer(choiceId) {
   if (!currentQuestion) {
-    setStatus("先に NEW を押してください。", "incorrect");
+    setStatus(t("先に NEW を押してください。"), "incorrect");
     return;
   }
 
   if (hasAnsweredCurrentQuestion) {
-    setStatus("この問題は回答済みです。NEW を押してください。");
+    setStatus(t("この問題は回答済みです。NEW を押してください。"));
+    return;
+  }
+
+  const selected = currentQuestion.choices.find((choice) => choice.id === choiceId);
+  if (!selected) {
+    setStatus(t("回答データを取得できませんでした。NEW を押して再試行してください。"), "incorrect");
     return;
   }
 
   latestResponseTimeSec = questionStartTime ? Math.max(0, (performance.now() - questionStartTime) / 1000) : null;
+
+  const isIntermediate = currentQuestion.difficulty === "intermediate";
+  const isCorrect = isIntermediate
+    ? selected.chordId === currentQuestion.correct.chord.id
+    : selected.id === currentQuestion.correct.id;
+
+  // First: update state and log. Do this before visual reveal / ABC rendering,
+  // because mobile browsers can fail during rendering and otherwise lose the answer.
   hasAnsweredCurrentQuestion = true;
   totalCount += 1;
-
-  const selected = currentQuestion.choices.find((choice) => choice.id === choiceId);
-  const isCorrect = currentQuestion.difficulty === "intermediate"
-    ? selected?.chordId === currentQuestion.correct.chord.id
-    : choiceId === currentQuestion.correct.id;
   if (isCorrect) correctCount += 1;
-
   currentTimeEl.textContent = formatResponseTime(latestResponseTimeSec);
 
-  document.querySelectorAll(".choice-card").forEach((card) => {
-    card.classList.remove("selected-correct", "selected-incorrect");
-
-    if (currentQuestion.difficulty === "intermediate") {
-      if (card.dataset.chordId === currentQuestion.correct.chord.id) card.classList.add("selected-correct");
-      if (!isCorrect && card.dataset.id === choiceId) card.classList.add("selected-incorrect");
-    } else {
-      if (card.dataset.id === currentQuestion.correct.id) card.classList.add("selected-correct");
-      if (!isCorrect && card.dataset.id === choiceId) card.classList.add("selected-incorrect");
-    }
-  });
-
-  revealChoiceCards();
-
-  const correctStatusLabel = currentQuestion.difficulty === "intermediate"
+  const correctStatusLabel = isIntermediate
     ? currentQuestion.correct.chord.label
     : currentQuestion.correct.detailLabel;
 
-  setStatus(
-    `${isCorrect ? "正解" : "不正解"} / 正解：${correctStatusLabel} / 選択：${selected?.detailLabel || "-"} / ${formatResponseTime(latestResponseTimeSec)}`,
-    isCorrect ? "correct" : "incorrect"
-  );
-
-  const selectedLabel = currentQuestion.difficulty === "intermediate"
-    ? selected?.detailLabel || ""
-    : selected?.detailLabel || "";
-
-  const selectedSpelledTones = currentQuestion.difficulty === "advanced" && selected?.spelledTones
+  const selectedLabel = selected.detailLabel || selected.answerLabel || "";
+  const selectedSpelledTones = !isIntermediate && selected.spelledTones
     ? selected.spelledTones.map((tone) => tone.label).join(" - ")
     : "";
-
-  const selectedAbc = currentQuestion.difficulty === "advanced" && selected?.abc
-    ? selected.abc
-    : "";
+  const selectedAbc = !isIntermediate && selected.abc ? selected.abc : "";
 
   resultLog.push({
     number: totalCount,
     correctLabel: currentQuestion.correct.detailLabel,
+    correctTypeLabel: currentQuestion.correct.chord.label,
     selectedLabel,
-    difficulty: currentQuestion.difficulty,
+    difficulty: currentQuestion.difficulty || "advanced",
     keySig: currentQuestion.correct.keySig,
     spelledTones: currentQuestion.correct.spelledTones.map((tone) => tone.label).join(" - "),
     selectedSpelledTones,
@@ -629,23 +631,60 @@ function answer(choiceId) {
 
   updateScore();
   renderHistory();
-  showAnswer();
+
+  setStatus(
+    `${isCorrect ? t("正解") : t("不正解")} / ${t("正解")}：${correctStatusLabel} / ${t("選択")}：${selectedLabel || "-"} / ${formatResponseTime(latestResponseTimeSec)}`,
+    isCorrect ? "correct" : "incorrect"
+  );
+
+  // Second: visual feedback. This must not be allowed to break logging.
+  try {
+    document.querySelectorAll(".choice-card").forEach((card) => {
+      card.classList.remove("selected-correct", "selected-incorrect");
+
+      if (isIntermediate) {
+        if (card.dataset.chordId === currentQuestion.correct.chord.id) card.classList.add("selected-correct");
+        if (!isCorrect && card.dataset.id === choiceId) card.classList.add("selected-incorrect");
+      } else {
+        if (card.dataset.id === currentQuestion.correct.id) card.classList.add("selected-correct");
+        if (!isCorrect && card.dataset.id === choiceId) card.classList.add("selected-incorrect");
+      }
+    });
+
+    revealChoiceCards();
+    showAnswer();
+  } catch (error) {
+    console.error("Answer saved, but visual reveal failed:", error);
+    answerText.textContent = `${t("正解")}：${currentQuestion.correct.detailLabel}`;
+  }
 }
 
 function showAnswer() {
   if (!currentQuestion) {
-    setStatus("先に NEW を押してください。", "incorrect");
+    setStatus(t("先に NEW を押してください。"), "incorrect");
     return;
   }
 
-  revealChoiceCards();
+  try {
+    revealChoiceCards();
+  } catch (error) {
+    console.error("Choice reveal failed:", error);
+  }
 
   const correct = currentQuestion.correct;
   answerText.textContent = currentQuestion.difficulty === "intermediate"
-    ? `正解：${correct.chord.label} / 実際の和音：${correct.detailLabel}`
-    : `正解：${correct.detailLabel} / 調号 ${correct.keySig}`;
-  if (analysisText) analysisText.textContent = `構成音：${correct.spelledTones.map((tone) => tone.label).join(" - ")}。属7の第7音は短7度として理論的に綴ります。`;
-  renderAbc("notation", correct.abc, 460);
+    ? `${t("正解")}：${correct.chord.label} / ${t("実際の和音")}：${correct.detailLabel}`
+    : `${t("正解")}：${correct.detailLabel} / ${t("調号")} ${correct.keySig}`;
+
+  if (analysisText) {
+    analysisText.textContent = `${t("構成音")}：${correct.spelledTones.map((tone) => tone.label).join(" - ")}。${t("属7の第7音は短7度として理論的に綴ります。")}`;
+  }
+
+  try {
+    renderAbc("notation", correct.abc, 460);
+  } catch (error) {
+    console.error("Answer notation failed:", error);
+  }
 }
 
 function buildAbcNotation(choice) {
@@ -827,9 +866,14 @@ function renderHistory() {
   resultLog.slice().reverse().forEach((item) => {
     const row = document.createElement("div");
     row.className = "history-item";
+
+    const correct = item.difficulty === "intermediate"
+      ? (item.correctTypeLabel || item.correctLabel || "-")
+      : (item.correctLabel || "-");
+
     const detail = item.difficulty === "intermediate"
-      ? `${item.correctLabel} / 選択：${item.selectedLabel || "-"} / ${formatResponseTime(item.responseTimeSec)}`
-      : `${item.correctLabel} / ${item.spelledTones} / ${formatResponseTime(item.responseTimeSec)}`;
+      ? `${correct} / ${t("選択")}：${item.selectedLabel || "-"} / ${formatResponseTime(item.responseTimeSec)}`
+      : `${correct} / ${item.spelledTones || "-"} / ${formatResponseTime(item.responseTimeSec)}`;
 
     row.innerHTML = `
       <span>${String(item.number).padStart(2, "0")}</span>
