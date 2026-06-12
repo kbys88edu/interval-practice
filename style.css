@@ -372,3 +372,133 @@ h1 {
     margin-bottom: 4px;
   }
 }
+
+
+/* atelier composition son lesson lead */
+.acs-lesson-banner {
+  max-width: 1120px;
+  margin: 20px auto 24px;
+  padding: 18px;
+  border: 1px solid rgba(0, 0, 0, 0.28);
+  background: rgba(255, 255, 255, 0.48);
+  display: grid;
+  grid-template-columns: minmax(260px, 0.9fr) minmax(320px, 1.4fr) auto;
+  gap: 18px;
+  align-items: center;
+}
+
+.acs-logo-block {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+}
+
+.acs-logo-mark {
+  width: 58px;
+  height: 58px;
+  border: 1.5px solid currentColor;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 17px;
+  letter-spacing: -0.04em;
+  font-weight: 700;
+  text-transform: lowercase;
+}
+
+.acs-name {
+  font-size: 18px;
+  letter-spacing: -0.03em;
+  font-weight: 700;
+  text-transform: lowercase;
+}
+
+.acs-sub {
+  margin-top: 4px;
+  font-size: 11px;
+  line-height: 1.4;
+  opacity: 0.68;
+  text-transform: lowercase;
+}
+
+.acs-lesson-copy {
+  display: grid;
+  gap: 6px;
+  font-size: 13px;
+  line-height: 1.65;
+}
+
+.acs-lesson-copy span {
+  opacity: 0.78;
+}
+
+.acs-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.acs-button {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 38px;
+  padding: 0 14px;
+  border: 1px solid currentColor;
+  text-decoration: none;
+  color: inherit;
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.acs-button.primary {
+  background: #111;
+  color: #fff;
+  border-color: #111;
+}
+
+.lesson-footer-cta {
+  max-width: 1120px;
+  margin: 28px auto 44px;
+  padding: 22px;
+  border-top: 1px solid rgba(0, 0, 0, 0.28);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.28);
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 20px;
+  align-items: center;
+}
+
+.lesson-footer-cta h2 {
+  margin: 6px 0 8px;
+  font-size: clamp(22px, 3vw, 34px);
+  letter-spacing: -0.04em;
+}
+
+.lesson-footer-cta p {
+  margin: 0;
+  max-width: 780px;
+  font-size: 13px;
+  line-height: 1.75;
+  opacity: 0.78;
+}
+
+@media (max-width: 900px) {
+  .acs-lesson-banner {
+    margin: 16px 12px 20px;
+    grid-template-columns: 1fr;
+  }
+
+  .acs-actions {
+    justify-content: flex-start;
+  }
+
+  .lesson-footer-cta {
+    margin: 24px 12px 36px;
+    grid-template-columns: 1fr;
+  }
+}

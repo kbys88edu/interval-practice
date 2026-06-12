@@ -90,6 +90,11 @@
     "演奏された短いコード進行を聴き、3つのローマ数字から正しい進行を選びます。": "Listen to a short chord progression and choose the correct Roman numerals from three options.",
     "NEW を押して、演奏されたコード進行を3つの選択肢から選んでください。": "Press NEW, then choose the performed progression from three options.",
 
+
+    "三和音": "Triads",
+    "7の和音": "Seventh chords",
+    "コード進行を3つの選択肢から選んでください。": "Choose the correct chord progression from three options.",
+
     // Japanese UI
     "出題範囲を選び、NEW を押してください。": "Choose a range, then press NEW.",
     "NEW を押してください。": "Press NEW.",
