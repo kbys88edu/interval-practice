@@ -71,7 +71,7 @@ document.querySelectorAll('input[name="questionType"], input[name="keyMode"], in
 document.querySelectorAll("[data-range]").forEach((button) => {
   button.addEventListener("click", () => {
     currentRange = button.dataset.range;
-    setStatus(currentRange === "all" ? "全調号モードにしました。" : "基本調号モードにしました。");
+    setStatus(currentRange === "all" ? t("全調号モードにしました。") : t("基本調号モードにしました。"));
   });
 });
 
@@ -166,7 +166,7 @@ function newQuestion() {
 
   renderQuestion();
   renderQuickButtons();
-  setStatus(questionType === "signatureToKey" ? "調号を見て調を答えてください。" : "調名を見て、調号の数だけを選んでください。");
+  setStatus(questionType === "signatureToKey" ? t("調号を見て調を答えてください。") : t("調名を見て、調号の数だけを選んでください。"));
 }
 
 function renderQuestion() {
@@ -174,7 +174,7 @@ function renderQuestion() {
 
   if (currentQuestion.questionType === "signatureToKey") {
     questionDisplay.textContent = "READ";
-    keyNameDisplay.textContent = "調名 ?";
+    keyNameDisplay.textContent = t("調名 ?");
     renderSignature(signatureDisplay, currentQuestion.sig, currentQuestion.clef);
   } else {
     questionDisplay.textContent = "KEY";
@@ -272,7 +272,7 @@ function checkAnswer() {
   if (currentQuestion.questionType === "signatureToKey") {
     userAnswer = answerInput.value;
     correctAnswer = getKeyName(currentQuestion.sig, currentQuestion.keyMode);
-    userSignature = "調名回答";
+    userSignature = t("調名回答");
     isCorrect = normalizeKeyAnswer(userAnswer) === normalizeKeyAnswer(correctAnswer);
   } else {
     userAnswer = signatureLabel(Number(signatureSelect.value));
@@ -292,7 +292,7 @@ function checkAnswer() {
     isCorrect ? "correct" : "incorrect"
   );
 
-  answerText.textContent = `正解：${correctAnswer} / 正解調号：${correctSignature} / 回答：${userAnswer || "-"} / 回答調号：${userSignature || "-"}`;
+  answerText.textContent = `${t("正解")}：${correctAnswer} / ${t("正解調号")}：${correctSignature} / ${t("回答")}：${userAnswer || "-"} / ${t("回答調号")}：${userSignature || "-"}`;
   renderSignature(notationEl, currentQuestion.sig, currentQuestion.clef);
 
   resultLog.push({
@@ -325,9 +325,9 @@ function showAnswer() {
   const answeredThisQuestion = latest && latest.number === totalCount && hasAnsweredCurrentQuestion;
 
   if (answeredThisQuestion) {
-    answerText.textContent = `正解：${latest.correctAnswer} / 正解調号：${latest.correctSignature} / 回答：${latest.userAnswer || "-"} / 回答調号：${latest.userSignature || "-"}`;
+    answerText.textContent = `${t("正解")}：${latest.correctAnswer} / ${t("正解調号")}：${latest.correctSignature} / ${t("回答")}：${latest.userAnswer || "-"} / ${t("回答調号")}：${latest.userSignature || "-"}`;
   } else {
-    answerText.textContent = `正解：${keyName} / ${getKeyRoman(currentQuestion.sig, currentQuestion.keyMode)} / 正解調号：${currentQuestion.sig.label}`;
+    answerText.textContent = `${t("正解")}：${keyName} / ${getKeyRoman(currentQuestion.sig, currentQuestion.keyMode)} / ${t("正解調号")}：${currentQuestion.sig.label}`;
   }
 
   renderSignature(notationEl, currentQuestion.sig, currentQuestion.clef);
@@ -335,13 +335,46 @@ function showAnswer() {
 
 function getQuestionTypeLabel(type) {
   return {
-    signatureToKey: "調号→調",
-    keyToSignature: "調→調号"
+    signatureToKey: t("調号→調"),
+    keyToSignature: t("調→調号")
   }[type] || type;
 }
 
+function getCurrentLanguage() {
+  return window.EarTrainingLang?.getLanguage?.() || "ja";
+}
+
 function getKeyName(sig, mode) {
+  const lang = getCurrentLanguage();
+  if (lang === "en") return getKeyEnglish(sig, mode);
+  if (lang === "fr") return getKeyFrench(sig, mode);
   return mode === "major" ? sig.majorJa : sig.minorJa;
+}
+
+function getKeyEnglish(sig, mode) {
+  const major = {
+    Cb:"C-flat major", Gb:"G-flat major", Db:"D-flat major", Ab:"A-flat major", Eb:"E-flat major", Bb:"B-flat major",
+    F:"F major", C:"C major", G:"G major", D:"D major", A:"A major", E:"E major", B:"B major", "F#":"F-sharp major", "C#":"C-sharp major"
+  };
+  const minor = {
+    Abm:"A-flat minor", Ebm:"E-flat minor", Bbm:"B-flat minor", Fm:"F minor", Cm:"C minor", Gm:"G minor",
+    Dm:"D minor", Am:"A minor", Em:"E minor", Bm:"B minor", "F#m":"F-sharp minor", "C#m":"C-sharp minor",
+    "G#m":"G-sharp minor", "D#m":"D-sharp minor", "A#m":"A-sharp minor"
+  };
+  return mode === "major" ? major[sig.abcMajor] : minor[sig.abcMinor];
+}
+
+function getKeyFrench(sig, mode) {
+  const major = {
+    Cb:"do bémol majeur", Gb:"sol bémol majeur", Db:"ré bémol majeur", Ab:"la bémol majeur", Eb:"mi bémol majeur", Bb:"si bémol majeur",
+    F:"fa majeur", C:"do majeur", G:"sol majeur", D:"ré majeur", A:"la majeur", E:"mi majeur", B:"si majeur", "F#":"fa dièse majeur", "C#":"do dièse majeur"
+  };
+  const minor = {
+    Abm:"la bémol mineur", Ebm:"mi bémol mineur", Bbm:"si bémol mineur", Fm:"fa mineur", Cm:"do mineur", Gm:"sol mineur",
+    Dm:"ré mineur", Am:"la mineur", Em:"mi mineur", Bm:"si mineur", "F#m":"fa dièse mineur", "C#m":"do dièse mineur",
+    "G#m":"sol dièse mineur", "D#m":"ré dièse mineur", "A#m":"la dièse mineur"
+  };
+  return mode === "major" ? major[sig.abcMajor] : minor[sig.abcMinor];
 }
 
 function getKeyRoman(sig, mode) {
@@ -366,8 +399,26 @@ function normalizeKeyAnswer(text) {
     .replace(/♭/g, "b")
     .replace(/変/g, "b")
     .replace(/嬰/g, "#")
+    .replace(/bémol/g, "b")
+    .replace(/bemol/g, "b")
+    .replace(/dièse/g, "#")
+    .replace(/diese/g, "#")
+    .replace(/sharp/g, "#")
+    .replace(/flat/g, "b")
+    .replace(/majeur/g, "dur")
+    .replace(/mineur/g, "moll")
+    .replace(/major/g, "dur")
+    .replace(/minor/g, "moll")
     .replace(/長調/g, "dur")
     .replace(/短調/g, "moll")
+    .replace(/\bdo\b/g, "c")
+    .replace(/\bré\b/g, "d")
+    .replace(/\bre\b/g, "d")
+    .replace(/\bmi\b/g, "e")
+    .replace(/\bfa\b/g, "f")
+    .replace(/\bsol\b/g, "g")
+    .replace(/\bla\b/g, "a")
+    .replace(/\bsi\b/g, "b")
     .replace(/\s+/g, "");
 }
 
@@ -412,7 +463,7 @@ function renderHistory() {
     row.className = "history-item";
     row.innerHTML = `
       <span>${String(item.number).padStart(2, "0")}</span>
-      <span>${item.questionTypeLabel} / 正解 ${item.correctAnswer}・${item.correctSignature || item.sig.label} / 回答 ${item.userAnswer || "-"} / ${formatResponseTime(item.responseTimeSec)}</span>
+      <span>${item.questionTypeLabel} / ${t("正解")} ${item.correctAnswer}・${item.correctSignature || item.sig.label} / ${t("回答")} ${item.userAnswer || "-"} / ${formatResponseTime(item.responseTimeSec)}</span>
       <span class="${item.isCorrect ? "ok" : "ng"}">${item.isCorrect ? "OK" : "NG"}</span>
     `;
     historyList.appendChild(row);
@@ -494,5 +545,17 @@ async function exportResultsPdf() {
     exportButton.disabled = false;
   }
 }
+
+
+document.addEventListener("earTrainingLanguageChanged", () => {
+  renderSignatureSelect();
+  updateQuestionTypeView();
+  if (currentQuestion) {
+    renderQuestion();
+    renderQuickButtons();
+    showAnswer();
+  }
+  renderHistory();
+});
 
 init();
