@@ -487,6 +487,14 @@ h1 {
   opacity: 0.78;
 }
 
+.acs-logo-image {
+  width: 58px;
+  height: 58px;
+  object-fit: contain;
+  display: block;
+  flex: 0 0 auto;
+}
+
 @media (max-width: 900px) {
   .acs-lesson-banner {
     margin: 16px 12px 20px;
