@@ -8,5 +8,3 @@ Layout fixed to match the existing HTML.
 - Chord notation keeps explicit root spelling and theory-correct dominant seventh spelling.
 - Chord type checkboxes are generated dynamically.
 - No dependency on missing #choice-list.
-
-- Hidden-answer fix: NEW and PLAY no longer reveal the correct chord under LISTEN before answering.

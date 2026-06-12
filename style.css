@@ -502,3 +502,13 @@ h1 {
     grid-template-columns: 1fr;
   }
 }
+
+
+.language-toggle {
+  display: inline-flex;
+  gap: 4px;
+  margin-right: 8px;
+}
+.lang-btn {
+  min-width: 28px;
+}

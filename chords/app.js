@@ -592,21 +592,37 @@ function answer(choiceId) {
 
   revealChoiceCards();
 
+  const correctStatusLabel = currentQuestion.difficulty === "intermediate"
+    ? currentQuestion.correct.chord.label
+    : currentQuestion.correct.detailLabel;
+
   setStatus(
-    `${isCorrect ? "正解" : "不正解"} / 正解：${currentQuestion.correct.chord.label} / 選択：${selected?.detailLabel || "-"} / ${formatResponseTime(latestResponseTimeSec)}`,
+    `${isCorrect ? "正解" : "不正解"} / 正解：${correctStatusLabel} / 選択：${selected?.detailLabel || "-"} / ${formatResponseTime(latestResponseTimeSec)}`,
     isCorrect ? "correct" : "incorrect"
   );
+
+  const selectedLabel = currentQuestion.difficulty === "intermediate"
+    ? selected?.detailLabel || ""
+    : selected?.detailLabel || "";
+
+  const selectedSpelledTones = currentQuestion.difficulty === "advanced" && selected?.spelledTones
+    ? selected.spelledTones.map((tone) => tone.label).join(" - ")
+    : "";
+
+  const selectedAbc = currentQuestion.difficulty === "advanced" && selected?.abc
+    ? selected.abc
+    : "";
 
   resultLog.push({
     number: totalCount,
     correctLabel: currentQuestion.correct.detailLabel,
-    selectedLabel: selected?.detailLabel || "",
+    selectedLabel,
     difficulty: currentQuestion.difficulty,
     keySig: currentQuestion.correct.keySig,
     spelledTones: currentQuestion.correct.spelledTones.map((tone) => tone.label).join(" - "),
-    selectedSpelledTones: selected ? selected.spelledTones.map((tone) => tone.label).join(" - ") : "",
+    selectedSpelledTones,
     abc: currentQuestion.correct.abc,
-    selectedAbc: selected?.abc || "",
+    selectedAbc,
     isCorrect,
     responseTimeSec: latestResponseTimeSec
   });
@@ -625,7 +641,9 @@ function showAnswer() {
   revealChoiceCards();
 
   const correct = currentQuestion.correct;
-  answerText.textContent = `正解：${correct.detailLabel} / 調号 ${correct.keySig}`;
+  answerText.textContent = currentQuestion.difficulty === "intermediate"
+    ? `正解：${correct.chord.label} / 実際の和音：${correct.detailLabel}`
+    : `正解：${correct.detailLabel} / 調号 ${correct.keySig}`;
   if (analysisText) analysisText.textContent = `構成音：${correct.spelledTones.map((tone) => tone.label).join(" - ")}。属7の第7音は短7度として理論的に綴ります。`;
   renderAbc("notation", correct.abc, 460);
 }
@@ -809,9 +827,13 @@ function renderHistory() {
   resultLog.slice().reverse().forEach((item) => {
     const row = document.createElement("div");
     row.className = "history-item";
+    const detail = item.difficulty === "intermediate"
+      ? `${item.correctLabel} / 選択：${item.selectedLabel || "-"} / ${formatResponseTime(item.responseTimeSec)}`
+      : `${item.correctLabel} / ${item.spelledTones} / ${formatResponseTime(item.responseTimeSec)}`;
+
     row.innerHTML = `
       <span>${String(item.number).padStart(2, "0")}</span>
-      <span>${item.correctLabel} / ${item.spelledTones} / ${formatResponseTime(item.responseTimeSec)}</span>
+      <span>${detail}</span>
       <span class="${item.isCorrect ? "ok" : "ng"}">${item.isCorrect ? "OK" : "NG"}</span>
     `;
     historyList.appendChild(row);
@@ -877,10 +899,11 @@ async function exportResultsPdf() {
 
       doc.setFont("helvetica", "normal");
       doc.setFontSize(9);
-      doc.text(`Correct tones: ${item.spelledTones}`, 16, y + 6);
-      doc.text(`Selected: ${item.selectedLabel || "-"} / ${item.selectedSpelledTones || "-"} / Time: ${formatResponseTime(item.responseTimeSec)}`, 16, y + 12);
+      doc.text(`Mode: ${item.difficulty || "advanced"}`, 16, y + 6);
+      doc.text(`Correct tones: ${item.spelledTones}`, 16, y + 12);
+      doc.text(`Selected: ${item.selectedLabel || "-"}${item.selectedSpelledTones ? " / " + item.selectedSpelledTones : ""} / Time: ${formatResponseTime(item.responseTimeSec)}`, 16, y + 18);
 
-      y += 18;
+      y += 24;
 
       if (item.abc) {
         doc.setFont("helvetica", "bold");
